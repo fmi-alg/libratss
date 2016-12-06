@@ -75,11 +75,6 @@ mpfr::mpreal Calc::sub(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	return tmp1-tmp2;
 }
 
-bool Calc::isOnSphere(const mpfr::mpreal & mpdx, const mpfr::mpreal & mpdy, const mpfr::mpreal & mpdz) const {
-	return (add(add(sq(mpdx), sq(mpdy)), sq(mpdz)) == 1);
-}
-
-
 mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) {
 	if (lower == upper) {
 		return lower;
@@ -156,71 +151,6 @@ mpq_class Calc::snap(const mpfr::mpreal & v) {
 	mpq_class lower = rat - eps;
 	mpq_class upper = rat + eps;
 	return within(lower, upper);
-}
-
-void Calc::geo(const mpfr::mpreal &theta, const mpfr::mpreal &phi, mpfr::mpreal &lat, mpfr::mpreal &lon) const
-{
-	int inputPrecision = std::max<int>(theta.getPrecision(), phi.getPrecision());
-	int outputPrecision = std::max<int>(lat.getPrecision(), lon.getPrecision());
-	int calcPrecision = std::max<int>(inputPrecision, outputPrecision);
-	
-	auto pi = mpfr::const_pi(calcPrecision);
-
-	//lat = (pi/2 - theta)/pi*2*90;
-	//lon = (phi <= pi ? phi/pi*180 : (phi-2*pi)/pi*180);
-
-	lat = sub(90, mult(div(theta, pi), 180));
-	lon = mult( div(phi, pi), 180);
-	if (phi > pi) {
-		lon = sub(lon, 90);
-	}
-}
-
-void Calc::spherical(const mpfr::mpreal &lat, const mpfr::mpreal &lon, mpfr::mpreal &theta, mpfr::mpreal &phi) const
-{
-	int outputPrecision = std::max<int>(theta.getPrecision(), phi.getPrecision());
-	int inputPrecision = std::max<int>(lat.getPrecision(), lon.getPrecision());
-	int calcPrecision = std::max<int>(inputPrecision, outputPrecision);
-	
-	auto pi = mpfr::const_pi(calcPrecision);
-	
-// 	auto theta = pi/180.0*(90.0-lat); 
-// 	auto phi = (lon >= 0 ? lon/180*pi : (lon + 360)/180*pi);
-	
-	theta = mult(div(pi, 180.0), sub(90.0, lat));
-	phi = (lon >= 0 ? div(mult(lon, pi), 180) : div(mult(add(lon, 360), pi), 180) );
-}
-
-void Calc::cartesian(const mpfr::mpreal & lat, const mpfr::mpreal & lon, mpfr::mpreal & x, mpfr::mpreal & y, mpfr::mpreal & z) const {
-	mpfr::mpreal theta, phi;
-	spherical(lat, lon, theta, phi);
-	cartesianFromSpherical(theta, phi, x, y, z);
-}
-
-void Calc::cartesianFromSpherical(const mpfr::mpreal & theta, const mpfr::mpreal & phi, mpfr::mpreal & x, mpfr::mpreal & y, mpfr::mpreal & z) const {
-	mpfr::mpreal sinTheta = sin(theta);
-	x = mult(sinTheta, cos (phi));
-	y = mult(sinTheta, sin (phi));
-	z = cos(theta);
-}
-
-void Calc::spherical(const mpfr::mpreal& x, const mpfr::mpreal& y, const mpfr::mpreal& z, mpfr::mpreal& theta, mpfr::mpreal& phi) const {
-	theta = acos(z);
-	phi = atan(div(y, x));
-	if (x < 0) {
-		if (y < 0) {
-			phi -= mpfr::const_pi(phi.get_prec());
-		}
-		else {
-			phi += mpfr::const_pi(phi.get_prec());
-		}
-	}
-}
-
-void Calc::geo(const mpfr::mpreal& x, const mpfr::mpreal& y, const mpfr::mpreal& z, mpfr::mpreal& lat, mpfr::mpreal& lon) const {
-	mpfr::mpreal theta, phi;
-	spherical(x, y, z, theta, phi);
-	geo(theta, phi, lat, lon);
 }
 
 std::size_t Calc::maxBitCount(const mpq_class &v) const {

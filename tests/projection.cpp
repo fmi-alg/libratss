@@ -1,8 +1,8 @@
 #include <libratss/constants.h>
-#include <libratss/Projector.h>
+#include <libratss/ProjectS2.h>
 
 #include "TestBase.h"
-#include <common/generators.h>
+#include "../common/generators.h"
 
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
@@ -43,7 +43,7 @@ namespace tests {
 void ProjectionTest::fixPointRandom() {
 	std::vector<SphericalCoord> coords = getRandomPolarPoints(num_random_test_points);
 	
-	Projector p;
+	ProjectS2 p;
 	
 	for(uint32_t prec(16); prec < 128; prec += 16) {
 		for(const SphericalCoord & coord : coords) {
@@ -73,7 +73,7 @@ void ProjectionTest::fixPointRandom() {
 }
 
 void ProjectionTest::bijectionSpecial() {
-	Projector p;
+	ProjectS2 p;
 	
 	
 	SphericalCoord sp{1.5707963267948966l, 0.73303828583761843l};
@@ -164,7 +164,7 @@ void ProjectionTest::bijectionSpecial2() {
 
 	coords.insert(coords.end(), lowerCoords.begin(), lowerCoords.end());
 
-	Projector proc;
+	ProjectS2 proc;
 	for(const auto & coord : coords) {
 		double lat = coord.lat;
 		double lon = coord.lon;
@@ -194,7 +194,7 @@ void ProjectionTest::bijectionSpecial2() {
 
 void ProjectionTest::quadrantTest() {
 	std::vector<GeoCoord> coords;
-	Projector p;
+	ProjectS2 p;
 	for(double lat(15); lat > -166; lat -= 15) {
 		for(double lon(0); lon < 360; lon += 15) {
 			coords.emplace_back(lat, lon);

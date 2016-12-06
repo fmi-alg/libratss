@@ -1,8 +1,8 @@
-#include <libratss/Projector.h>
+#include <libratss/ProjectS2.h>
 
 namespace LIB_RATSS_NAMESPACE {
 
-PositionOnSphere Projector::positionOnSphere(double lat, double /*lon*/) const {
+PositionOnSphere ProjectS2::positionOnSphere(double lat, double /*lon*/) const {
 	if (lat < 0.0) {
 		return SP_LOWER;
 	}
@@ -11,7 +11,7 @@ PositionOnSphere Projector::positionOnSphere(double lat, double /*lon*/) const {
 	}
 }
 
-void Projector::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const mpfr::mpreal &flzs, mpq_class &xs, mpq_class &ys, mpq_class &zs, int precision) const {
+void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const mpfr::mpreal &flzs, mpq_class &xs, mpq_class &ys, mpq_class &zs, int precision) const {
 
 	//shouldn't we clip coordinates to the sphere in 3d?
 	//then this would always yield the "closest" point on the sphere

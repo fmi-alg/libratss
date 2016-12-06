@@ -28,7 +28,7 @@ void readPoints(const std::string & fileName, T_OUTPUT_ITERATOR out);
 
 }//end namespace ratss::tests
 
-#include <libratss/Projector.h>
+#include <libratss/ProjectS2.h>
 
 #include <random>
 #include <unordered_set>
@@ -62,7 +62,7 @@ void getRandomPolarPoints(std::size_t number_of_points, T_OUTPUT_ITERATOR out) {
 	using Rand = CGAL::Random_points_on_sphere_3<K::Point_3>;
 	
 	Rand rnd(1.0);
-	LIB_RATSS_NAMESPACE::Projector proj;
+	LIB_RATSS_NAMESPACE::ProjectS2 proj;
 	
 	SphericalCoord c;
 	for (std::size_t i(0); i < number_of_points; ++i) {

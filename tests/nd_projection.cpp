@@ -1,8 +1,8 @@
 #include <libratss/constants.h>
-#include <libratss/Projector.h>
+#include <libratss/ProjectSN.h>
 
 #include "TestBase.h"
-#include <common/generators.h>
+#include "../common/generators.h"
 
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
@@ -12,6 +12,8 @@ CPPUNIT_TEST_SUITE( NDProjectionTest );
 CPPUNIT_TEST( fixPointRandom );
 CPPUNIT_TEST( quadrantTest );
 CPPUNIT_TEST_SUITE_END();
+public:
+	using Projector = ProjectSN;
 public:
 	static std::size_t num_random_test_points;
 public:
@@ -42,11 +44,12 @@ void NDProjectionTest::fixPointRandom() {
 	std::vector<SphericalCoord> coords = getRandomPolarPoints(num_random_test_points);
 	
 	Projector p;
+	GeoCalc gc;
 	
 	for(uint32_t prec(16); prec < 128; prec += 16) {
 		for(const SphericalCoord & coord : coords) {
 			mpfr::mpreal xd, yd, zd;
-			p.calc().cartesianFromSpherical(coord.theta, coord.phi, xd ,yd, zd);
+			gc.cartesianFromSpherical(coord.theta, coord.phi, xd ,yd, zd);
 			
 			CPPUNIT_ASSERT_MESSAGE("Projection to cartesian coordinates is not precise enough", (xd*xd+yd*yd+zd*zd) <= 1.1);
 			
@@ -77,6 +80,8 @@ void NDProjectionTest::fixPointRandom() {
 void NDProjectionTest::quadrantTest() {
 	std::vector<GeoCoord> coords;
 	Projector p;
+	GeoCalc gc;
+	
 	for(double lat(15); lat > -166; lat -= 15) {
 		for(double lon(0); lon < 360; lon += 15) {
 			coords.emplace_back(lat, lon);
@@ -85,7 +90,7 @@ void NDProjectionTest::quadrantTest() {
 	for(uint32_t bits(32); bits < 128; bits += 16) {
 		for(const GeoCoord & coord : coords) {
 			mpfr::mpreal xd, yd, zd;
-			p.calc().cartesian(coord.lat, coord.lon, xd ,yd, zd);
+			gc.cartesian(coord.lat, coord.lon, xd ,yd, zd);
 			
 			CPPUNIT_ASSERT_MESSAGE("Projection to cartesian coordinates is not precise enough", (xd*xd+yd*yd+zd*zd) <= 1.1);
 			

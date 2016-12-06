@@ -46,8 +46,9 @@ endif()#hasParent
 
 set(LIB_SOURCES_CPP
 	src/Conversion.cpp
-	src/Projector.cpp
+	src/ProjectS2.cpp
 	src/Calc.cpp
+	src/GeoCalc.cpp
 	src/GeoCoord.cpp
 	src/SphericalCoord.cpp
 )

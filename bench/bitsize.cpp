@@ -1,5 +1,5 @@
-#include <libratss/Projector.h>
-#include <common/generators.h>
+#include <libratss/ProjectS2.h>
+#include "../common/generators.h"
 
 struct BitCount {
 	std::size_t count;
@@ -109,8 +109,8 @@ int main(int argc, char ** argv) {
 		std::cout << "Manual eps: " << manualEps << std::endl;
 	}
 	
-	ratss::Projector p;
-	ratss::Calc calc;
+	ratss::ProjectS2 p;
+	ratss::GeoCalc calc;
 	mpfr::mpreal xd, yd, zd, xpd, ypd;
 	mpq_class xs, ys, zs, xps, yps;
 	for(std::size_t i(0), s(points.size()); i < s; ++i) {
