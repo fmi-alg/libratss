@@ -5,19 +5,7 @@ namespace LIB_RATSS_NAMESPACE {
 
 namespace internal {
 
-Conversion<mpq_class>::type &&
-Conversion<mpq_class>::moveFrom(mpq_class && v) {
-	return std::move(v);
-}
-
-const mpq_class &
-Conversion<mpq_class>::toMpq(const Conversion<mpq_class>::type & v) {
-	return v;
-}
-
-mpfr::mpreal Conversion<mpq_class>::toMpreal(const type & v, int precision) {
-	return mpfr::mpreal(v.get_mpq_t(), precision);
-}
+//BEGIN double specializations
 
 Conversion<double>::type
 Conversion<double>::moveFrom(const mpq_class & v) {
@@ -33,6 +21,9 @@ mpfr::mpreal
 Conversion<double>::toMpreal(const type & v, int /*precision*/) {
 	return mpfr::mpreal(v);
 }
+
+//END double specializations
+//BEGIN mpreal specializations
 
 Conversion<mpfr::mpreal>::type
 Conversion<mpfr::mpreal>::moveFrom(const mpq_class & v) {
@@ -56,6 +47,27 @@ const mpfr::mpreal &
 Conversion<mpfr::mpreal>::toMpreal(const type & v, int /*precision*/) {
 	return v;
 }
+
+//END mpreal specializations
+//BEGIN mpq_class specializations
+
+Conversion<mpq_class>::type &&
+Conversion<mpq_class>::moveFrom(mpq_class && v) {
+	return std::move(v);
+}
+
+const mpq_class &
+Conversion<mpq_class>::toMpq(const Conversion<mpq_class>::type & v) {
+	return v;
+}
+
+mpfr::mpreal Conversion<mpq_class>::toMpreal(const type & v, int precision) {
+	return mpfr::mpreal(v.get_mpq_t(), precision);
+}
+
+//end mpq_class specializations
+
+#if defined(LIB_RATSS_WITH_CGAL)
 
 Conversion<CGAL::Gmpq>::type
 Conversion<CGAL::Gmpq>::moveFrom(const mpq_class & v) {
@@ -116,6 +128,8 @@ mpfr::mpreal
 Conversion<CORE::BigRat>::toMpreal(const type & v, int precision) {
 	return mpfr::mpreal(v.get_mp(), precision);
 }
+
+#endif
 
 } //end namespace internal
 }//end namespace LIB_RATSS_NAMESPACE
