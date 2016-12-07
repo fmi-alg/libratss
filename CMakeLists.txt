@@ -16,7 +16,6 @@ find_package(Threads)
 #optionally try to find cgal
 find_package(CGAL COMPONENTS Core)
 
-
 include_directories(
 # 	${CMAKE_SOURCE_DIR}
 # 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -29,11 +28,11 @@ set(LIBRATSS_INCLUDE_DIR
 )
 
 set(LIBRATSS_LIBRARIES
-	"${CMAKE_CURRENT_BINARY_DIR}/libratss.a"
+	ratss
 )
 
 set(LIBRATSS_LINK_LIBRARIES
-	"${CMAKE_CURRENT_BINARY_DIR}/libratss.a"
+	ratss
 	${CMAKE_THREAD_LIBS_INIT}
 	${LIBGMPXX_LIBRARIES}
 	${LIBMPFR_LIBRARIES}
@@ -49,7 +48,7 @@ if (CGAL_FOUND)
 		${LIBRATSS_LINK_LIBRARIES}
 	)
 	set(LIBRATSS_COMPILE_DEFINITIONS
-		
+		"LIB_RATSS_WITH_CGAL=1"
 	)
 endif(CGAL_FOUND)
 
@@ -57,29 +56,22 @@ get_directory_property(hasParent PARENT_DIRECTORY)
 #export correct link libs and include dirs
 if(hasParent)
 	set(LIBRATSS_INCLUDE_DIR
-		"${CMAKE_CURRENT_SOURCE_DIR}/include"
+		${LIBRATSS_INCLUDE_DIR}
 		PARENT_SCOPE)
 	
 	set(LIBRATSS_LIBRARIES
-		"${CMAKE_CURRENT_BINARY_DIR}/libratss.a"
+		${LIBRATSS_LIBRARIES}
 		PARENT_SCOPE)
 	
 	set(LIBRATSS_LINK_LIBRARIES
-		"${CMAKE_CURRENT_BINARY_DIR}/libratss.a"
-		${CMAKE_THREAD_LIBS_INIT}
-		${LIBGMPXX_LIBRARIES}
-		${LIBMPFR_LIBRARIES}
+		${LIBRATSS_LINK_LIBRARIES}
 		PARENT_SCOPE
 	)
-	if (CGAL_FOUND)
-		set(LIBRATSS_LINK_LIBRARIES
-			"CGAL"
-			"CGAL_Core"
-			"boost_thread"
-			"boost_system"
-			PARENT_SCOPE
-		)
-	endif(CGAL_FOUND)
+	
+	set(LIBRATSS_COMPILE_DEFINITIONS
+		${LIBRATSS_COMPILE_DEFINITIONS}
+		PARENT_SCOPE
+	)
 endif()#hasParent
 
 set(LIB_SOURCES_CPP
@@ -101,6 +93,10 @@ endif(CGAL_FOUND)
 add_library(${PROJECT_NAME} STATIC
 	${LIB_SOURCES_CPP}
 )
+
+if (CGAL_FOUND)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC ${LIBRATSS_COMPILE_DEFINITIONS})
+endif(CGAL_FOUND)
 
 add_subdirectory(common ${PROJECT_NAME}common EXCLUDE_FROM_ALL)
 add_subdirectory(bench ${PROJECT_NAME}bench EXCLUDE_FROM_ALL)

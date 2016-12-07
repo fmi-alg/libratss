@@ -1,4 +1,5 @@
 #include <libratss/Calc.h>
+#include <assert.h>
 
 namespace LIB_RATSS_NAMESPACE {
 

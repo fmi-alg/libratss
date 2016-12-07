@@ -2,8 +2,6 @@
 #define LIB_RATSS_CONVERSION_H
 #pragma once
 
-#define LIB_RATSS_WITH_CGAL
-
 #include <libratss/constants.h>
 #include <libratss/Precision.h>
 

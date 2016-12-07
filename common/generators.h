@@ -2,6 +2,7 @@
 #define LIB_RATSS_TESTS_GENERATORS_H
 #pragma once
 #include <vector>
+#include <fstream>
 
 #include <libratss/constants.h>
 #include <libratss/GeoCoord.h>

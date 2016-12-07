@@ -78,8 +78,8 @@ void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const m
 		stProject(xs, ys, zs, sp_x2, sp_y2);
 		if (sp_x != sp_x2 || sp_y != sp_y2) {
 			std::cerr << "Bijektion failed:" << std::endl;
-			std::cerr << CORE::BigRat(sp_x.get_mpq_t()) << "!=?" << CORE::BigRat(sp_x2.get_mpq_t()) << std::endl;
-			std::cerr << CORE::BigRat(sp_y.get_mpq_t()) << "!=?" << CORE::BigRat(sp_y2.get_mpq_t()) << std::endl;
+			std::cerr << sp_x << "!=?" << sp_x2.get_mpq_t() << std::endl;
+			std::cerr << sp_y << "!=?" << sp_y2.get_mpq_t() << std::endl;
 		}
 		assert(sp_x == sp_x2 && sp_y == sp_y2);
 	}

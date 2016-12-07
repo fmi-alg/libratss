@@ -6,6 +6,8 @@
 #include <libratss/GeoCalc.h>
 #include <libratss/enum.h>
 
+#include <assert.h>
+
 
 namespace LIB_RATSS_NAMESPACE {
 
