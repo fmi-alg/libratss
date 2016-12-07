@@ -75,6 +75,15 @@ mpfr::mpreal Calc::sub(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	return tmp1-tmp2;
 }
 
+void Calc::makeFixpoint(mpfr::mpreal& v) {
+
+}
+
+mpfr::mpreal Calc::toFixpoint(mpfr::mpreal& v) const {
+
+}
+
+
 mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) {
 	if (lower == upper) {
 		return lower;
@@ -146,7 +155,7 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) {
 }
 
 mpq_class Calc::snap(const mpfr::mpreal & v) {
-	mpq_class rat = internal::Conversion<mpfr::mpreal>::toMpq(v);
+	mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
 	mpq_class eps = mpq_class(mpz_class(1), rat.get_den())/2;
 	mpq_class lower = rat - eps;
 	mpq_class upper = rat + eps;

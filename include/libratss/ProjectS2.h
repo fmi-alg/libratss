@@ -6,6 +6,7 @@
 #include <libratss/GeoCalc.h>
 #include <libratss/enum.h>
 
+
 namespace LIB_RATSS_NAMESPACE {
 
 class ProjectS2 {
@@ -126,9 +127,9 @@ void ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT & xs, T_
 	snap(flxs, flys, flzs, xpq, ypq, zpq, precision);
 	
 	assert(!(lat > 0) || zs >= 0);
-	xs = internal::Conversion<T_FT>::moveFrom( std::move(xpq) );
-	ys = internal::Conversion<T_FT>::moveFrom( std::move(ypq) );
-	zs = internal::Conversion<T_FT>::moveFrom( std::move(zpq) );
+	xs = Conversion<T_FT>::moveFrom( std::move(xpq) );
+	ys = Conversion<T_FT>::moveFrom( std::move(ypq) );
+	zs = Conversion<T_FT>::moveFrom( std::move(zpq) );
 }
 
 template<typename T_FT>
@@ -152,9 +153,9 @@ double ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT &xs, T
 	//return -1 if prec is too low, 0 if it's okay and 1 if it is too high
 	auto proj = [&, this](int prec) -> int {
 		projectFromGeo(lat, lon, xs, ys, zs, prec);
-		xfs = internal::Conversion<T_FT>::toMpreal(xs, 2*prec);
-		yfs = internal::Conversion<T_FT>::toMpreal(ys, 2*prec);
-		zfs = internal::Conversion<T_FT>::toMpreal(zs, 2*prec);
+		xfs = Conversion<T_FT>::toMpreal(xs, 2*prec);
+		yfs = Conversion<T_FT>::toMpreal(ys, 2*prec);
+		zfs = Conversion<T_FT>::toMpreal(zs, 2*prec);
 		sqd = m_calc.squaredDistance(m_calc.sub(xfs, xf), m_calc.sub(yfs, yf), m_calc.sub(zfs, zf));
 		if (sqd < mD2) {
 			return 1;
@@ -222,9 +223,9 @@ void ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT 
 	m_calc.cartesianFromSpherical(theta, phi, flxs, flys, flzs);
 	snap(flxs, flys, flzs, xpq, ypq, zpq, precision);
 	
-	xs = internal::Conversion<T_FT>::moveFrom( std::move(xpq) );
-	ys = internal::Conversion<T_FT>::moveFrom( std::move(ypq) );
-	zs = internal::Conversion<T_FT>::moveFrom( std::move(zpq) );
+	xs = Conversion<T_FT>::moveFrom( std::move(xpq) );
+	ys = Conversion<T_FT>::moveFrom( std::move(ypq) );
+	zs = Conversion<T_FT>::moveFrom( std::move(zpq) );
 }
 
 
@@ -249,9 +250,9 @@ double ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_F
 	//since this should be used on 64 bit machines we'll use 64 bits here
 	for(int prec(64); prec < maxPrecision; prec += 64) {
 		projectFromSpherical(theta, phi, xs, ys, zs, prec);
-		xfs = internal::Conversion<T_FT>::toMpreal(xs, minSqPrec);
-		yfs = internal::Conversion<T_FT>::toMpreal(ys, minSqPrec);
-		zfs = internal::Conversion<T_FT>::toMpreal(zs, minSqPrec);
+		xfs = Conversion<T_FT>::toMpreal(xs, minSqPrec);
+		yfs = Conversion<T_FT>::toMpreal(ys, minSqPrec);
+		zfs = Conversion<T_FT>::toMpreal(zs, minSqPrec);
 		sqd = m_calc.squaredDistance(m_calc.sub(xfs, xf), m_calc.sub(yfs, yf), m_calc.sub(zfs, zf));
 		if (sqd < mD2) {
 			break;
@@ -262,9 +263,9 @@ double ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_F
 
 template<typename T_FT>
 void ProjectS2::toSpherical(const T_FT & xs, const T_FT & ys, const T_FT & zs, double& theta, double& phi, int precision) const {
-	mpfr::mpreal xr(internal::Conversion<T_FT>::toMpreal(xs, precision));
-	mpfr::mpreal yr(internal::Conversion<T_FT>::toMpreal(ys, precision));
-	mpfr::mpreal zr(internal::Conversion<T_FT>::toMpreal(zs, precision));
+	mpfr::mpreal xr(Conversion<T_FT>::toMpreal(xs, precision));
+	mpfr::mpreal yr(Conversion<T_FT>::toMpreal(ys, precision));
+	mpfr::mpreal zr(Conversion<T_FT>::toMpreal(zs, precision));
 	
 	mpfr::mpreal thetaf, phif;
 	m_calc.spherical(xr, yr, zr, thetaf, phif);
@@ -274,9 +275,9 @@ void ProjectS2::toSpherical(const T_FT & xs, const T_FT & ys, const T_FT & zs, d
 
 template<typename T_FT>
 void ProjectS2::toGeo(const T_FT & xs, const T_FT & ys, const T_FT & zs, double & lat, double & lon, int precision) const {
-	mpfr::mpreal xr(internal::Conversion<T_FT>::toMpreal(xs, precision));
-	mpfr::mpreal yr(internal::Conversion<T_FT>::toMpreal(ys, precision));
-	mpfr::mpreal zr(internal::Conversion<T_FT>::toMpreal(zs, precision));
+	mpfr::mpreal xr(Conversion<T_FT>::toMpreal(xs, precision));
+	mpfr::mpreal yr(Conversion<T_FT>::toMpreal(ys, precision));
+	mpfr::mpreal zr(Conversion<T_FT>::toMpreal(zs, precision));
 	
 	mpfr::mpreal latf, lonf;
 	m_calc.geo(xr, yr, zr, latf, lonf);

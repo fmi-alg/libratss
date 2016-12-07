@@ -2,7 +2,7 @@
 #include <libratss/Calc.h>
 
 #include "TestBase.h"
-#include <common/generators.h>
+#include "../common/generators.h"
 
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {

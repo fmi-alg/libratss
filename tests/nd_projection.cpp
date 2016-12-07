@@ -54,9 +54,9 @@ void NDProjectionTest::fixPointRandom() {
 			CPPUNIT_ASSERT_MESSAGE("Projection to cartesian coordinates is not precise enough", (xd*xd+yd*yd+zd*zd) <= 1.1);
 			
 			mpq_class input[3] = {
-				internal::Conversion<mpfr::mpreal>::toMpq(xd),
-				internal::Conversion<mpfr::mpreal>::toMpq(yd),
-				internal::Conversion<mpfr::mpreal>::toMpq(zd)
+				Conversion<mpfr::mpreal>::toMpq(xd),
+				Conversion<mpfr::mpreal>::toMpq(yd),
+				Conversion<mpfr::mpreal>::toMpq(zd)
 			};
 			mpq_class output[3];
 			auto pos = p.stProject(input, input+3, output);
@@ -95,9 +95,9 @@ void NDProjectionTest::quadrantTest() {
 			CPPUNIT_ASSERT_MESSAGE("Projection to cartesian coordinates is not precise enough", (xd*xd+yd*yd+zd*zd) <= 1.1);
 			
 			mpq_class points3d[3] = {
-				internal::Conversion<mpfr::mpreal>::toMpq(xd),
-				internal::Conversion<mpfr::mpreal>::toMpq(yd),
-				internal::Conversion<mpfr::mpreal>::toMpq(zd)
+				Conversion<mpfr::mpreal>::toMpq(xd),
+				Conversion<mpfr::mpreal>::toMpq(yd),
+				Conversion<mpfr::mpreal>::toMpq(zd)
 			};
 			mpq_class points2d[3];
 			auto pos = p.stProject(points3d, points3d+3, points2d);

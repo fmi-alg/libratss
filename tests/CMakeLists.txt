@@ -3,12 +3,7 @@ project(ratsstests)
 find_package(CPPUNIT REQUIRED)
 
 include_directories(
-	${PROJECT_GLOBAL_SOURCE_DIR}
-	${PROJECT_GLOBAL_SOURCE_DIR}/include
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}/include
+	${LIBRATSS_INCLUDE_DIR}
 )
 
 set(TEST_LIB_SOURCES_CPP
@@ -24,19 +19,12 @@ MACRO(ADD_TEST_TARGET_SINGLE _name)
 	add_dependencies("${PROJECT_NAME}_${_name}" ratsstests)
 ENDMACRO(ADD_TEST_TARGET_SINGLE)
 
+message("LIBRATSS_LINK_LIBRARIES=${LIBRATSS_LINK_LIBRARIES}")
 set(TEST_LIB_LINK_LIBS
 	${ratsstests_BINARY_DIR}/libratsstests.a
-	${ratss_BINARY_DIR}/libratss.a
 	${ratsscommon_BINARY_DIR}/libratsscommon.a
-	${CPPUNIT_LIBRARY}
-	"CGAL"
-	"CGAL_Core"
-	"gmpxx"
-	"mpfr"
-	"gmp"
-	"boost_thread"
-	"boost_system"
-	"pthread"
+	${LIBRATSS_LINK_LIBRARIES}
+	${CPPUNIT_LIBRARIES}
 )
 
 #containers

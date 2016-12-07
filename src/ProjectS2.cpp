@@ -62,8 +62,8 @@ void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const m
 	sp_fly.setPrecision(precision/2, MPFR_RNDZ);
 	
 	//clip to rational coordinates
-	mpq_class sp_x = internal::Conversion<mpfr::mpreal>::toMpq(sp_flx);
-	mpq_class sp_y = internal::Conversion<mpfr::mpreal>::toMpq(sp_fly);
+	mpq_class sp_x = Conversion<mpfr::mpreal>::toMpq(sp_flx);
+	mpq_class sp_y = Conversion<mpfr::mpreal>::toMpq(sp_fly);
 	
 // 	assert(sp_x*sp_x + sp_y * sp_y <= 1);
 	

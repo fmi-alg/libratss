@@ -9,16 +9,8 @@ include_directories(
 )
 
 set(LINK_LIBS
-	${ratss_BINARY_DIR}/libratss.a
 	${ratsscommon_BINARY_DIR}/libratsscommon.a
-	"CGAL"
-	"CGAL_Core"
-	"gmpxx"
-	"mpfr"
-	"gmp"
-	"boost_thread"
-	"boost_system"
-	"pthread"
+	${LIBRATSS_LINK_LIBRARIES}
 )
 
 MACRO(ADD_BENCH_TARGET _name _sourcefiles)

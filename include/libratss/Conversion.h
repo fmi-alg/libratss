@@ -11,16 +11,7 @@
 #include <libratss/mpreal.h>
 #include <limits>
 
-#ifdef LIB_RATSS_WITH_CGAL
-	#include <CGAL/CORE/BigRat.h>
-	#include <CGAL/CORE/Expr.h>
-	#include <CGAL/Gmpq.h>
-	#include <CGAL/Lazy_exact_nt.h>
-#endif
-
 namespace LIB_RATSS_NAMESPACE {
-
-namespace internal {
 
 template<typename T_FT>
 struct Conversion {
@@ -34,13 +25,11 @@ struct Conversion {
 	//precision may be ignore if T_FT == mpfr::mpreal
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };
-} //end namespace internal
 
 }//end namespace LIB_DTS2_NAMESPACE
 
 //definitions
 namespace LIB_RATSS_NAMESPACE {
-namespace internal {
 
 template<>
 struct Conversion<double> {
@@ -66,42 +55,10 @@ struct Conversion<mpq_class> {
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };
 
-#ifdef LIB_RATSS_WITH_CGAL
+}//end namespace LIB_RATSS_NAMESPACE
 
-template<>
-struct Conversion<CGAL::Gmpq> {
-	using type = CGAL::Gmpq;
-	static type moveFrom(const mpq_class & v);
-	static mpq_class toMpq(const type & v);
-	static mpfr::mpreal toMpreal(const type & v, int precision);
-};
-
-template<>
-struct Conversion< CGAL::Lazy_exact_nt<CGAL::Gmpq> > {
-	using type = CGAL::Lazy_exact_nt<CGAL::Gmpq>;
-	static type moveFrom(const mpq_class & v);
-	static mpq_class toMpq(const type & v);
-	static mpfr::mpreal toMpreal(const type & v, int precision);
-};
-
-template<>
-struct Conversion<CORE::Expr> {
-	using type = CORE::Expr;
-	static type moveFrom(const mpq_class & v);
-	static mpq_class toMpq(const type & v);
-	static mpfr::mpreal toMpreal(const type & v, int precision);
-};
-
-template<>
-struct Conversion<CORE::BigRat> {
-	using type = CORE::BigRat;
-	static type moveFrom(const mpq_class & v);
-	static mpq_class toMpq(const type & v);
-	static mpfr::mpreal toMpreal(const type & v, int precision);
-};
-
+#if defined(LIB_RATSS_WITH_CGAL)
+	#include <libratss/CGAL/Conversion.h>
 #endif
-
-}}//end namespace LIB_RATSS_NAMESPACE::internal
 
 #endif

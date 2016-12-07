@@ -125,8 +125,8 @@ int main(int argc, char ** argv) {
 		assert(xpd*xpd + ypd*ypd <= 1);
 		
 		//snap with cast
-		xps = LIB_RATSS_NAMESPACE::internal::Conversion<mpfr::mpreal>::toMpq(xpd);
-		yps = LIB_RATSS_NAMESPACE::internal::Conversion<mpfr::mpreal>::toMpq(ypd);
+		xps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(xpd);
+		yps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(ypd);
 		p.stInverseProject(xps, yps, p.positionOnSphere(zd), xs, ys, zs);
 		snapCast.update(xps);
 		snapCast.update(yps);
@@ -146,8 +146,8 @@ int main(int argc, char ** argv) {
 		
 		//snap with continous fraction with manual eps
 		if (manualEps > 0) {
-			xps = LIB_RATSS_NAMESPACE::internal::Conversion<mpfr::mpreal>::toMpq(xpd);
-			yps = LIB_RATSS_NAMESPACE::internal::Conversion<mpfr::mpreal>::toMpq(ypd);
+			xps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(xpd);
+			yps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(ypd);
 			xps = calc.within(xps-manEpsVal, xps+manEpsVal);
 			yps = calc.within(yps-manEpsVal, yps+manEpsVal);
 			p.stInverseProject(xps, yps, p.positionOnSphere(zd), xs, ys, zs);

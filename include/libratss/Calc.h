@@ -26,6 +26,8 @@ public:
 	mpfr::mpreal sqrt(const mpfr::mpreal & v) const;
 	mpfr::mpreal add(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
 	mpfr::mpreal sub(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
+	mpfr::mpreal toFixpoint(mpfr::mpreal & v) const;
+	void makeFixpoint(mpfr::mpreal & v);
 public:
 	///@return r a number satisfying the following conditions:
 	/// r is a fraction with the smallest denominator such that lower <= r <= upper
