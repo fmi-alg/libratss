@@ -59,13 +59,13 @@ void NDProjectionTest::fixPointRandom() {
 				Conversion<mpfr::mpreal>::toMpq(zd)
 			};
 			mpq_class output[3];
-			auto pos = p.stProject(input, input+3, output);
+			auto pos = p.sphere2Plane(input, input+3, output);
 			
 			CPPUNIT_ASSERT(std::abs<int>(pos) >= 1 && std::abs<int>(pos) <= 3);
 			CPPUNIT_ASSERT_MESSAGE("Projection to (d-1) dimensions is not in circle", (output[0]*output[0] + output[1]*output[1]+output[2]*output[2]) <= mpq_class(1));
 			CPPUNIT_ASSERT_EQUAL_MESSAGE("Projection coordinate is not zero", mpq_class(0), output[abs((int)pos)-1]);
 			
-			p.stInverseProject(output, output+3, pos, input);
+			p.plane2Sphere(output, output+3, pos, input);
 			mpq_class & x = input[0];
 			mpq_class & y = input[1];
 			mpq_class & z = input[2];
@@ -100,13 +100,13 @@ void NDProjectionTest::quadrantTest() {
 				Conversion<mpfr::mpreal>::toMpq(zd)
 			};
 			mpq_class points2d[3];
-			auto pos = p.stProject(points3d, points3d+3, points2d);
+			auto pos = p.sphere2Plane(points3d, points3d+3, points2d);
 			
 			CPPUNIT_ASSERT(std::abs<int>(pos) >= 1 && std::abs<int>(pos) <= 3);
 			CPPUNIT_ASSERT_EQUAL_MESSAGE("Projection coordinate is not zero", mpq_class(0), points2d[abs((int)pos)-1]);
 			CPPUNIT_ASSERT_MESSAGE("Projection to (d-1) dimensions is not in circle", (points2d[0]*points2d[0] + points2d[1]*points2d[1]+points2d[2]*points2d[2]) <= mpq_class(1));
 			
-			p.stInverseProject(points2d, points2d+3, pos, points3d);
+			p.plane2Sphere(points2d, points2d+3, pos, points3d);
 			mpq_class & xs = points3d[0];
 			mpq_class & ys = points3d[1];
 			mpq_class & zs = points3d[2];

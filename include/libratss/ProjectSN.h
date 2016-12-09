@@ -16,10 +16,10 @@ public:
 	///Projects the coordinates of begin->end onto new coordinates such that one coordinate is zero
 	///If you want to reproject onto the sphere, then you need to store the return value
 	template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
-	PositionOnSphere stProject(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const;
+	PositionOnSphere sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const;
 	
 	template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
-	void stInverseProject(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, PositionOnSphere pos, T_FT_OUTPUT_ITERATOR out) const;
+	void plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, PositionOnSphere pos, T_FT_OUTPUT_ITERATOR out) const;
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:
@@ -57,7 +57,7 @@ PositionOnSphere ProjectSN::positionOnSphere(T_FT_ITERATOR begin, const T_FT_ITE
 
 
 template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
-PositionOnSphere ProjectSN::stProject(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const {
+PositionOnSphere ProjectSN::sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const {
 	using std::iterator_traits;
 	using FT = typename iterator_traits<T_FT_INPUT_ITERATOR>::value_type;
 	PositionOnSphere pos = positionOnSphere(begin, end);
@@ -89,7 +89,7 @@ PositionOnSphere ProjectSN::stProject(T_FT_INPUT_ITERATOR begin, const T_FT_INPU
 }
 
 template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
-void ProjectSN::stInverseProject(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, PositionOnSphere pos, T_FT_OUTPUT_ITERATOR out) const {
+void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, PositionOnSphere pos, T_FT_OUTPUT_ITERATOR out) const {
 	using std::iterator_traits;
 	using std::distance;
 	using FT = typename iterator_traits<T_FT_INPUT_ITERATOR>::value_type;
