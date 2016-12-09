@@ -4,28 +4,23 @@
 
 #include <libratss/constants.h>
 #include <libratss/GeoCalc.h>
-#include <libratss/enum.h>
-
+#include <libratss/ProjectSN.h>
+#include <libratss/ReferenceWrapper.h>
 #include <assert.h>
 
 
 namespace LIB_RATSS_NAMESPACE {
 
-class ProjectS2 {
+class ProjectS2: public ProjectSN {
 public:
-	PositionOnSphere positionOnSphere(double lat, double lon) const;
 	template<typename T_FT>
-	PositionOnSphere positionOnSphere(const T_FT & z) const;
-	
-	//project x,y,z on to plane with stereographic projection 
-	template<typename T_FT>
-	PositionOnSphere stProject(const T_FT& xs, const T_FT& ys, const T_FT& zs, T_FT& xp, T_FT& yp) const;
+	PositionOnSphere sphere2Plane(const T_FT& xs, const T_FT& ys, const T_FT& zs, T_FT& xp, T_FT& yp, T_FT& zp) const;
 
 	template<typename T_FT>
-	void stInverseProject(const T_FT & xp, const T_FT & yp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const;
+	void plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const;
 
 	void snap(const mpfr::mpreal & flxs, const mpfr::mpreal & flys, const mpfr::mpreal & flzs, mpq_class & xs, mpq_class & ys, mpq_class & zs, int precision) const;
-
+public:
 	///lat and lon are in DEGREE!
 	///This function projects coordinates that are given in spherical coordinates on to the sphere
 	///using the stereographic projection as basis
@@ -66,49 +61,31 @@ private:
 //below are the template definitions
 namespace LIB_RATSS_NAMESPACE {
 
-//quadrants are
-
 template<typename T_FT>
-PositionOnSphere ProjectS2::positionOnSphere(const T_FT & z) const {
-	if (z < 0) {
-		return SP_LOWER;
-	}
-	else {
-		return SP_UPPER;
-	}
-	//
-// 	CGAL::Orientation ot1;
-// 	CGAL::Orientation ot2;
-// 	CGAL::Orientation ot3;
-// 	CGAL::Orientation ot4;
+void ProjectS2::plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const {
+	using ConstRefWrap = ReferenceWrapper<const T_FT>;
+	using RefWrap = ReferenceWrapper<T_FT>;
+	using ConstRefWrapIt = ReferenceWrapperIterator<ConstRefWrap * >;
+	using RefWrapIt = ReferenceWrapperIterator<RefWrap *>;
 	
+	ConstRefWrap input[3] = {xp, yp, zp};
+	RefWrap output[3] = {xs, ys, zs};
+	ProjectSN::plane2Sphere(ConstRefWrapIt(input), ConstRefWrapIt(input+3), pos, RefWrapIt(output));
 }
 
 template<typename T_FT>
-void ProjectS2::stInverseProject(const T_FT & xp, const T_FT & yp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const {
-	T_FT denom = 1 + xp*xp + yp*yp;
-	xs = 2*xp / denom;
-	ys = 2*yp / denom;
-	zs = (denom-2)/denom;
+PositionOnSphere ProjectS2::sphere2Plane(const T_FT & xs, const T_FT & ys, const T_FT & zs, T_FT & xp, T_FT & yp, T_FT & zp) const {
+	using ConstRefWrap = ReferenceWrapper<const T_FT>;
+	using RefWrap = ReferenceWrapper<T_FT>;
+	using ConstRefWrapIt = ReferenceWrapperIterator<ConstRefWrap * >;
+	using RefWrapIt = ReferenceWrapperIterator<RefWrap *>;
 	
-	assert(zs <= 0);
-
-	//zs is always <= 0. If Pos == SP_UPPER then we have to multiply it by -1
-	//SP_UPPER has a positive value
-	zs *= (std::signbit<int>(pos) ? 1 : -1);
-}
-
-template<typename T_FT>
-PositionOnSphere ProjectS2::stProject(const T_FT & xs, const T_FT & ys, const T_FT & zs, T_FT & xp, T_FT & yp) const {
-	if (zs < 0.0) {
-		xp = xs / (1-zs); 
-		yp = ys / (1-zs);
-	}
-	else {
-		xp = xs / (1+zs); 
-		yp = ys / (1+zs);
-	}
-	return positionOnSphere(zs);
+	ConstRefWrap input[3] = { xs, ys, zs};
+	RefWrap output[3] = {xp, yp, zp};
+	ConstRefWrapIt inputBegin(input);
+	ConstRefWrapIt inputEnd(input+3);
+	RefWrapIt outputBegin(output);
+	return ProjectSN::sphere2Plane<ConstRefWrapIt, RefWrapIt>(inputBegin, inputEnd, outputBegin);
 }
 
 template<typename T_FT>

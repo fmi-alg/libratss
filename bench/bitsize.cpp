@@ -80,8 +80,8 @@ int main(int argc, char ** argv) {
 	
 	ratss::ProjectS2 p;
 	ratss::GeoCalc calc;
-	mpfr::mpreal xd, yd, zd, xpd, ypd;
-	mpq_class xs, ys, zs, xps, yps;
+	mpfr::mpreal xd, yd, zd, xpd, ypd, zpd;
+	mpq_class xs, ys, zs, xps, yps, zps;
 	for(std::size_t i(0), s(points.size()); i < s; ++i) {
 		const LIB_RATSS_NAMESPACE::SphericalCoord & c = points[i];
 		mpfr::mpreal theta(c.theta, initialPrecision);
@@ -89,16 +89,18 @@ int main(int argc, char ** argv) {
 		calc.cartesianFromSpherical(theta, phi, xd, yd, zd);
 		
 		//we want the bitsize for the snapping in the plane
-		p.stProject(xd, yd, zd, xpd, ypd);
+		auto pos = p.sphere2Plane(xd, yd, zd, xpd, ypd, zpd);
 		
-		assert(xpd*xpd + ypd*ypd <= 1);
+		assert(xpd*xpd + ypd*ypd + zpd*zpd <= 1);
 		
 		//snap with cast
 		xps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(xpd);
 		yps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(ypd);
-		p.stInverseProject(xps, yps, p.positionOnSphere(zd), xs, ys, zs);
+		zps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(zpd);
+		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		snapCast.update(xps);
 		snapCast.update(yps);
+		snapCast.update(zps);
 		snapCastProj.update(xs);
 		snapCastProj.update(ys);
 		snapCastProj.update(zs);
@@ -106,9 +108,11 @@ int main(int argc, char ** argv) {
 		//snap with continous fraction
 		xps = calc.snap(xpd, LIB_RATSS_NAMESPACE::Calc::ST_FT);
 		yps = calc.snap(ypd, LIB_RATSS_NAMESPACE::Calc::ST_FT);
-		p.stInverseProject(xps, yps, p.positionOnSphere(zd), xs, ys, zs);
+		zps = calc.snap(zpd, LIB_RATSS_NAMESPACE::Calc::ST_FT);
+		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		snapFrac.update(xps);
 		snapFrac.update(yps);
+		snapFrac.update(zps);
 		snapFracProj.update(xs);
 		snapFracProj.update(ys);
 		snapFracProj.update(zs);
@@ -117,11 +121,14 @@ int main(int argc, char ** argv) {
 		if (manualEps > 0) {
 			xps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(xpd);
 			yps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(ypd);
+			zps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(zpd);
 			xps = calc.within(xps-manEpsVal, xps+manEpsVal);
 			yps = calc.within(yps-manEpsVal, yps+manEpsVal);
-			p.stInverseProject(xps, yps, p.positionOnSphere(zd), xs, ys, zs);
+			zps = calc.within(zps-manEpsVal, zps+manEpsVal);
+			p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 			snapManEps.update(xps);
 			snapManEps.update(yps);
+			snapManEps.update(zps);
 			snapManEpsProj.update(xs);
 			snapManEpsProj.update(ys);
 			snapManEpsProj.update(zs);

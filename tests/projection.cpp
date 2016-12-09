@@ -142,8 +142,8 @@ void ProjectionTest::bijectionSpecial() {
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("Projected point is not on the sphere", mpq_class(1), sqlen);
 	
 	{
-		mpq_class sp_x2, sp_y2;
-		p.stProject(xs, ys, zs, sp_x2, sp_y2);
+		mpq_class sp_x2, sp_y2, sp_z2;
+		p.sphere2Plane(xs, ys, zs, sp_x2, sp_y2, sp_z2);
 		CPPUNIT_ASSERT_EQUAL(sp_x, sp_x2);
 		CPPUNIT_ASSERT_EQUAL(sp_y, sp_y2);
 	}

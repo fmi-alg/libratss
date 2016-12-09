@@ -5,6 +5,7 @@
 #include <libratss/constants.h>
 #include <libratss/Calc.h>
 #include <libratss/enum.h>
+#include <assert.h>
 
 namespace LIB_RATSS_NAMESPACE {
 

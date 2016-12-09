@@ -2,15 +2,6 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
-PositionOnSphere ProjectS2::positionOnSphere(double lat, double /*lon*/) const {
-	if (lat < 0.0) {
-		return SP_LOWER;
-	}
-	else {
-		return SP_UPPER;
-	}
-}
-
 void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const mpfr::mpreal &flzs, mpq_class &xs, mpq_class &ys, mpq_class &zs, int precision) const {
 
 	//shouldn't we clip coordinates to the sphere in 3d?
@@ -37,10 +28,10 @@ void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const m
 		//if that doesn't work out, freak out
 	}
 
-	mpfr::mpreal sp_flx, sp_fly;
+	mpfr::mpreal sp_flx, sp_fly, sp_flz;
 	
 	//project with stereographic projection
-	stProject(flxs, flys, flzs, sp_flx, sp_fly);
+	auto pos = sphere2Plane(flxs, flys, flzs, sp_flx, sp_fly, sp_flz);
 	{ //the following is only good if we try to project points very close to the spheres
 		mpfr::mpreal sp_sqd(m_calc.squaredDistance(sp_flx, sp_fly));
 		if (sp_sqd > 1) {
@@ -64,22 +55,24 @@ void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const m
 	//clip to rational coordinates
 	mpq_class sp_x = Conversion<mpfr::mpreal>::toMpq(sp_flx);
 	mpq_class sp_y = Conversion<mpfr::mpreal>::toMpq(sp_fly);
+	mpq_class sp_z = Conversion<mpfr::mpreal>::toMpq(sp_flz);
 	
 // 	assert(sp_x*sp_x + sp_y * sp_y <= 1);
 	
 	//reproject onto sphere
-	stInverseProject(sp_x, sp_y, positionOnSphere(flzs), xs, ys, zs);
+	plane2Sphere(sp_x, sp_y, sp_z, pos, xs, ys, zs);
 	
 	assert((flzs < 0 && zs < 0) || (flzs >= 0 && zs >= 0));
 	assert(xs*xs + ys*ys + zs*zs == 1);
 	
 	{
-		mpq_class sp_x2, sp_y2;
-		stProject(xs, ys, zs, sp_x2, sp_y2);
+		mpq_class sp_x2, sp_y2, sp_z2;
+		sphere2Plane(xs, ys, zs, sp_x2, sp_y2, sp_z2);
 		if (sp_x != sp_x2 || sp_y != sp_y2) {
 			std::cerr << "Bijektion failed:" << std::endl;
 			std::cerr << sp_x << "!=?" << sp_x2.get_mpq_t() << std::endl;
 			std::cerr << sp_y << "!=?" << sp_y2.get_mpq_t() << std::endl;
+			std::cerr << sp_z << "!=?" << sp_z2.get_mpq_t() << std::endl;
 		}
 		assert(sp_x == sp_x2 && sp_y == sp_y2);
 	}
