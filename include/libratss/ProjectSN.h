@@ -16,7 +16,8 @@ public:
 		ST_SPHERE=0x1,
 		ST_PLANE=0x2,
 		ST_CF=0x4,
-		ST_FT=0x8
+		ST_FT=0x8,
+		ST_NORMALIZE=0x10
 	} SnapType;
 public:
 	template<typename T_FT_ITERATOR>
@@ -32,7 +33,7 @@ public:
 public:
 	///@param out an iterator accepting mpq_class
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType = (ST_PLANE|ST_FT));
+	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType = (ST_PLANE|ST_FT)) const;
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:
@@ -139,10 +140,18 @@ void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATO
 
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) {
+void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const {
 	using input_ft = typename std::iterator_traits<T_INPUT_ITERATOR>::value_type;
 	using std::distance;
 	std::size_t dims = distance(begin, end);
+	
+	if (snapType & ST_NORMALIZE) {
+		std::vector<input_ft> normalized(dims);
+		calc().normalize(begin, end, normalized.begin());
+		snap(normalized.begin(), normalized.end(), out, snapType & ~ST_NORMALIZE);
+		return;
+	}
+	
 	std::vector<mpq_class> coords_plane_pq(dims);
 	PositionOnSphere pos;
 	if (snapType & ST_SPHERE) {
