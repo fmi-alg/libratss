@@ -18,7 +18,7 @@ public:
 
 	template<typename T_FT>
 	void plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const;
-
+public:
 	void snap(const mpfr::mpreal & flxs, const mpfr::mpreal & flys, const mpfr::mpreal & flzs, mpq_class & xs, mpq_class & ys, mpq_class & zs, int precision) const;
 public:
 	///lat and lon are in DEGREE!

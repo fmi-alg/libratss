@@ -4,6 +4,14 @@
 
 #define LIB_RATSS_NAMESPACE ratss
 
-#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#ifdef __GNUC__
+	#define DEPRECATED __attribute__((deprecated))
+	#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#elif defined(_MSC_VER)
+	#define DEPRECATED __declspec(deprecated)
+#else
+	#define DEPRECATED
+	#define WARN_UNUSED_RESULT
+#endif
 
 #endif
