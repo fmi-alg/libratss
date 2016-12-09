@@ -1,4 +1,5 @@
 #include <libratss/ProjectSN.h>
+#include "../common/stats.h"
 
 typedef enum {
 	ST_NONE=0x0,
@@ -75,6 +76,7 @@ void help() {
 		"\t-r (fp|cf)\tset the type of float->rational conversion. fp=fixpoint, cf=continous fraction\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-b\talso print bitsize statistics"
+		"\t-n\tnormalize input to length 1"
 	<< std::endl;
 }
 
@@ -86,6 +88,8 @@ int main(int argc, char ** argv) {
 	
 	int precision = -1;
 	int st = ST_NONE;
+	bool normalize = false;
+	bool stats = false;
 	
 	for(int i(1); i < argc; ++i) {
 		std::string token(argv[i]);
@@ -135,6 +139,12 @@ int main(int argc, char ** argv) {
 				return -1;
 			}
 		}
+		else if (token == "-n") {
+			normalize = true;
+		}
+		else if (token == "-b") {
+			stats = true;
+		}
 		else {
 			try {
 				coords_sphere.emplace_back(token);
@@ -163,10 +173,19 @@ int main(int argc, char ** argv) {
 		v.setPrecision(precision, MPFR_RNDZ);
 	}
 	
+	if (normalize) {
+		snapper.proj.calc().normalize(coords_sphere.begin(), coords_sphere.end(), coords_sphere.begin());
+	}
+	
 	coords_sphere_pq = snapper.snap2Sphere(coords_sphere, st);
 	
+	ratss::BitCount bc;
 	for(const auto & x : coords_sphere_pq) {
 		std::cout << x << '\n';
+		bc.update(x);
+	}
+	if (stats) {
+		std::cout << bc << std::endl;
 	}
 	return 0;
 }

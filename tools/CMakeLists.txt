@@ -9,7 +9,9 @@ include_directories(
 )
 
 set(LINK_LIBS
+	ratsscommon
 	${LIBRATSS_LINK_LIBRARIES}
+	
 )
 
 MACRO(ADD_TOOLS_TARGET _name _sourcefiles)
