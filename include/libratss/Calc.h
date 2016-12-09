@@ -34,7 +34,7 @@ public:
 public:
 	///input and output may point to the same storage
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-	mpfr::mpreal normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const;
+	void normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const;
 public:
 	///@return r a number satisfying the following conditions:
 	/// r is a fraction with the smallest denominator such that lower <= r <= upper
@@ -76,7 +76,7 @@ public:
 namespace LIB_RATSS_NAMESPACE {
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-mpfr::mpreal Calc::normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const {
+void Calc::normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const {
 	mpfr::mpreal tmp;
 	for(T_INPUT_ITERATOR it(begin); it != end; ++it) {
 		tmp = add(sq(*begin), tmp);
