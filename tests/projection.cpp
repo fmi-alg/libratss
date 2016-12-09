@@ -143,7 +143,7 @@ void ProjectionTest::bijectionSpecial() {
 	
 	{
 		mpq_class sp_x2, sp_y2, sp_z2;
-		p.sphere2Plane(xs, ys, zs, sp_x2, sp_y2, sp_z2);
+		auto pos = p.sphere2Plane(xs, ys, zs, sp_x2, sp_y2, sp_z2);
 		CPPUNIT_ASSERT_EQUAL(sp_x, sp_x2);
 		CPPUNIT_ASSERT_EQUAL(sp_y, sp_y2);
 	}

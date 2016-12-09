@@ -14,7 +14,7 @@ namespace LIB_RATSS_NAMESPACE {
 class ProjectS2: public ProjectSN {
 public:
 	template<typename T_FT>
-	PositionOnSphere sphere2Plane(const T_FT& xs, const T_FT& ys, const T_FT& zs, T_FT& xp, T_FT& yp, T_FT& zp) const;
+	PositionOnSphere sphere2Plane(const T_FT& xs, const T_FT& ys, const T_FT& zs, T_FT& xp, T_FT& yp, T_FT& zp) const WARN_UNUSED_RESULT;
 
 	template<typename T_FT>
 	void plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const;

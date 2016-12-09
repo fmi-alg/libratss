@@ -20,12 +20,12 @@ public:
 	} SnapType;
 public:
 	template<typename T_FT_ITERATOR>
-	PositionOnSphere positionOnSphere(T_FT_ITERATOR begin, const T_FT_ITERATOR & end) const;
+	PositionOnSphere positionOnSphere(T_FT_ITERATOR begin, const T_FT_ITERATOR & end) const WARN_UNUSED_RESULT;
 	
 	///Projects the coordinates of begin->end onto new coordinates such that one coordinate is zero
 	///If you want to reproject onto the sphere, then you need to store the return value
 	template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
-	PositionOnSphere sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const;
+	PositionOnSphere sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const WARN_UNUSED_RESULT;
 	
 	template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
 	void plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, PositionOnSphere pos, T_FT_OUTPUT_ITERATOR out) const;
