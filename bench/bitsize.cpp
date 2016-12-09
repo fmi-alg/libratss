@@ -104,8 +104,8 @@ int main(int argc, char ** argv) {
 		snapCastProj.update(zs);
 		
 		//snap with continous fraction
-		xps = calc.snap(xpd);
-		yps = calc.snap(ypd);
+		xps = calc.snap(xpd, LIB_RATSS_NAMESPACE::Calc::ST_FT);
+		yps = calc.snap(ypd, LIB_RATSS_NAMESPACE::Calc::ST_FT);
 		p.stInverseProject(xps, yps, p.positionOnSphere(zd), xs, ys, zs);
 		snapFrac.update(xps);
 		snapFrac.update(yps);

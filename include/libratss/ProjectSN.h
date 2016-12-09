@@ -10,6 +10,14 @@ namespace LIB_RATSS_NAMESPACE {
 
 class ProjectSN {
 public:
+	typedef enum {
+		ST_NONE=0x0,
+		ST_SPHERE=0x1,
+		ST_PLANE=0x2,
+		ST_CF=0x4,
+		ST_FT=0x8
+	} SnapType;
+public:
 	template<typename T_FT_ITERATOR>
 	PositionOnSphere positionOnSphere(T_FT_ITERATOR begin, const T_FT_ITERATOR & end) const;
 	
@@ -20,6 +28,10 @@ public:
 	
 	template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
 	void plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, PositionOnSphere pos, T_FT_OUTPUT_ITERATOR out) const;
+public:
+	///@param out an iterator accepting mpq_class
+	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType = (ST_PLANE|ST_FT));
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:
@@ -122,6 +134,30 @@ void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATO
 			*out = (2 * (*it) ) / denom;
 		}
 	}
+}
+
+
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) {
+	using input_ft = typename std::iterator_traits<T_INPUT_ITERATOR>::value_type;
+	using std::distance;
+	std::size_t dims = distance(begin, end);
+	std::vector<mpq_class> coords_plane_pq(dims);
+	PositionOnSphere pos;
+	if (snapType & ST_SPHERE) {
+		std::vector<mpq_class> coords_sphere_pq(dims);
+		calc().toRational(begin, end, coords_sphere_pq.begin(), snapType);
+		pos = sphere2Plane(coords_sphere_pq.begin(), coords_sphere_pq.end(), coords_plane_pq.begin());
+	}
+	else if (snapType & ST_PLANE) {
+		std::vector<mpfr::mpreal> coords_plane(dims);
+		pos = sphere2Plane(begin, end, coords_plane.begin());
+		calc().toRational(coords_plane.begin(), coords_plane.end(), coords_plane_pq.begin(), snapType);
+	}
+	else {
+		throw std::runtime_error("ratss::ProjectSN::snap: Unsupported snap type");
+	}
+	plane2Sphere(coords_plane_pq.begin(), coords_plane_pq.end(), pos, out);
 }
 
 } //end namespace LIB_RATSS_NAMESPACE

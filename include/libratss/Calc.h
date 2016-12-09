@@ -9,6 +9,9 @@ namespace LIB_RATSS_NAMESPACE {
 
 class Calc {
 public:
+	///Values are compatible with the ones defined in ProjectSN::SnapType
+	typedef enum { ST_CF=0x4, ST_FT=0x8 } SnapType;
+public:
 	mpfr::mpreal sin(const mpfr::mpreal & v) const;
 	mpfr::mpreal asin(const mpfr::mpreal & v) const;
 
@@ -37,8 +40,31 @@ public:
 	/// r is a fraction with the smallest denominator such that lower <= r <= upper
 	mpq_class within(const mpq_class& lower, const mpq_class& upper) const;
 	
-	///snap to a fraction that is within the precision of the given float
-	mpq_class snap(const mpfr::mpreal & v) const;
+	mpq_class snap(const mpfr::mpreal & v, int st) const;
+public:
+	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+	typename std::enable_if<
+		std::is_same<
+			typename std::decay<
+				typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
+			>::type,
+			mpfr::mpreal
+		>::value,
+		void
+	>::type
+	toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const;
+	
+	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+	typename std::enable_if<
+		std::is_same<
+			typename std::decay<
+				typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
+			>::type,
+			mpq_class
+		>::value,
+		void
+	>::type
+	toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const;
 public:
 	std::size_t maxBitCount(const mpq_class &v) const;
 };
@@ -59,6 +85,44 @@ mpfr::mpreal Calc::normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUT
 	for(; begin != end; ++begin, ++out) {
 		*out = div(*begin, tmp);
 	}
+}
+
+
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+typename std::enable_if<
+	std::is_same<
+		typename std::decay<
+			typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
+		>::type,
+		mpq_class
+	>::value,
+	void
+>::type
+Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const {
+	for( ;begin != end; ++begin, ++out) {
+		*out = *begin;
+	}
+}
+
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+typename std::enable_if<
+	std::is_same<
+		typename std::decay<
+			typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
+		>::type,
+		mpfr::mpreal
+	>::value,
+	void
+>::type
+Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const {
+	std::transform(
+		begin,
+		end,
+		out,
+		[this, snapType](const mpfr::mpreal & v) {
+			return snap(v, snapType);
+		}
+	);
 }
 
 }//end namespace LIB_RATSS_NAMESPACE

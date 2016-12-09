@@ -156,12 +156,20 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 	return result;
 }
 
-mpq_class Calc::snap(const mpfr::mpreal& v) const {
-	mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
-	mpq_class eps = mpq_class(mpz_class(1), rat.get_den())/2;
-	mpq_class lower = rat - eps;
-	mpq_class upper = rat + eps;
-	return within(lower, upper);
+mpq_class Calc::snap(const mpfr::mpreal& v, int st) const {
+	if (st & ST_CF) {
+		mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
+		mpq_class eps = mpq_class(mpz_class(1), rat.get_den())/2;
+		mpq_class lower = rat - eps;
+		mpq_class upper = rat + eps;
+		return within(lower, upper);
+	}
+	else if (st & ST_FT) {
+		return Conversion<mpfr::mpreal>::toMpq( toFixpoint(v) );
+	}
+	else {
+		throw std::runtime_error("ratss::Calc::snap: Unsupported snap type");
+	}
 }
 
 std::size_t Calc::maxBitCount(const mpq_class &v) const {

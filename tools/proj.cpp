@@ -11,60 +11,9 @@ typedef enum {
 
 struct Snapper {
 	ratss::ProjectSN proj;
-	
-	
-	void snap(const std::vector<mpfr::mpreal> & floatCoords, std::vector<mpq_class> & ratCoords, int st) {
-		ratCoords.resize(floatCoords.size());
-		if (st & ST_CF) {
-			//snap plane coordinates to rationals
-			std::transform(
-				floatCoords.begin(),
-				floatCoords.end(),
-				ratCoords.begin(),
-				[this](const mpfr::mpreal & v) {
-					return proj.calc().snap(v);
-				}
-			);
-		}
-		else {
-			//snap plane coordinates to rationals
-			std::transform(
-				floatCoords.begin(),
-				floatCoords.end(),
-				ratCoords.begin(),
-				[this](const mpfr::mpreal & v) {
-					return mpq_class( ratss::Conversion<mpfr::mpreal>::toMpq( proj.calc().toFixpoint(v) ) );
-				}
-			);
-		}
-	}
-
-	ratss::PositionOnSphere sphere2Plane(const std::vector<mpfr::mpreal> & coords_sphere, std::vector<mpq_class> & coords_plane_pq, int st) {
-		coords_plane_pq.resize(coords_sphere.size());
-		
-		ratss::PositionOnSphere pos;
-		if (st & ST_SPHERE) {
-			std::vector<mpq_class> coords_sphere_pq(coords_sphere.size());
-			snap(coords_sphere, coords_sphere_pq, st);
-			pos = proj.sphere2Plane(coords_sphere_pq.begin(), coords_sphere_pq.end(), coords_plane_pq.begin());
-		}
-		else {
-			std::vector<mpfr::mpreal> coords_plane(coords_sphere.size());
-			pos = proj.sphere2Plane(coords_sphere.begin(), coords_sphere.end(), coords_plane.begin());
-			snap(coords_plane, coords_plane_pq, st);
-		}
-		return pos;
-	}
-	
-	void plane2Sphere(const std::vector<mpq_class> & coords_plane_pq, ratss::PositionOnSphere pos,  std::vector<mpq_class> & coords_sphere_pq) {
-		proj.plane2Sphere(coords_plane_pq.begin(), coords_plane_pq.end(), pos, coords_sphere_pq.end());
-	}
-	
 	std::vector<mpq_class> snap2Sphere(const std::vector<mpfr::mpreal> & coords_sphere, int st) {
-		std::vector<mpq_class> coords_plane_pq;
-		std::vector<mpq_class> coords_sphere_pq;
-		auto pos = sphere2Plane(coords_sphere, coords_plane_pq, st);
-		plane2Sphere(coords_plane_pq, pos, coords_sphere_pq);
+		std::vector<mpq_class> coords_sphere_pq(coords_sphere.size());
+		proj.snap(coords_sphere.begin(), coords_sphere.end(), coords_sphere_pq.begin(), st);
 		return coords_sphere_pq;
 	}
 };
