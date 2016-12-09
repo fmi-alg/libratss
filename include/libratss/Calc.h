@@ -26,15 +26,15 @@ public:
 	mpfr::mpreal sqrt(const mpfr::mpreal & v) const;
 	mpfr::mpreal add(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
 	mpfr::mpreal sub(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
-	mpfr::mpreal toFixpoint(mpfr::mpreal & v) const;
-	void makeFixpoint(mpfr::mpreal & v);
+	mpfr::mpreal toFixpoint(const mpfr::mpreal & v) const;
+	void makeFixpoint(mpfr::mpreal& v) const;
 public:
 	///@return r a number satisfying the following conditions:
 	/// r is a fraction with the smallest denominator such that lower <= r <= upper
-	mpq_class within(const mpq_class& lower, const mpq_class& upper);
+	mpq_class within(const mpq_class& lower, const mpq_class& upper) const;
 	
 	///snap to a fraction that is within the precision of the given float
-	mpq_class snap(const mpfr::mpreal & v);
+	mpq_class snap(const mpfr::mpreal & v) const;
 public:
 	std::size_t maxBitCount(const mpq_class &v) const;
 };
