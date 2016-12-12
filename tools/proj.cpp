@@ -1,168 +1,331 @@
 #include <libratss/ProjectSN.h>
 #include "../common/stats.h"
+#include <fstream>
 
 using namespace LIB_RATSS_NAMESPACE;
 
-struct Snapper {
-	ProjectSN proj;
-	std::vector<mpq_class> snap2Sphere(const std::vector<mpfr::mpreal> & coords_sphere, int st) {
-		std::vector<mpq_class> coords_sphere_pq(coords_sphere.size());
-		proj.snap(coords_sphere.begin(), coords_sphere.end(), coords_sphere_pq.begin(), st);
-		return coords_sphere_pq;
+struct InputPoint {
+	Calc c;
+	std::vector<mpfr::mpreal> coords;
+	void normalize() {
+		c.normalize(coords.begin(), coords.end(), coords.begin());
+	}
+	void setPrecision(int precision) {
+		//set the precision of our input variables
+		for(mpfr::mpreal & v : coords) {
+			v.setPrecision(precision, MPFR_RNDZ);
+		}
+	}
+	void assign(std::istream & is) {
+		coords.clear();
+		while (is.good() && is.peek() != '\n') {
+			mpfr::mpreal tmp;
+			is >> tmp;
+			coords.emplace_back( std::move(tmp) );
+		}
+	}
+	void print(std::ostream & out) const {
+		if (!coords.size()) {
+			return;
+		}
+		std::vector<mpfr::mpreal>::const_iterator it(coords.begin()), end(coords.end());
+		out << *it;
+		for(++it; it != end; ++it) {
+			out << ' ' << *it;
+		}
 	}
 };
 
+struct OutputPoint {
+	typedef enum {FM_RATIONAL, FM_SPLIT_RATIONAL, FM_FLOAT} Format;
+	std::vector<mpq_class> coords;
+	void clear() { coords.clear(); }
+	void resize(std::size_t _n) { coords.resize(_n); }
+	void print(std::ostream & out, Format fmt) const {
+		if (!coords.size()) {
+			return;
+		}
+		std::vector<mpq_class>::const_iterator it(coords.begin()), end(coords.end());
+		if (fmt == FM_RATIONAL) {
+			out << *it;
+			for(++it; it != end; ++it) {
+				out << ' ' << *it;
+			}
+		}
+		else if (fmt == FM_SPLIT_RATIONAL) {
+			out << it->get_num() << ' ' << it->get_den();
+			for(++it; it != end; ++it) {
+				out << ' ' << it->get_num() << ' ' << it->get_den();
+			}
+		}
+		else if (fmt == FM_FLOAT) {
+			out << Conversion<mpq_class>::toMpreal(*it, 53).toDouble();
+			for(++it; it != end; ++it) {
+				out << ' ' << Conversion<mpq_class>::toMpreal(*it, 53).toDouble();
+			}
+		}
+	}
+};
+
+std::ostream & operator<<(std::ostream & out, const InputPoint & ip) {
+	ip.print(out);
+	return out;
+}
+
 void help() {
-	std::cout << "prg OPTIONS \n coordinate0 coordinate1 [coordinate2] ...\n"
+	std::cout << "prg OPTIONS\n"
 		"Options:\n"
 		"\t-p num\tset the precision of the input in bits\n"
 		"\t-r (fp|cf)\tset the type of float->rational conversion. fp=fixpoint, cf=continous fraction\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-b\talso print bitsize statistics\n"
-		"\t-n\tnormalize input to length 1"
+		"\t-n\tnormalize input to length 1\n"
+		"\t-f format\tset format of output: [rational, split, float]\n"
+		"\t-i\tpath to input\n"
+		"\t-o\tpath to output"
 	<< std::endl;
 }
 
 struct Config {
-
-
+	std::string inFileName;
+	std::string outFileName;
+	int precision;
+	int snapType;
+	bool normalize;
+	bool stats;
+	bool verbose;
+	OutputPoint::Format outFormat;
+	
+	Config() :
+	precision(-1),
+	snapType(ProjectSN::ST_NONE),
+	normalize(false),
+	stats(false),
+	verbose(false),
+	outFormat(OutputPoint::FM_RATIONAL)
+	{}
+	int parse(int argc, char ** argv) {
+		for(int i(1); i < argc; ++i) {
+			std::string token(argv[i]);
+			if (token == "-p") {
+				if (i+1 < argc) {
+					precision = ::atoi(argv[i+1]);
+					++i;
+				}
+				else {
+					help();
+					return -1;
+				}
+			}
+			else if (token == "-r") {
+				if (i+1 < argc) {
+					std::string stStr(argv[i+1]);
+					if (stStr == "cf") {
+						snapType &= ~ProjectSN::ST_FT;
+						snapType |= ProjectSN::ST_CF;
+					}
+					else if (stStr == "ft") {
+						snapType |= ProjectSN::ST_FT;
+						snapType &= ~ProjectSN::ST_CF;
+					}
+					++i;
+				}
+				else {
+					help();
+					return -1;
+				}
+			}
+			else if (token == "-s") {
+				if (i+1 < argc) {
+					std::string stStr(argv[i+1]);
+					if (stStr == "p" || stStr == "plane") {
+						snapType &= ~ProjectSN::ST_SPHERE;
+						snapType |= ProjectSN::ST_PLANE;
+					}
+					else if (stStr == "s" || stStr == "sphere") {
+						snapType |= ProjectSN::ST_SPHERE;
+						snapType &= ~ProjectSN::ST_PLANE;
+					}
+					++i;
+				}
+				else {
+					help();
+					return -1;
+				}
+			}
+			else if (token == "-i") {
+				if (i+1 < argc) {
+					inFileName.assign(argv[i+1]);
+					++i;
+				}
+				else {
+					help();
+					return -1;
+				}
+			}
+			else if (token == "-o") {
+				if (i+1 < argc) {
+					outFileName.assign(argv[i+1]);
+					++i;
+				}
+				else {
+					help();
+					return -1;
+				}
+			}
+			else if (token == "-f") {
+				if (i+1 < argc) {
+					std::string stStr(argv[i+1]);
+					if (stStr == "rational" || stStr == "rat" || stStr == "r") {
+						outFormat = OutputPoint::FM_RATIONAL;
+					}
+					else if (stStr == "split" || stStr == "sr" || stStr == "s") {
+						outFormat = OutputPoint::FM_RATIONAL;
+					}
+					else if (stStr == "float" || stStr == "double" || stStr == "d" || stStr == "f") {
+						outFormat = OutputPoint::FM_RATIONAL;
+					}
+					++i;
+				}
+				else {
+					help();
+					return -1;
+				}
+			}
+			else if (token == "-n") {
+				normalize = true;
+			}
+			else if (token == "-b") {
+				stats = true;
+			}
+			else if (token == "-v" || token == "--verbose") {
+				verbose = true;
+			}
+			else if (token == "-h" || token == "--help") {
+				help();
+				return 0;
+			}
+			else {
+				std::cout << "Unknown command line option: " << token << std::endl;
+				help();
+				return -1;
+			}
+		}
+		
+		if (precision < 0) {
+			precision = 32;
+		}
+		
+		if (! (snapType & (ProjectSN::ST_PLANE|ProjectSN::ST_SPHERE))) {
+			snapType |= ProjectSN::ST_PLANE;
+		}
+		
+		if (! (snapType & (ProjectSN::ST_CF|ProjectSN::ST_FT))) {
+			snapType |= ProjectSN::ST_FT;
+		}
+		
+		return 1;
+	}
 };
 
+std::ostream & operator<<(std::ostream & out, const Config & cfg) {
+	out << "Precision: " << cfg.precision << '\n';
+	out << "Float conversion method: " << (cfg.snapType & ratss::ProjectSN::ST_FT ? "fixed point" : "continous fraction") << '\n';
+	out << "Float conversion location: " << (cfg.snapType & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
+	out << "Normalize: " << (cfg.normalize ? "yes" : "no") << '\n';
+	out << "Output format: ";
+	if (cfg.outFormat == OutputPoint::FM_FLOAT) {
+		out << "float";
+	}
+	else if (cfg.outFormat == OutputPoint::FM_RATIONAL) {
+		out << "rational";
+	}
+	else if (cfg.outFormat == OutputPoint::FM_SPLIT_RATIONAL) {
+		out << "rational split by space";
+	}
+	out << '\n';
+	out << "Input file: " << (cfg.inFileName.size() ? cfg.inFileName : "stdint") << '\n';
+	out << "Output file: " << (cfg.outFileName.size() ? cfg.outFileName : "stdout") << '\n';
+	return out;
+}
+
 int main(int argc, char ** argv) {
-	Snapper snapper;
-	
-	std::vector<mpfr::mpreal> coords_sphere;
-	std::vector<mpq_class> coords_sphere_pq;
-	
-	int precision = -1;
-	int st = ProjectSN::ST_NONE;
-	bool normalize = false;
-	bool stats = false;
-	bool verbose = false;
-	
-	for(int i(1); i < argc; ++i) {
-		std::string token(argv[i]);
-		if (token == "-p") {
-			if (i+1 < argc) {
-				precision = ::atoi(argv[i+1]);
-				++i;
-			}
-			else {
-				help();
-				return -1;
-			}
-		}
-		else if (token == "-r") {
-			if (i+1 < argc) {
-				std::string stStr(argv[i+1]);
-				if (stStr == "cf") {
-					st &= ~ProjectSN::ST_FT;
-					st |= ProjectSN::ST_CF;
-				}
-				else if (stStr == "ft") {
-					st |= ProjectSN::ST_FT;
-					st &= ~ProjectSN::ST_CF;
-				}
-				++i;
-			}
-			else {
-				help();
-				return -1;
-			}
-		}
-		else if (token == "-s") {
-			if (i+1 < argc) {
-				std::string stStr(argv[i+1]);
-				if (stStr == "p" || stStr == "plane") {
-					st &= ~ProjectSN::ST_SPHERE;
-					st |= ProjectSN::ST_PLANE;
-				}
-				else if (stStr == "s" || stStr == "sphere") {
-					st |= ProjectSN::ST_SPHERE;
-					st &= ~ProjectSN::ST_PLANE;
-				}
-				++i;
-			}
-			else {
-				help();
-				return -1;
-			}
-		}
-		else if (token == "-n") {
-			normalize = true;
-		}
-		else if (token == "-b") {
-			stats = true;
-		}
-		else if (token == "-v" || token == "--verbose") {
-			verbose = true;
-		}
-		else if (token == "-h" || token == "--help") {
-			help();
-			return 0;
-		}
-		else {
-			try {
-				coords_sphere.emplace_back(token);
-			}
-			catch (std::exception & e) {
-				std::cerr << "Error while trying to parse coordinate: " << e.what() << std::endl;
-				help();
-				return -1;
-			}
-		}
-	}
-	
-	if (!coords_sphere.size()) {
-		help();
-		return -1;
-	}
-	
-	if (precision < 0) {
-		precision = 32;
-	}
-	
-	if (! (st & (ProjectSN::ST_PLANE|ProjectSN::ST_SPHERE))) {
-		st |= ProjectSN::ST_PLANE;
-	}
-	
-	if (! (st & (ProjectSN::ST_CF|ProjectSN::ST_FT))) {
-		st |= ProjectSN::ST_FT;
-	}
-	
-	if (verbose) {
-		std::cout << "Precision: " << precision << '\n';
-		std::cout << "Float conversion method: " << (st & ratss::ProjectSN::ST_FT ? "fixed point" : "continous fraction") << '\n';
-		std::cout << "Float conversion location: " << (st & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
-		std::cout << "Normalize: " << (normalize ? "yes" : "no") << '\n';
-	}
-	
-	//set the precision of our input variables
-	for(mpfr::mpreal & v : coords_sphere) {
-		v.setPrecision(precision, MPFR_RNDZ);
-	}
-	
-	if (normalize) {
-		snapper.proj.calc().normalize(coords_sphere.begin(), coords_sphere.end(), coords_sphere.begin());
-		if (verbose) {
-			std::cout << "Normalized:\n";
-			for(const auto & x : coords_sphere) {
-				std::cout << x << '\n';
-			}
-		}
-	}
-	
-	coords_sphere_pq = snapper.snap2Sphere(coords_sphere, st);
-	
+	Config cfg;
+	ProjectSN proj;
 	ratss::BitCount bc;
-	for(const auto & x : coords_sphere_pq) {
-		std::cout << x << '\n';
-		if (stats) {
-			bc.update(x);
-		}
+
+	int ret = cfg.parse(argc, argv); 
+	
+	if (ret <= 0) {
+		return ret;
 	}
-	if (stats) {
+	
+	if (cfg.verbose) {
+		std::cout << cfg << std::endl;
+	}
+	
+	std::istream * inFile = 0;
+	std::ostream * outFile = 0;
+	
+	std::ifstream inFileHandle;
+	std::ofstream outFileHandle;
+	
+	if (cfg.inFileName.size()) {
+		inFileHandle.open(cfg.inFileName);
+		if (!inFileHandle.is_open()) {
+			std::cerr << "Could not open input file: " << cfg.inFileName << '\n';
+			return -1;
+		}
+		inFile = &inFileHandle;
+	}
+	else {
+		inFile = &std::cin;
+	}
+	
+	if (cfg.outFileName.size()) {
+		outFileHandle.open(cfg.outFileName);
+		if (!outFileHandle.is_open()) {
+			std::cerr << "Could not open output file: " << cfg.outFileName << '\n';
+			return -1;
+		}
+		outFile = &outFileHandle;
+	}
+	else {
+		outFile = &std::cout;
+	}
+	
+
+	InputPoint ip;
+	OutputPoint op;
+	
+	while( inFile->good() ) {
+		for( ; inFile->good() && inFile->peek() == '\n'; inFile->get()) {}
+		if (!inFile->good()) {
+			break;
+		}
+		ip.assign(*inFile);
+		if (cfg.normalize) {
+			if (cfg.verbose) {
+				std::cout << "Normalizing (" << ip << ") to ";
+			}
+			ip.normalize();
+			if (cfg.verbose) {
+				std::cout << '(' << ip << ')' << '\n';
+			}
+		}
+		op.clear();
+		op.resize(ip.coords.size());
+		proj.snap(ip.coords.begin(), ip.coords.end(), op.coords.begin(), cfg.snapType);
+		if (cfg.stats) {
+			bc.update(op.coords.begin(), op.coords.end());
+		}
+		op.print(*outFile, cfg.outFormat);
+	}
+	
+	if (cfg.stats) {
 		std::cout << bc << std::endl;
 	}
+	
+	
 	return 0;
 }
