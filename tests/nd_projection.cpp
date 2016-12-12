@@ -18,6 +18,7 @@ public:
 	static std::size_t num_random_test_points;
 public:
 	void fixPointRandom();
+	void snapRandom();
 	void bijectionSpecial();
 	void bijectionSpecial2();
 	void quadrantTest();
@@ -73,6 +74,33 @@ void NDProjectionTest::fixPointRandom() {
 			ss << "Point " << to_string(coord) << " does not project on sphere for precision=" << prec;
 			mpq_class sqlen = x*x+y*y+z*z;
 			CPPUNIT_ASSERT_EQUAL_MESSAGE(ss.str(), mpq_class(1), sqlen);
+		}
+	}
+}
+
+void NDProjectionTest::snapRandom() {
+	std::array<int, 2> snapMethod = {ProjectSN::ST_FT, ProjectSN::ST_CF};
+	std::array<int, 2> snapLocation = {ProjectSN::ST_PLANE, ProjectSN::ST_SPHERE };
+	
+	std::vector<SphericalCoord> coords = getRandomPolarPoints(num_random_test_points);
+	
+	Projector p;
+	GeoCalc gc;
+	
+	std::array<mpfr::mpreal, 3> input;
+	std::array<mpq_class, 3> output;
+	
+	for(const SphericalCoord & sc : coords) {
+		gc.cartesianFromSpherical(sc.theta, sc.phi, input[0], input[1], input[2]);
+		for(int sm : snapMethod) {
+			for (int sl : snapLocation) {
+				int snapType = sm | sl;
+				
+				p.snap(input.begin(), input.end(), output.begin(), snapType);
+				
+				mpq_class sqLen = output[0]*output[0] + output[1]*output[1] + output[2]*output[2];
+				CPPUNIT_ASSERT_EQUAL_MESSAGE("Snapped point is not on the sphere", mpq_class(1), sqLen);
+			}
 		}
 	}
 }
