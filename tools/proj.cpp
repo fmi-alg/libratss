@@ -320,6 +320,7 @@ int main(int argc, char ** argv) {
 			bc.update(op.coords.begin(), op.coords.end());
 		}
 		op.print(*outFile, cfg.outFormat);
+		*outFile << '\n';
 	}
 	
 	if (cfg.stats) {
