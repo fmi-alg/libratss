@@ -5,6 +5,7 @@
 #include <iterator>
 
 namespace LIB_RATSS_NAMESPACE {
+namespace internal {
 
 template<typename T>
 class ReferenceWrapper {
@@ -114,6 +115,6 @@ private:
 	T_ITERATOR m_base;
 };
 
-}//end namespace
+}}//end namespace internal::LIB_RATSS_NAMESPACE
 
 #endif

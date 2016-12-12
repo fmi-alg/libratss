@@ -5,7 +5,7 @@
 #include <libratss/constants.h>
 #include <libratss/GeoCalc.h>
 #include <libratss/ProjectSN.h>
-#include <libratss/ReferenceWrapper.h>
+#include <libratss/internal/ReferenceWrapper.h>
 #include <assert.h>
 
 
@@ -63,10 +63,10 @@ namespace LIB_RATSS_NAMESPACE {
 
 template<typename T_FT>
 void ProjectS2::plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const {
-	using ConstRefWrap = ReferenceWrapper<const T_FT>;
-	using RefWrap = ReferenceWrapper<T_FT>;
-	using ConstRefWrapIt = ReferenceWrapperIterator<ConstRefWrap * >;
-	using RefWrapIt = ReferenceWrapperIterator<RefWrap *>;
+	using ConstRefWrap = internal::ReferenceWrapper<const T_FT>;
+	using RefWrap = internal::ReferenceWrapper<T_FT>;
+	using ConstRefWrapIt = internal::ReferenceWrapperIterator<ConstRefWrap * >;
+	using RefWrapIt = internal::ReferenceWrapperIterator<RefWrap *>;
 	
 	ConstRefWrap input[3] = {xp, yp, zp};
 	RefWrap output[3] = {xs, ys, zs};
@@ -75,10 +75,10 @@ void ProjectS2::plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, 
 
 template<typename T_FT>
 PositionOnSphere ProjectS2::sphere2Plane(const T_FT & xs, const T_FT & ys, const T_FT & zs, T_FT & xp, T_FT & yp, T_FT & zp) const {
-	using ConstRefWrap = ReferenceWrapper<const T_FT>;
-	using RefWrap = ReferenceWrapper<T_FT>;
-	using ConstRefWrapIt = ReferenceWrapperIterator<ConstRefWrap * >;
-	using RefWrapIt = ReferenceWrapperIterator<RefWrap *>;
+	using ConstRefWrap = internal::ReferenceWrapper<const T_FT>;
+	using RefWrap = internal::ReferenceWrapper<T_FT>;
+	using ConstRefWrapIt = internal::ReferenceWrapperIterator<ConstRefWrap * >;
+	using RefWrapIt = internal::ReferenceWrapperIterator<RefWrap *>;
 	
 	ConstRefWrap input[3] = { xs, ys, zs};
 	RefWrap output[3] = {xp, yp, zp};
