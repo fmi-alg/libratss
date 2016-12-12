@@ -50,6 +50,9 @@ template<typename T_FT_ITERATOR>
 PositionOnSphere ProjectSN::positionOnSphere(T_FT_ITERATOR begin, const T_FT_ITERATOR & end) const {
 	using std::iterator_traits;
 	using value_type = typename iterator_traits<T_FT_ITERATOR>::value_type;
+	if (begin == end) {
+		return SP_INVALID;
+	}
 	int posIndex = -1;
 	int posSign = 0;
 	value_type v( std::numeric_limits<uint32_t>::min() );
@@ -74,6 +77,9 @@ template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
 PositionOnSphere ProjectSN::sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const {
 	using std::iterator_traits;
 	using FT = typename iterator_traits<T_FT_INPUT_ITERATOR>::value_type;
+	if (begin == end) {
+		return SP_INVALID;
+	}
 	PositionOnSphere pos = positionOnSphere(begin, end);
 	int projCoord = abs((int) pos); //starts from 1
 	//first get the value of our projection coordinate
@@ -107,6 +113,9 @@ void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATO
 	using std::iterator_traits;
 	using std::distance;
 	using FT = typename iterator_traits<T_FT_INPUT_ITERATOR>::value_type;
+	if (pos == SP_INVALID) {
+		return;
+	}
 	FT denom(1);
 	int projCoord = abs((int) pos); //starts from 1
 	assert(projCoord <= distance(begin, end));

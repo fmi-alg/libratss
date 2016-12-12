@@ -7,6 +7,8 @@
 namespace LIB_RATSS_NAMESPACE {
 
 typedef enum : int {
+	SP_INVALID = 0,
+	
 	SP_UPPER = 3,
 	SP_LOWER = -3,
 	
