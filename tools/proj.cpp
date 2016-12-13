@@ -4,38 +4,7 @@
 #include "types.h"
 
 using namespace LIB_RATSS_NAMESPACE;
-
-struct InputPoint {
-	Calc c;
-	std::vector<mpfr::mpreal> coords;
-	void normalize() {
-		c.normalize(coords.begin(), coords.end(), coords.begin());
-	}
-	void setPrecision(int precision) {
-		//set the precision of our input variables
-		for(mpfr::mpreal & v : coords) {
-			v.setPrecision(precision, MPFR_RNDZ);
-		}
-	}
-	void assign(std::istream & is) {
-		coords.clear();
-		while (is.good() && is.peek() != '\n') {
-			mpfr::mpreal tmp;
-			is >> tmp;
-			coords.emplace_back( std::move(tmp) );
-		}
-	}
-	void print(std::ostream & out) const {
-		if (!coords.size()) {
-			return;
-		}
-		std::vector<mpfr::mpreal>::const_iterator it(coords.begin()), end(coords.end());
-		out << *it;
-		for(++it; it != end; ++it) {
-			out << ' ' << *it;
-		}
-	}
-};
+using namespace LIB_RATSS_NAMESPACE::tools;
 
 std::ostream & operator<<(std::ostream & out, const InputPoint & ip) {
 	ip.print(out);

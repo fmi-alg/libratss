@@ -1,6 +1,39 @@
 #include "types.h"
 
 namespace LIB_RATSS_NAMESPACE {
+namespace tools {
+
+void InputPoint::normalize() {
+	c.normalize(coords.begin(), coords.end(), coords.begin());
+}
+void InputPoint::setPrecision(int precision) {
+	//set the precision of our input variables
+	for(mpfr::mpreal & v : coords) {
+		v.setPrecision(precision, MPFR_RNDZ);
+	}
+}
+void InputPoint::assign(std::istream & is) {
+	coords.clear();
+	while (is.good() && is.peek() != '\n') {
+		mpfr::mpreal tmp;
+		is >> tmp;
+		coords.emplace_back( std::move(tmp) );
+	}
+}
+void InputPoint::print(std::ostream & out) const {
+	if (!coords.size()) {
+		return;
+	}
+	std::vector<mpfr::mpreal>::const_iterator it(coords.begin()), end(coords.end());
+	out << *it;
+	for(++it; it != end; ++it) {
+		out << ' ' << *it;
+	}
+}
+
+mpfr::mpreal InputPoint::sqLen() {
+	return c.squaredLength(coords.cbegin(), coords.cend());
+}
 
 OutputPoint::OutputPoint() {}
 
@@ -46,11 +79,14 @@ void OutputPoint::print(std::ostream & out, Format fmt) const {
 		}
 	}
 	else if (fmt == FM_FLOAT) {
+		std::streamsize prec = out.precision();
+		out.precision(std::numeric_limits<double>::digits10+1);
 		out << Conversion<mpq_class>::toMpreal(*it, 53).toDouble();
 		for(++it; it != end; ++it) {
 			out << ' ' << Conversion<mpq_class>::toMpreal(*it, 53).toDouble();
 		}
+		out.precision(prec);
 	}
 }
 
-}//end namespace LIB_RATSS_NAMESPACE
+}}//end namespace LIB_RATSS_NAMESPACE
