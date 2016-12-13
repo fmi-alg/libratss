@@ -21,8 +21,8 @@ ENDMACRO(ADD_TEST_TARGET_SINGLE)
 
 message("LIBRATSS_LINK_LIBRARIES=${LIBRATSS_LINK_LIBRARIES}")
 set(TEST_LIB_LINK_LIBS
-	${ratsstests_BINARY_DIR}/libratsstests.a
-	${ratsscommon_BINARY_DIR}/libratsscommon.a
+	ratsstests
+	ratsscommon
 	${LIBRATSS_LINK_LIBRARIES}
 	${CPPUNIT_LIBRARIES}
 )

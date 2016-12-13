@@ -1,6 +1,7 @@
 #include <libratss/ProjectSN.h>
 #include "../common/stats.h"
 #include <fstream>
+#include "types.h"
 
 using namespace LIB_RATSS_NAMESPACE;
 
@@ -32,37 +33,6 @@ struct InputPoint {
 		out << *it;
 		for(++it; it != end; ++it) {
 			out << ' ' << *it;
-		}
-	}
-};
-
-struct OutputPoint {
-	typedef enum {FM_RATIONAL, FM_SPLIT_RATIONAL, FM_FLOAT} Format;
-	std::vector<mpq_class> coords;
-	void clear() { coords.clear(); }
-	void resize(std::size_t _n) { coords.resize(_n); }
-	void print(std::ostream & out, Format fmt) const {
-		if (!coords.size()) {
-			return;
-		}
-		std::vector<mpq_class>::const_iterator it(coords.begin()), end(coords.end());
-		if (fmt == FM_RATIONAL) {
-			out << *it;
-			for(++it; it != end; ++it) {
-				out << ' ' << *it;
-			}
-		}
-		else if (fmt == FM_SPLIT_RATIONAL) {
-			out << it->get_num() << ' ' << it->get_den();
-			for(++it; it != end; ++it) {
-				out << ' ' << it->get_num() << ' ' << it->get_den();
-			}
-		}
-		else if (fmt == FM_FLOAT) {
-			out << Conversion<mpq_class>::toMpreal(*it, 53).toDouble();
-			for(++it; it != end; ++it) {
-				out << ' ' << Conversion<mpq_class>::toMpreal(*it, 53).toDouble();
-			}
 		}
 	}
 };
@@ -313,6 +283,7 @@ int main(int argc, char ** argv) {
 				std::cout << '(' << ip << ')' << '\n';
 			}
 		}
+		ip.setPrecision(cfg.precision);
 		op.clear();
 		op.resize(ip.coords.size());
 		proj.snap(ip.coords.begin(), ip.coords.end(), op.coords.begin(), cfg.snapType);
