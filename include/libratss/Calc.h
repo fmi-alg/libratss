@@ -32,6 +32,8 @@ public:
 	mpfr::mpreal toFixpoint(const mpfr::mpreal & v) const;
 	void makeFixpoint(mpfr::mpreal& v) const;
 public:
+	template<typename T_INPUT_ITERATOR>
+	mpfr::mpreal squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const;
 	///input and output may point to the same storage
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const;
@@ -75,13 +77,18 @@ public:
 
 namespace LIB_RATSS_NAMESPACE {
 
-template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-void Calc::normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const {
-	mpfr::mpreal tmp;
+template<typename T_INPUT_ITERATOR>
+mpfr::mpreal Calc::squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const {
+	mpfr::mpreal tmp(0);
 	for(T_INPUT_ITERATOR it(begin); it != end; ++it) {
 		tmp = add(sq(*begin), tmp);
 	}
-	tmp = sqrt(tmp);
+	return tmp;
+}
+
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void Calc::normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const {
+	mpfr::mpreal tmp = sqrt( squaredLength(begin, end) );
 	for(; begin != end; ++begin, ++out) {
 		*out = div(*begin, tmp);
 	}
