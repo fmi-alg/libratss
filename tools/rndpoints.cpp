@@ -12,6 +12,7 @@
 #include "types.h"
 
 using namespace LIB_RATSS_NAMESPACE;
+using namespace LIB_RATSS_NAMESPACE::tools;
 
 typedef enum {GT_NPLANE, GT_NSPHERE, GT_CGAL, GT_GEO } GeneratorType;
 
@@ -89,18 +90,29 @@ struct NPlanePointGenerator: PointGenerator {
 	
 	NPlanePointGenerator() : circleRnd(-1.0, 1.0), boolRnd(0, 1) {}
 	
+	void gen_plane_point(std::size_t count, InputPoint & ip) {
+		ip.coords.resize(count);
+		for(mpfr::mpreal & v : ip.coords) {
+			v = circleRnd(gen);
+		}
+	}
+	
 	virtual OutputPoint generate(int dimension) override {
-		std::vector<mpfr::mpreal> vec; 
+		InputPoint ip;
 		OutputPoint ret;
 		ret.resize(dimension); 
-		for(int i(0); i < dimension; ++i) {
-			vec.emplace_back( circleRnd(gen) );
+		while (true) {
+			gen_plane_point(dimension-1, ip);
+			if (ip.sqLen() <= 1.0) {
+				break;
+			}
 		}
+		ip.coords.emplace_back(0);
 		bool positiveSide = boolRnd(gen);
-		vec[0] = mpfr::mpreal(0);
-		std::vector<mpq_class> snapVec(vec.size());
-		proj.calc().toRational(vec.begin(), vec.end(), snapVec.begin(), Calc::ST_FT);
-		proj.plane2Sphere(snapVec.begin(), snapVec.end(), (PositionOnSphere)(positiveSide ? 1 : -1), ret.coords.begin());
+		std::vector<mpq_class> snapVec(ip.coords.size());
+		proj.calc().toRational(ip.coords.begin(), ip.coords.end(), snapVec.begin(), Calc::ST_FT);
+		assert(snapVec.size() == dimension);
+		proj.plane2Sphere(snapVec.begin(), snapVec.end(), (PositionOnSphere)(positiveSide ? dimension : -dimension), ret.coords.begin());
 		return ret;
 	}
 	
@@ -110,11 +122,11 @@ struct NPlanePointGenerator: PointGenerator {
 };
 
 struct NSpherePointGenerator: PointGenerator {
-	std::uniform_real_distribution<double> circleRnd;
+	std::normal_distribution<double> circleRnd;
 	std::default_random_engine gen;
 	ProjectSN proj;
 	
-	NSpherePointGenerator() : circleRnd(-1.0, 1.0) {}
+	NSpherePointGenerator() : circleRnd(0.0, 1.0) {}
 	
 	virtual OutputPoint generate(int dimension) override {
 		std::vector<mpfr::mpreal> vec; 
@@ -262,6 +274,7 @@ int main(int argc, char ** argv) {
 	for(uint32_t i(0); i < cfg.count; ++i) {
 		OutputPoint p = pg->generate(cfg.dimension);
 		p.print(std::cout, cfg.ft);
+		std::cout << '\n';
 	}
 	return 0;
 }
