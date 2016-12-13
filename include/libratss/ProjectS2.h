@@ -13,12 +13,16 @@ namespace LIB_RATSS_NAMESPACE {
 
 class ProjectS2: public ProjectSN {
 public:
+	using ProjectSN::sphere2Plane;
+	using ProjectSN::plane2Sphere;
+
 	template<typename T_FT>
 	PositionOnSphere sphere2Plane(const T_FT& xs, const T_FT& ys, const T_FT& zs, T_FT& xp, T_FT& yp, T_FT& zp) const WARN_UNUSED_RESULT;
 
 	template<typename T_FT>
 	void plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const;
 public:
+	using ProjectSN::snap;
 	void snap(const mpfr::mpreal & flxs, const mpfr::mpreal & flys, const mpfr::mpreal & flzs, mpq_class & xs, mpq_class & ys, mpq_class & zs, int precision) const;
 public:
 	///lat and lon are in DEGREE!
