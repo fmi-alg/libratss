@@ -80,7 +80,7 @@ namespace LIB_RATSS_NAMESPACE {
 template<typename T_INPUT_ITERATOR>
 mpfr::mpreal Calc::squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const {
 	mpfr::mpreal tmp(0);
-	for(T_INPUT_ITERATOR it(begin); it != end; ++it) {
+	for(; begin != end; ++begin) {
 		tmp = add(sq(*begin), tmp);
 	}
 	return tmp;
@@ -93,7 +93,6 @@ void Calc::normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		*out = div(*begin, tmp);
 	}
 }
-
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 typename std::enable_if<
