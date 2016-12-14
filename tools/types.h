@@ -24,7 +24,7 @@ struct InputPoint {
 };
 
 struct OutputPoint {
-	typedef enum {FM_RATIONAL, FM_SPLIT_RATIONAL, FM_FLOAT} Format;
+	typedef enum {FM_RATIONAL, FM_SPLIT_RATIONAL, FM_FLOAT, FM_FLOAT128} Format;
 	std::vector<mpq_class> coords;
 	OutputPoint();
 	OutputPoint(int dimension);

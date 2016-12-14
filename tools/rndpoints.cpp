@@ -148,7 +148,7 @@ void help(std::ostream & out) {
 	out << "prg OPTIONS\n"
 		"Options:\n"
 		"-g generator\tgenerator = (nplane|nsphere|cgal|geo)\n"
-		"-f format\tformat = (rational|split|float)"
+		"-f format\tformat = (rational|split|float|float128)"
 		"-d dimensions\n"
 		"-n number\tnumber of points to create\n"
 		<< std::endl;
@@ -202,6 +202,9 @@ struct Config {
 					}
 					else if (ftStr == "float") {
 						ft = OutputPoint::FM_FLOAT;
+					}
+					else if (ftStr == "float128") {
+						ft = OutputPoint::FM_FLOAT128;
 					}
 					else {
 						std::cerr << "Unsupported output format: " << ftStr << std::endl;

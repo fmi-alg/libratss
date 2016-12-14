@@ -87,6 +87,12 @@ void OutputPoint::print(std::ostream & out, Format fmt) const {
 		}
 		out.precision(prec);
 	}
+	else if (fmt == FM_FLOAT128) {
+		out << Conversion<mpq_class>::toMpreal(*it, 128);
+		for(++it; it != end; ++it) {
+			out << ' ' << Conversion<mpq_class>::toMpreal(*it, 128);
+		}
+	}
 }
 
 bool OutputPoint::valid() const {
