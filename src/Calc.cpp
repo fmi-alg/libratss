@@ -1,5 +1,6 @@
 #include <libratss/Calc.h>
 #include <assert.h>
+#include <cmath>
 
 namespace LIB_RATSS_NAMESPACE {
 
@@ -76,8 +77,43 @@ mpfr::mpreal Calc::sub(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	return tmp1-tmp2;
 }
 
+/*
+mpfr has the following constraints:
+0.5 <= m < 1
+m[0] = 1
+e = signed integer
+we want to emulate a fixed-point number, thus:
+m * 2^exp = m_fixed
+The issue here are not the large number since they should usually be between -1 and 1
+The problem are points that are close to 0 that are representable by floating points but to a lesser degree by a fixed point type
+*/
 void Calc::makeFixpoint(mpfr::mpreal& v) const {
-
+	mp_exp_t exp = v.get_exp();
+	int prec = v.get_prec();
+	
+	if (exp < -prec) { //exponent does more right-shifts than we have bits in our mantissa
+		using std::signbit;
+		v.setZero((signbit(v) ? -1 : 1));
+	}
+	else if (exp > prec) { //exponent does more left shifts than we have bits in our mantissa
+		using std::signbit;
+		v.setInf((signbit(v) ? -1 : 1));
+	}
+	else if (exp < 0) {
+		//exponent does right shifts,
+		//this means that there are leading zeros,
+		//thus we need to cut off as many bits at the end as we have leading zeros
+		int new_prec = prec + exp;
+		v.setPrecision(new_prec, MPFR_RNDZ);
+	}
+	else if (exp > 0) {
+		//exponent does left shifts,
+		//this means that the decimal point changes
+		//this is ok as long as it does not go beyond the last digit
+		//this is captured in the second case
+		//so there is nothing left todo here
+		;
+	}
 }
 
 mpfr::mpreal Calc::toFixpoint(const mpfr::mpreal& v) const {
