@@ -89,4 +89,13 @@ void OutputPoint::print(std::ostream & out, Format fmt) const {
 	}
 }
 
+bool OutputPoint::valid() const {
+	mpq_class tmp(0);
+	for(const mpq_class & c : coords) {
+		tmp += c*c;
+	}
+	return tmp == mpq_class(1);
+}
+
+
 }}//end namespace LIB_RATSS_NAMESPACE

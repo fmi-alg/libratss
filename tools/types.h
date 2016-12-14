@@ -35,6 +35,7 @@ struct OutputPoint {
 	void clear();
 	void resize(std::size_t _n);
 	void print(std::ostream & out, Format fmt) const;
+	bool valid() const;
 };
 
 }}//end LIB_RATSS_NAMESPACE
