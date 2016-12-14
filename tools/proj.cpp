@@ -33,6 +33,7 @@ struct Config {
 	bool normalize;
 	bool stats;
 	bool verbose;
+	bool check;
 	OutputPoint::Format outFormat;
 	
 	Config() :
@@ -41,6 +42,7 @@ struct Config {
 	normalize(false),
 	stats(false),
 	verbose(false),
+	check(false),
 	outFormat(OutputPoint::FM_RATIONAL)
 	{}
 	int parse(int argc, char ** argv) {
@@ -132,6 +134,9 @@ struct Config {
 					return -1;
 				}
 			}
+			else if (token == "-c") {
+				check = true;
+			}
 			else if (token == "-n") {
 				normalize = true;
 			}
@@ -182,6 +187,7 @@ std::ostream & operator<<(std::ostream & out, const Config & cfg) {
 	}
 	out << '\n';
 	out << "Float conversion location: " << (cfg.snapType & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
+	out << "Check: " << (cfg.check ? "yes" : "no") << '\n';
 	out << "Normalize: " << (cfg.normalize ? "yes" : "no") << '\n';
 	out << "Output format: ";
 	if (cfg.outFormat == OutputPoint::FM_FLOAT) {
@@ -269,6 +275,10 @@ int main(int argc, char ** argv) {
 		proj.snap(ip.coords.begin(), ip.coords.end(), op.coords.begin(), cfg.snapType);
 		if (cfg.stats) {
 			bc.update(op.coords.begin(), op.coords.end());
+		}
+		if (cfg.check && !op.valid()) {
+			std::cerr << "Invalid projection for point " << ip << std::endl;
+			return -1;
 		}
 		op.print(*outFile, cfg.outFormat);
 		*outFile << '\n';
