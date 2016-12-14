@@ -60,12 +60,13 @@ struct Config {
 				if (i+1 < argc) {
 					std::string stStr(argv[i+1]);
 					if (stStr == "cf") {
-						snapType &= ~ProjectSN::ST_FT;
 						snapType |= ProjectSN::ST_CF;
 					}
-					else if (stStr == "ft") {
-						snapType |= ProjectSN::ST_FT;
-						snapType &= ~ProjectSN::ST_CF;
+					else if (stStr == "fx") {
+						snapType |= ProjectSN::ST_FX;
+					}
+					else if (stStr == "fl") {
+						snapType |= ProjectSN::ST_FL;
 					}
 					++i;
 				}
@@ -159,8 +160,8 @@ struct Config {
 			snapType |= ProjectSN::ST_PLANE;
 		}
 		
-		if (! (snapType & (ProjectSN::ST_CF|ProjectSN::ST_FT))) {
-			snapType |= ProjectSN::ST_FT;
+		if (! (snapType & (ProjectSN::ST_CF|ProjectSN::ST_FX|ProjectSN::ST_FL))) {
+			snapType |= ProjectSN::ST_FX;
 		}
 		
 		return 1;
@@ -169,7 +170,17 @@ struct Config {
 
 std::ostream & operator<<(std::ostream & out, const Config & cfg) {
 	out << "Precision: " << cfg.precision << '\n';
-	out << "Float conversion method: " << (cfg.snapType & ratss::ProjectSN::ST_FT ? "fixed point" : "continous fraction") << '\n';
+	out << "Float conversion method: ";
+	if (cfg.snapType & ratss::ProjectSN::ST_CF) {
+		out << "continous fraction";
+	}
+	else if (cfg.snapType & ratss::ProjectSN::ST_FX) {
+		out << "fix point";
+	}
+	else if (cfg.snapType & ratss::ProjectSN::ST_FL) {
+		out << "floating point";
+	}
+	out << '\n';
 	out << "Float conversion location: " << (cfg.snapType & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
 	out << "Normalize: " << (cfg.normalize ? "yes" : "no") << '\n';
 	out << "Output format: ";

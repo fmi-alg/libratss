@@ -79,7 +79,7 @@ void NDProjectionTest::fixPointRandom() {
 }
 
 void NDProjectionTest::snapRandom() {
-	std::array<int, 2> snapMethod = {ProjectSN::ST_FT, ProjectSN::ST_CF};
+	std::array<int, 3> snapMethod = {ProjectSN::ST_CF, ProjectSN::ST_FX, ProjectSN::ST_FL};
 	std::array<int, 2> snapLocation = {ProjectSN::ST_PLANE, ProjectSN::ST_SPHERE };
 	
 	std::vector<SphericalCoord> coords = getRandomPolarPoints(num_random_test_points);

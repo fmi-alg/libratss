@@ -164,8 +164,11 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st) const {
 		mpq_class upper = rat + eps;
 		return within(lower, upper);
 	}
-	else if (st & ST_FT) {
+	else if (st & ST_FX) {
 		return Conversion<mpfr::mpreal>::toMpq( toFixpoint(v) );
+	}
+	else if (st & st & ST_FL) {
+		return Conversion<mpfr::mpreal>::toMpq( v );
 	}
 	else {
 		throw std::runtime_error("ratss::Calc::snap: Unsupported snap type");

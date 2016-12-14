@@ -110,7 +110,7 @@ struct NPlanePointGenerator: PointGenerator {
 		ip.coords.emplace_back(0);
 		bool positiveSide = boolRnd(gen);
 		std::vector<mpq_class> snapVec(ip.coords.size());
-		proj.calc().toRational(ip.coords.begin(), ip.coords.end(), snapVec.begin(), Calc::ST_FT);
+		proj.calc().toRational(ip.coords.begin(), ip.coords.end(), snapVec.begin(), Calc::ST_CF);
 		assert(snapVec.size() == dimension);
 		proj.plane2Sphere(snapVec.begin(), snapVec.end(), (PositionOnSphere)(positiveSide ? dimension : -dimension), ret.coords.begin());
 		return ret;

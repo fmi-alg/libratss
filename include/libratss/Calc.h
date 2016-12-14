@@ -10,7 +10,7 @@ namespace LIB_RATSS_NAMESPACE {
 class Calc {
 public:
 	///Values are compatible with the ones defined in ProjectSN::SnapType
-	typedef enum { ST_CF=0x4, ST_FT=0x8 } SnapType;
+	typedef enum { ST_CF=0x4, ST_FX=0x8, ST_FL=0x10 } SnapType;
 public:
 	mpfr::mpreal sin(const mpfr::mpreal & v) const;
 	mpfr::mpreal asin(const mpfr::mpreal & v) const;

@@ -13,11 +13,12 @@ class ProjectSN {
 public:
 	typedef enum {
 		ST_NONE=0x0,
-		ST_SPHERE=0x1,
-		ST_PLANE=0x2,
-		ST_CF=0x4,
-		ST_FT=0x8,
-		ST_NORMALIZE=0x10
+		ST_SPHERE=0x1, //snap point on sphere
+		ST_PLANE=0x2, //snap point on plane
+		ST_CF=0x4, //snap by continous fraction
+		ST_FX=0x8, //snap by fix point
+		ST_FL=0x10, //snap by floating point
+		ST_NORMALIZE=0x20
 	} SnapType;
 public:
 	template<typename T_FT_ITERATOR>
@@ -33,7 +34,7 @@ public:
 public:
 	///@param out an iterator accepting mpq_class
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType = (ST_PLANE|ST_FT)) const;
+	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType = (ST_PLANE|ST_FX)) const;
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:

@@ -14,7 +14,7 @@ void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const m
 	ConstRefWrapIt inputEnd(input+3);
 	RefWrapIt outputBegin(output);
 	
-	ProjectSN::snap<ConstRefWrapIt, RefWrapIt>(inputBegin, inputEnd, outputBegin, ST_FT | ST_PLANE | ST_NORMALIZE);
+	ProjectSN::snap<ConstRefWrapIt, RefWrapIt>(inputBegin, inputEnd, outputBegin, ST_FX | ST_PLANE | ST_NORMALIZE);
 
 	assert(xs*xs + ys*ys + zs*zs == 1);
 }
