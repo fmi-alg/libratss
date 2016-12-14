@@ -106,9 +106,9 @@ int main(int argc, char ** argv) {
 		snapCastProj.update(zs);
 		
 		//snap with continous fraction
-		xps = calc.snap(xpd, LIB_RATSS_NAMESPACE::Calc::ST_FT);
-		yps = calc.snap(ypd, LIB_RATSS_NAMESPACE::Calc::ST_FT);
-		zps = calc.snap(zpd, LIB_RATSS_NAMESPACE::Calc::ST_FT);
+		xps = calc.snap(xpd, LIB_RATSS_NAMESPACE::Calc::ST_CF);
+		yps = calc.snap(ypd, LIB_RATSS_NAMESPACE::Calc::ST_CF);
+		zps = calc.snap(zpd, LIB_RATSS_NAMESPACE::Calc::ST_CF);
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		snapFrac.update(xps);
 		snapFrac.update(yps);
