@@ -135,7 +135,7 @@ struct NSpherePointGenerator: PointGenerator {
 		for(int i(0); i < dimension; ++i) {
 			vec.emplace_back( circleRnd(gen) );
 		}
-		proj.snap(vec.begin(), vec.end(), ret.coords.begin(), ProjectSN::ST_CF | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
+		proj.snap(vec.begin(), vec.end(), ret.coords.begin(), ProjectSN::ST_FX | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
 		return ret;
 	}
 	
