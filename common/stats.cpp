@@ -3,34 +3,34 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
-BitCount::BitCount() :
-count(0),
-maxNofBitsNum(0),
-maxNofBitsDenom(0),
-sumNofBitsNum(0),
-sumNofBitsDenom(0)
-{}
+BitCount::BitCount() {}
 
 void BitCount::update(mpq_class v) {
 	v.canonicalize();
-	++count;
 	std::size_t sizeNum = mpz_sizeinbase(v.get_num().get_mpz_t(), 2);
 	std::size_t sizeDenom = mpz_sizeinbase(v.get_den().get_mpz_t(), 2);
 	
-	maxNofBitsNum = std::max<std::size_t>(sizeNum, maxNofBitsNum);
-	maxNofBitsDenom = std::max<std::size_t>(sizeDenom, maxNofBitsDenom);
+	numBits.update(sizeNum);
+	denomBits.update(sizeDenom);
+
+	sizeNum = __GMPXX_BITS_TO_LIMBS(sizeNum);
+	sizeDenom = __GMPXX_BITS_TO_LIMBS(sizeDenom);
 	
-	sumNofBitsNum += sizeNum;
-	sumNofBitsDenom += sizeDenom;
+	numLimbs.update(sizeNum);
+	denomLimbs.update(sizeDenom);
+	
 }
 
 void BitCount::print(std::ostream & out) const {
-	out << "MaxSizeNum   [Bits]: " << maxNofBitsNum << '\n';
-	out << "MaxSizeDenom [Bits]: " << maxNofBitsDenom << '\n';
-	if ( count) {
-		out << "MeanSizeNum [Bits]: " << (sumNofBitsDenom/(3*count)) << '\n';
-		out << "MeanSizeDenom [Bits]: " << (sumNofBitsDenom/(3*count));
-	}
+	out << "Bit counts:\n";
+	numBits.print(out, "\tNumerator ");
+	out << '\n';
+	numBits.print(out, "\tDenominator ");
+	out << '\n';
+	out << "Limb counts:\n";
+	numLimbs.print(out, "\tNumerator ");
+	out << '\n';
+	denomLimbs.print(out, "\tDenominator ");
 }
 
 std::ostream & operator<<(std::ostream& out, const BitCount & bc) {
