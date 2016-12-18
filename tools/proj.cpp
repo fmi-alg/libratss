@@ -14,6 +14,7 @@ std::ostream & operator<<(std::ostream & out, const InputPoint & ip) {
 void help() {
 	std::cout << "prg OPTIONS\n"
 		"Options:\n"
+		"\t-v\tverbose\n"
 		"\t-p num\tset the precision of the input in bits\n"
 		"\t-r (fp|cf)\tset the type of float->rational conversion. fp=fixpoint, cf=continous fraction\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
@@ -200,7 +201,7 @@ std::ostream & operator<<(std::ostream & out, const Config & cfg) {
 		out << "rational split by space";
 	}
 	out << '\n';
-	out << "Input file: " << (cfg.inFileName.size() ? cfg.inFileName : "stdint") << '\n';
+	out << "Input file: " << (cfg.inFileName.size() ? cfg.inFileName : "stdin") << '\n';
 	out << "Output file: " << (cfg.outFileName.size() ? cfg.outFileName : "stdout") << '\n';
 	return out;
 }
