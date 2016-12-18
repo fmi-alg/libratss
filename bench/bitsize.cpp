@@ -99,6 +99,7 @@ int main(int argc, char ** argv) {
 		zps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(zpd);
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
+		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
 		snapCast.update(xps);
 		snapCast.update(yps);
 		snapCast.update(zps);
@@ -112,6 +113,7 @@ int main(int argc, char ** argv) {
 		zps = calc.snap(zpd, LIB_RATSS_NAMESPACE::Calc::ST_CF);
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
+		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
 		snapFrac.update(xps);
 		snapFrac.update(yps);
 		snapFrac.update(zps);
@@ -129,6 +131,7 @@ int main(int argc, char ** argv) {
 			zps = calc.within(zps-manEpsVal, zps+manEpsVal);
 			p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 			assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
+			assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
 			snapManEps.update(xps);
 			snapManEps.update(yps);
 			snapManEps.update(zps);
