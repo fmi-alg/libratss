@@ -25,7 +25,7 @@ void BitCount::print(std::ostream & out) const {
 	out << "Bit counts:\n";
 	numBits.print(out, "\tNumerator ");
 	out << '\n';
-	numBits.print(out, "\tDenominator ");
+	denomBits.print(out, "\tDenominator ");
 	out << '\n';
 	out << "Limb counts:\n";
 	numLimbs.print(out, "\tNumerator ");
