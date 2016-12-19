@@ -6,7 +6,7 @@ void help() {
 	std::cout << "prg [-i <file with one point per line> [-r <number of random points>] [-p <precisio>] [-e <manual eps>]" << std::endl;
 }
 
-using LIB_RATSS_NAMESPACE::BitCount;
+using namespace LIB_RATSS_NAMESPACE;
 
 int main(int argc, char ** argv) {
 	std::size_t num_rand_points = 0;
@@ -48,20 +48,20 @@ int main(int argc, char ** argv) {
 		return -1;
 	}
 	
-	std::vector<LIB_RATSS_NAMESPACE::SphericalCoord> points;
+	std::vector<SphericalCoord> points;
 	
 	if (inFile.size()) {
 		struct MyIt {
-			std::vector<LIB_RATSS_NAMESPACE::SphericalCoord> & points;
-			MyIt(std::vector<LIB_RATSS_NAMESPACE::SphericalCoord> & points) : points(points) {}
+			std::vector<SphericalCoord> & points;
+			MyIt(std::vector<SphericalCoord> & points) : points(points) {}
 			MyIt(const MyIt & other) : points(other.points) {}
 			MyIt & operator*() { return *this; }
 			MyIt & operator++() { return *this; }
-			MyIt & operator=(const LIB_RATSS_NAMESPACE::GeoCoord & c) {
+			MyIt & operator=(const GeoCoord & c) {
 				points.emplace_back(c);
 			}
 		};
-		LIB_RATSS_NAMESPACE::readPoints(inFile, MyIt(points));
+		readPoints(inFile, MyIt(points));
 		std::cout << "Read " << points.size() << " points from " << inFile << std::endl;
 	}
 	
@@ -69,8 +69,8 @@ int main(int argc, char ** argv) {
 		ratss::getRandomPolarPoints(num_rand_points, std::back_inserter(points));
 	}
 	
-	BitCount snapFrac, snapCast, snapManEps;
-	BitCount snapFracProj, snapCastProj, snapManEpsProj;
+	BitCount snapFrac, snapFl, snapFx, snapManEps;
+	BitCount snapFracProj, snapFlProj, snapFxProj, snapManEpsProj;
 	
 	std::cout << "Points: " << points.size() << std::endl;
 	std::cout << "Precision: " << initialPrecision << std::endl;
@@ -83,7 +83,7 @@ int main(int argc, char ** argv) {
 	mpfr::mpreal xd, yd, zd, xpd, ypd, zpd;
 	mpq_class xs, ys, zs, xps, yps, zps;
 	for(std::size_t i(0), s(points.size()); i < s; ++i) {
-		const LIB_RATSS_NAMESPACE::SphericalCoord & c = points[i];
+		const SphericalCoord & c = points[i];
 		mpfr::mpreal theta(c.theta, initialPrecision);
 		mpfr::mpreal phi(c.phi, initialPrecision);
 		calc.cartesianFromSpherical(theta, phi, xd, yd, zd);
@@ -94,23 +94,37 @@ int main(int argc, char ** argv) {
 		assert(xpd*xpd + ypd*ypd + zpd*zpd <= 1);
 		
 		//snap with cast
-		xps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(xpd);
-		yps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(ypd);
-		zps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(zpd);
+		xps = calc.snap(xpd, Calc::ST_FL);
+		yps = calc.snap(ypd, Calc::ST_FL);
+		zps = calc.snap(zpd, Calc::ST_FL);
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
 		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
-		snapCast.update(xps);
-		snapCast.update(yps);
-		snapCast.update(zps);
-		snapCastProj.update(xs);
-		snapCastProj.update(ys);
-		snapCastProj.update(zs);
+		      snapFl.update(xps);
+		      snapFl.update(yps);
+		      snapFl.update(zps);
+		      snapFlProj.update(xs);
+		      snapFlProj.update(ys);
+		      snapFlProj.update(zs);
+		
+		//snap with fix point
+		xps = calc.snap(xpd, Calc::ST_FX);
+		yps = calc.snap(ypd, Calc::ST_FX);
+		zps = calc.snap(zpd, Calc::ST_FX);
+		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
+		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
+		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
+		snapFx.update(xps);
+		snapFx.update(yps);
+		snapFx.update(zps);
+		snapFxProj.update(xs);
+		snapFxProj.update(ys);
+		snapFxProj.update(zs);
 		
 		//snap with continous fraction
-		xps = calc.snap(xpd, LIB_RATSS_NAMESPACE::Calc::ST_CF);
-		yps = calc.snap(ypd, LIB_RATSS_NAMESPACE::Calc::ST_CF);
-		zps = calc.snap(zpd, LIB_RATSS_NAMESPACE::Calc::ST_CF);
+		xps = calc.snap(xpd, Calc::ST_CF);
+		yps = calc.snap(ypd, Calc::ST_CF);
+		zps = calc.snap(zpd, Calc::ST_CF);
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
 		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
@@ -123,9 +137,9 @@ int main(int argc, char ** argv) {
 		
 		//snap with continous fraction with manual eps
 		if (manualEps > 0) {
-			xps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(xpd);
-			yps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(ypd);
-			zps = LIB_RATSS_NAMESPACE::Conversion<mpfr::mpreal>::toMpq(zpd);
+			xps = Conversion<mpfr::mpreal>::toMpq(xpd);
+			yps = Conversion<mpfr::mpreal>::toMpq(ypd);
+			zps = Conversion<mpfr::mpreal>::toMpq(zpd);
 			xps = calc.within(xps-manEpsVal, xps+manEpsVal);
 			yps = calc.within(yps-manEpsVal, yps+manEpsVal);
 			zps = calc.within(zps-manEpsVal, zps+manEpsVal);
@@ -145,12 +159,14 @@ int main(int argc, char ** argv) {
 	}
 	std::cout << std::endl;
 	
-	std::cout << "Bit sizes with snapping by cast:\n" << snapCast << '\n';
+	std::cout << "Bit sizes with snapping with float:\n" << snapFl << '\n';
+	std::cout << "Bit sizes with snapping with fix point:\n" << snapFx << '\n';
 	std::cout << "Bit sizes with snapping by continous fraction:\n" << snapFrac << '\n';
 	if (manualEps > 0) {
 		std::cout << "Bit sizes with snapping by continous fraction with given eps:\n" << snapManEps << '\n';
 	}
-	std::cout << "Bit sizes with projection and snapping by cast:\n" << snapCastProj << '\n';
+	std::cout << "Bit sizes with projection and snapping with float:\n" << snapFlProj << '\n';
+	std::cout << "Bit sizes with projection and snapping with fixpoint:\n" << snapFxProj << '\n';
 	std::cout << "Bit sizes with projection and snapping by continous fraction::\n" << snapFracProj << '\n';
 	if (manualEps > 0) {
 		std::cout << "Bit sizes with projection and snapping by continous fraction with given eps:\n" << snapManEpsProj << '\n';
