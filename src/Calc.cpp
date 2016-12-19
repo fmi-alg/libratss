@@ -132,18 +132,23 @@ mpfr::mpreal Calc::toFixpoint(const mpfr::mpreal& v, int significands) const {
 }
 
 mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
-	if (lower == upper) {
-		return lower;
-	}
+// 	if (lower == upper) {
+// 		return lower;
+// 	}
+	
 	if (lower > upper) {
 		return within(upper, lower);
 	}
 	if (lower < 0 && upper > 0) {
 		return mpq_class(0);
 	}
+	if (lower == 0 || upper == 0) {
+		return mpq_class(0);
+	}
 	if (lower < 0) { //this also means that upper is < 0
 		return - within(-upper, -lower);
 	}
+	
 	
 	//now calculate continous fractions for lower and upper up to the point where they differ
 	std::vector<mpz_class> cf;
@@ -159,22 +164,41 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 // 		std::cout << "ldiv=" << ldiv << std::endl;
 // 		std::cout << "udiv=" << udiv << std::endl;
 
+		//prepare for next iteration
+		ltmp -= mpq_class(ldiv);
+		utmp -= mpq_class(udiv);
+
+		//one is the prefix of the other
+		
+		if (ltmp == 0 && utmp == 0) {
+			cf.push_back(ldiv);
+// 			std::cout << "push " << ldiv << " and break" << '\n';
+			break;
+		}
+		else if (ltmp == 0 || utmp == 0) {
+			using std::min;
+			if (ltmp == 0) {
+				cf.push_back(ldiv);
+			}
+			else {
+				cf.push_back(udiv);
+			}
+// 			cf.push_back(ldiv);
+// 			cf.push_back( min(ldiv, udiv)+mpz_class(1) );
+// 			std::cout << "Break since ltmp/utmp == 0" << std::endl;
+// 			std::cout << "push " << min(ldiv, udiv)+mpz_class(1) << '\n';
+			break;
+		}
+		
 		if ( ldiv != udiv ) {
 			using std::min;
-			cf.push_back( min(ldiv, udiv)+1 );
+			cf.push_back( min(ldiv, udiv)+mpz_class(1) );
+// 			std::cout << "push " << min(ldiv, udiv)+mpz_class(1) << " and break" << '\n';
 			break;
 		}
 		else {
 			cf.push_back(ldiv);
-		}
-		
-		//prepare for next iteration
-		ltmp -= ldiv;
-		utmp -= udiv;
-		
-		//one is the prefix of the other
-		if (ltmp == 0 || utmp == 0) {
-			break;
+// 			std::cout << "push " << ldiv << '\n';
 		}
 		
 		ltmp = 1  / ltmp;
@@ -188,18 +212,59 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 	
 	//we now have a (regular) continous fraction in cf, let's reduce it
 	//the form is a_0 + ( 1 / (a_1 + 1 / (a_2 + 1 / (a_3 + ...))))
-	mpq_class result(cf.back());
-	result.canonicalize();
+	mpq_class result_naive(cf.back());
+	result_naive.canonicalize();
 	for(auto it(cf.rbegin()+1), end(cf.rend()); it != end; ++it) {
 // 		std::cout << "result=" << result << std::endl;
-		// result is the denominator of the fraction
-		result = 1 / result;
-		result += *it;
+// 		result is the denominator of the fraction
+		result_naive = 1 / result_naive;
+		result_naive += mpq_class( *it );
 	}
+	result_naive.canonicalize();
+	
+	mpz_class pn(cf.front()), pn1(1), pn2(0);
+	mpz_class qn(1), qn1(0), qn2(1);
+// 	mpz_class ptmp, qtmp;
+	for(auto it(cf.begin()+1), end(cf.end()); it != end; ++it) {
+		const mpz_class & a_i = *it;
+		pn = a_i * pn1 + pn2;
+		pn2 = pn1;
+		pn1 = pn;
+		
+		qn = a_i * qn1 + qn2;
+		qn2 = qn1;
+		qn1 = qn;
+	}
+	mpq_class result(qn, pn);
 	result.canonicalize();
+	
+	if (result != result_naive) {
+		std::cout << "result=" << result << '\n';
+		std::cout << "result_naive=" << result_naive << '\n';
+		using std::abs;
+		std::cout.precision(20);
+		std::cout << "diff=" << Conversion<mpq_class>::toMpreal(abs(result-result_naive), 64) << std::endl;
+	}
+	assert(result_naive == result);
+// 	if (result <= lower || result >= upper) {
+// 		std::cout << "result=" << result << std::endl;
+// 	}
 // 	std::cout << "result=" << result << std::endl;
+	if (result > upper) {
+		std::cout << "result=" << result << '\n';
+		std::cout << "upper=" << upper << '\n';
+		std::cout << "lower=" << lower << '\n';
+	}
+	assert(result <= 1 || result >= -1);
 	assert(result >= lower);
 	assert(result <= upper);
+	if (result.get_den() > upper.get_den() || result.get_den() > lower.get_den()) {
+		std::cout << "result=" << result << '\n';
+		std::cout << "upper=" << upper << '\n';
+		std::cout << "lower=" << lower << '\n';
+	}
+	assert(result.get_den() <= lower.get_den());
+	assert(result.get_den() <= upper.get_den());
 	return result;
 }
 
