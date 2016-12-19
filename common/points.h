@@ -15,7 +15,7 @@ struct InputPoint {
 	void assign(std::istream & is);
 	void print(std::ostream & out) const;
 	mpfr::mpreal epsUpperBound() const;
-	mpfr::mpreal sqLen();
+	mpfr::mpreal sqLen() const;
 };
 
 struct OutputPoint {

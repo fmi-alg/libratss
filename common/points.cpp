@@ -34,7 +34,7 @@ mpfr::mpreal InputPoint::epsUpperBound() const {
 	return (sqLen() - 1)/2;
 }
 
-mpfr::mpreal InputPoint::sqLen() {
+mpfr::mpreal InputPoint::sqLen() const {
 	return c.squaredLength(coords.cbegin(), coords.cend());
 }
 
