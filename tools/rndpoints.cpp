@@ -147,7 +147,7 @@ void help(std::ostream & out) {
 	out << "prg OPTIONS\n"
 		"Options:\n"
 		"-g generator\tgenerator = (nplane|nsphere|cgal|geo)\n"
-		"-f format\tformat = (rational|split|float|float128)"
+		"-f format\tformat = (rational|split|float|float128)\n"
 		"-d dimensions\n"
 		"-n number\tnumber of points to create\n"
 		<< std::endl;
