@@ -140,6 +140,7 @@ void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATO
 		//and the projection coordinate
 		*out = (std::signbit<int>(pos) ? 1 : -1) * (denom - 2) / denom;
 		++out;
+		assert(*it == FT(0));
 		++it;
 		//and the rest
 		for( ; it != end; ++it, ++out) {

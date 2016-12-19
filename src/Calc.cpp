@@ -172,6 +172,8 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 		utmp = 1 / utmp;
 	}
 	if (cf.size() == 1) {
+		assert(cf.back() >= lower);
+		assert(cf.back() <= upper);
 		return mpq_class(cf.back());
 	}
 	
