@@ -84,9 +84,13 @@ int main(int argc, char ** argv) {
 	mpq_class xs, ys, zs, xps, yps, zps;
 	for(std::size_t i(0), s(points.size()); i < s; ++i) {
 		const SphericalCoord & c = points[i];
-		mpfr::mpreal theta(c.theta, initialPrecision);
-		mpfr::mpreal phi(c.phi, initialPrecision);
+		mpfr::mpreal theta(c.theta, initialPrecision+6);
+		mpfr::mpreal phi(c.phi, initialPrecision+6);
 		calc.cartesianFromSpherical(theta, phi, xd, yd, zd);
+		
+		xd.setPrecision(initialPrecision, MPFR_RNDZ);
+		yd.setPrecision(initialPrecision, MPFR_RNDZ);
+		zd.setPrecision(initialPrecision, MPFR_RNDZ);
 		
 		//we want the bitsize for the snapping in the plane
 		auto pos = p.sphere2Plane(xd, yd, zd, xpd, ypd, zpd);
