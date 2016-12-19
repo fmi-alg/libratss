@@ -100,12 +100,12 @@ int main(int argc, char ** argv) {
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
 		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
-		      snapFl.update(xps);
-		      snapFl.update(yps);
-		      snapFl.update(zps);
-		      snapFlProj.update(xs);
-		      snapFlProj.update(ys);
-		      snapFlProj.update(zs);
+		snapFl.update(xps);
+		snapFl.update(yps);
+		snapFl.update(zps);
+		snapFlProj.update(xs);
+		snapFlProj.update(ys);
+		snapFlProj.update(zs);
 		
 		//snap with fix point
 		xps = calc.snap(xpd, Calc::ST_FX);
