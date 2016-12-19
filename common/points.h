@@ -14,6 +14,7 @@ struct InputPoint {
 	void setPrecision(int precision);
 	void assign(std::istream & is);
 	void print(std::ostream & out) const;
+	mpfr::mpreal epsUpperBound() const;
 	mpfr::mpreal sqLen();
 };
 

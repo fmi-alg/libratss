@@ -30,6 +30,10 @@ void InputPoint::print(std::ostream & out) const {
 	}
 }
 
+mpfr::mpreal InputPoint::epsUpperBound() const {
+	return (sqLen() - 1)/2;
+}
+
 mpfr::mpreal InputPoint::sqLen() {
 	return c.squaredLength(coords.cbegin(), coords.cend());
 }
