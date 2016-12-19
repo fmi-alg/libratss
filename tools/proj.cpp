@@ -16,7 +16,7 @@ void help() {
 		"Options:\n"
 		"\t-v\tverbose\n"
 		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (fp|cf)\tset the type of float->rational conversion. fp=fixpoint, cf=continous fraction\n"
+		"\t-r (cf|fl|fx)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-b\talso print bitsize statistics\n"
 		"\t-n\tnormalize input to length 1\n"
@@ -123,10 +123,10 @@ struct Config {
 						outFormat = OutputPoint::FM_RATIONAL;
 					}
 					else if (stStr == "split" || stStr == "sr" || stStr == "s") {
-						outFormat = OutputPoint::FM_RATIONAL;
+						outFormat = OutputPoint::FM_SPLIT_RATIONAL;
 					}
 					else if (stStr == "float" || stStr == "double" || stStr == "d" || stStr == "f") {
-						outFormat = OutputPoint::FM_RATIONAL;
+						outFormat = OutputPoint::FM_FLOAT;
 					}
 					++i;
 				}
