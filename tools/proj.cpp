@@ -12,8 +12,8 @@ std::ostream & operator<<(std::ostream & out, const InputPoint & ip) {
 	return out;
 }
 
-void help() {
-	std::cout << "prg OPTIONS\n"
+void help(std::ostream & out) {
+	out << "prg OPTIONS\n"
 		"Options:\n"
 		"\t-v\tverbose\n"
 		"\t-p num\tset the precision of the input in bits\n"
@@ -22,6 +22,7 @@ void help() {
 		"\t-b\talso print bitsize statistics\n"
 		"\t-n\tnormalize input to length 1\n"
 		"\t-f format\tset format of output: [rational, split, float]\n"
+		"\t-e k\tset manual epsilon to be 2^-k\n"
 		"\t-i\tpath to input\n"
 		"\t-o\tpath to output"
 	<< std::endl;
@@ -31,6 +32,7 @@ struct Config {
 	std::string inFileName;
 	std::string outFileName;
 	int precision;
+	int eps;
 	int snapType;
 	bool normalize;
 	bool stats;
@@ -40,6 +42,7 @@ struct Config {
 	
 	Config() :
 	precision(-1),
+	eps(-1),
 	snapType(ProjectSN::ST_NONE),
 	normalize(false),
 	stats(false),
@@ -56,7 +59,15 @@ struct Config {
 					++i;
 				}
 				else {
-					help();
+					return -1;
+				}
+			}
+			else if (token == "-e") {
+				if (i+1 < argc) {
+					eps = ::atoi(argv[i+1]);
+					++i;
+				}
+				else {
 					return -1;
 				}
 			}
@@ -72,10 +83,13 @@ struct Config {
 					else if (stStr == "fl") {
 						snapType |= ProjectSN::ST_FL;
 					}
+					else {
+						std::cerr << "Unrecognized snap method: " << stStr << std::endl;
+						return -1;
+					}
 					++i;
 				}
 				else {
-					help();
 					return -1;
 				}
 			}
@@ -90,10 +104,13 @@ struct Config {
 						snapType |= ProjectSN::ST_SPHERE;
 						snapType &= ~ProjectSN::ST_PLANE;
 					}
+					else {
+						std::cerr << "Unrecognized snap location: " << stStr << std::endl;
+						return -1;
+					}
 					++i;
 				}
 				else {
-					help();
 					return -1;
 				}
 			}
@@ -103,7 +120,7 @@ struct Config {
 					++i;
 				}
 				else {
-					help();
+					std::cerr << "Unrecognized ";
 					return -1;
 				}
 			}
@@ -113,7 +130,6 @@ struct Config {
 					++i;
 				}
 				else {
-					help();
 					return -1;
 				}
 			}
@@ -129,10 +145,16 @@ struct Config {
 					else if (stStr == "float" || stStr == "double" || stStr == "d" || stStr == "f") {
 						outFormat = OutputPoint::FM_FLOAT;
 					}
+					else if (stStr == "float128" || stStr == "f128") {
+						outFormat = OutputPoint::FM_FLOAT128;
+					}
+					else {
+						std::cerr << "Unrecognized output format: " << stStr << std::endl;
+						help(std::cerr);
+					}
 					++i;
 				}
 				else {
-					help();
 					return -1;
 				}
 			}
@@ -149,12 +171,10 @@ struct Config {
 				verbose = true;
 			}
 			else if (token == "-h" || token == "--help") {
-				help();
 				return 0;
 			}
 			else {
 				std::cout << "Unknown command line option: " << token << std::endl;
-				help();
 				return -1;
 			}
 		}
@@ -177,6 +197,9 @@ struct Config {
 
 std::ostream & operator<<(std::ostream & out, const Config & cfg) {
 	out << "Precision: " << cfg.precision << '\n';
+	if (cfg.eps > 0) {
+		out << "Epsilon: " << cfg.eps << '\n';
+	}
 	out << "Float conversion method: ";
 	if (cfg.snapType & ratss::ProjectSN::ST_CF) {
 		out << "continous fraction";
@@ -215,6 +238,7 @@ int main(int argc, char ** argv) {
 	int ret = cfg.parse(argc, argv); 
 	
 	if (ret <= 0) {
+		help(std::cerr);
 		return ret;
 	}
 	
@@ -264,17 +288,17 @@ int main(int argc, char ** argv) {
 		ip.assign(*inFile);
 		if (cfg.normalize) {
 			if (cfg.verbose) {
-				std::cout << "Normalizing (" << ip << ") to ";
+				std::cerr << "Normalizing (" << ip << ") to ";
 			}
 			ip.normalize();
 			if (cfg.verbose) {
-				std::cout << '(' << ip << ')' << '\n';
+				std::cerr << '(' << ip << ')' << '\n';
 			}
 		}
 		ip.setPrecision(cfg.precision);
 		op.clear();
 		op.resize(ip.coords.size());
-		proj.snap(ip.coords.begin(), ip.coords.end(), op.coords.begin(), cfg.snapType);
+		proj.snap(ip.coords.begin(), ip.coords.end(), op.coords.begin(), cfg.snapType, cfg.eps);
 		if (cfg.stats) {
 			bc.update(op.coords.begin(), op.coords.end());
 		}
@@ -287,7 +311,7 @@ int main(int argc, char ** argv) {
 	}
 	
 	if (cfg.stats) {
-		std::cout << bc << std::endl;
+		std::cerr << bc << std::endl;
 	}
 	
 	
