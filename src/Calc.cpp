@@ -87,38 +87,47 @@ m * 2^exp = m_fixed
 The issue here are not the large number since they should usually be between -1 and 1
 The problem are points that are close to 0 that are representable by floating points but to a lesser degree by a fixed point type
 */
-void Calc::makeFixpoint(mpfr::mpreal& v) const {
-	mp_exp_t exp = v.get_exp();
-	int prec = v.get_prec();
-	
-	if (exp < -prec) { //exponent does more right-shifts than we have bits in our mantissa
-		using std::signbit;
-		v.setZero((signbit(v) ? -1 : 1));
+void Calc::makeFixpoint(mpfr::mpreal& v, int significands) const {
+	if (significands < 0) {
+		mp_exp_t exp = v.get_exp();
+		int prec = v.get_prec();
+		
+		if (exp < -prec) { //exponent does more right-shifts than we have bits in our mantissa
+			using std::signbit;
+			v.setZero((signbit(v) ? -1 : 1));
+		}
+		else if (exp > prec) { //exponent does more left shifts than we have bits in our mantissa
+			using std::signbit;
+			v.setInf((signbit(v) ? -1 : 1));
+		}
+		else if (exp < 0) {
+			//exponent does right shifts,
+			//this means that there are leading zeros,
+			//thus we need to cut off as many bits at the end as we have leading zeros
+			int new_prec = prec + exp;
+			v.setPrecision(new_prec, MPFR_RNDZ);
+		}
+		else if (exp > 0) {
+			//exponent does left shifts,
+			//this means that the decimal point changes
+			//this is ok as long as it does not go beyond the last digit
+			//this is captured in the second case
+			//so there is nothing left todo here
+			;
+		}
 	}
-	else if (exp > prec) { //exponent does more left shifts than we have bits in our mantissa
-		using std::signbit;
-		v.setInf((signbit(v) ? -1 : 1));
+	else if (v.getPrecision() < significands) {
+		throw std::overflow_error("Calc::makeFixpoint: Epsilon is smaller than input precision");
 	}
-	else if (exp < 0) {
-		//exponent does right shifts,
-		//this means that there are leading zeros,
-		//thus we need to cut off as many bits at the end as we have leading zeros
-		int new_prec = prec + exp;
-		v.setPrecision(new_prec, MPFR_RNDZ);
-	}
-	else if (exp > 0) {
-		//exponent does left shifts,
-		//this means that the decimal point changes
-		//this is ok as long as it does not go beyond the last digit
-		//this is captured in the second case
-		//so there is nothing left todo here
-		;
+	else {
+		v.setPrecision(significands);
+		makeFixpoint(v, -1);
 	}
 }
 
-mpfr::mpreal Calc::toFixpoint(const mpfr::mpreal& v) const {
+mpfr::mpreal Calc::toFixpoint(const mpfr::mpreal& v, int significands) const {
 	mpfr::mpreal c(v);
-	makeFixpoint(c);
+	makeFixpoint(c, significands);
 	return c;
 }
 
@@ -194,16 +203,35 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 	return result;
 }
 
-mpq_class Calc::snap(const mpfr::mpreal& v, int st) const {
+mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 	if (st & ST_CF) {
-		mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
-		mpq_class eps = mpq_class(mpz_class(1), rat.get_den())/2;
-		mpq_class lower = rat - eps;
-		mpq_class upper = rat + eps;
-		return within(lower, upper);
+		if (significands < 0) {
+			mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
+			mpz_class tmp(1);
+			tmp <<= v.getPrecision();
+			mpq_class eps = mpq_class(mpz_class(1), tmp)/2;
+			mpq_class lower = rat - eps;
+			mpq_class upper = rat + eps;
+			assert(within(rat, rat) == rat);
+			return within(lower, upper);
+		}
+		else if (v.getPrecision() < significands) {
+			throw std::overflow_error("Calc::snap: Epsilon is smaller than input precision");
+		}
+		else {
+			mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
+			mpq_class precEps = 0; //mpq_class(mpz_class(1), rat.get_den());
+			mpz_class tmp(1);
+			tmp <<= significands;
+			mpq_class eps = mpq_class(mpz_class(1), tmp);
+// 			std::cerr << eps << std::endl;
+			mpq_class lower = rat - eps + precEps;
+			mpq_class upper = rat + eps - precEps;
+			return within(lower, upper);
+		}
 	}
 	else if (st & ST_FX) {
-		return Conversion<mpfr::mpreal>::toMpq( toFixpoint(v) );
+		return Conversion<mpfr::mpreal>::toMpq( toFixpoint(v, significands) );
 	}
 	else if (st & st & ST_FL) {
 		return Conversion<mpfr::mpreal>::toMpq( v );

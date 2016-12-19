@@ -34,7 +34,7 @@ public:
 public:
 	///@param out an iterator accepting mpq_class
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType = (ST_PLANE|ST_FX)) const;
+	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:
@@ -151,7 +151,7 @@ void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATO
 
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const {
+void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps) const {
 	using input_ft = typename std::iterator_traits<T_INPUT_ITERATOR>::value_type;
 	using std::distance;
 	std::size_t dims = distance(begin, end);
@@ -167,13 +167,13 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 	PositionOnSphere pos;
 	if (snapType & ST_SPHERE) {
 		std::vector<mpq_class> coords_sphere_pq(dims);
-		calc().toRational(begin, end, coords_sphere_pq.begin(), snapType);
+		calc().toRational(begin, end, coords_sphere_pq.begin(), snapType, eps);
 		pos = sphere2Plane(coords_sphere_pq.begin(), coords_sphere_pq.end(), coords_plane_pq.begin());
 	}
 	else if (snapType & ST_PLANE) {
 		std::vector<mpfr::mpreal> coords_plane(dims);
 		pos = sphere2Plane(begin, end, coords_plane.begin());
-		calc().toRational(coords_plane.begin(), coords_plane.end(), coords_plane_pq.begin(), snapType);
+		calc().toRational(coords_plane.begin(), coords_plane.end(), coords_plane_pq.begin(), snapType, eps);
 	}
 	else {
 		throw std::runtime_error("ratss::ProjectSN::snap: Unsupported snap type");
