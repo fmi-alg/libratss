@@ -1,5 +1,6 @@
 #include <libratss/ProjectSN.h>
 #include "../common/stats.h"
+#include "../common/points.h"
 #include <fstream>
 #include "types.h"
 

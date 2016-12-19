@@ -9,10 +9,9 @@
 #include <CGAL/point_generators_3.h>
 #endif
 
-#include "types.h"
+#include "../common/points.h"
 
 using namespace LIB_RATSS_NAMESPACE;
-using namespace LIB_RATSS_NAMESPACE::tools;
 
 typedef enum {GT_NPLANE, GT_NSPHERE, GT_CGAL, GT_GEO } GeneratorType;
 
