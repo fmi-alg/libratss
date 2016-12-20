@@ -1,5 +1,6 @@
 #include <libratss/ProjectSN.h>
 #include <libratss/ProjectS2.h>
+#include <libratss/GeoCoord.h>
 
 #include <random>
 #include <chrono>
@@ -83,46 +84,52 @@ struct GeoPointGenerator: PointGenerator {
 
 struct GeoGridGenerator: PointGenerator {
 	ProjectS2 proj;
-
-	virtual OutputPoint generate(int dimension) override {
-		return OutputPoint();
-	}
+	std::vector<GeoCoord> data;
+	std::size_t pos;
 	
-	virtual bool supports(int dimension) const override {
-		return (dimension == 3);
-	}
-        
-	std::vector<OutputPoint> generateAll( uint32_t nofSlices ){
+	GeoGridGenerator(uint32_t nofSlices) : pos(0) {
+		if (!nofSlices) {
+			return;
+		}
+		data.reserve(2*nofSlices * 4*nofSlices);
 		// nofSlices >= 1== number of slices on an eighth sphere
-		std::vector<OutputPoint> result(0);
-		if( nofSlices < 1)
-			return result;
 		
-		OutputPoint northPole(3);
-		northPole.coords = { 0, 0, 1 };
-		result.push_back( northPole );     // north pole
+		data.emplace_back(90, 0);     // north pole
 		
 		// lat in [-90,+90]
 		// lon in [0,360)
 		
 		const double angleInc = 90.0 / nofSlices;
 		
-		for( int sLat=1; sLat <2*nofSlices; ++sLat ){
+		for(int sLat=1; sLat < 2*nofSlices; ++sLat) {
 			double lat = +90.0 - angleInc * sLat;
-			
-			for( int sLon=0; sLon < 4*nofSlices; ++sLon ){
-				OutputPoint ret(3);
+			for(int sLon=0; sLon < 4*nofSlices; ++sLon){
 				double lon = angleInc * sLon;
-				proj.projectFromGeo( mpfr::mpreal(lat), mpfr::mpreal(lon), ret.coords[0], ret.coords[1], ret.coords[2]);
-				result.push_back( ret );
+				data.emplace_back(lat, lon);
 			}
 		}
 		
-		OutputPoint southPole(3);
-		southPole.coords = { 0, 0, -1 };
-		result.push_back( southPole );     // south pole
-		
-		return result;
+		data.emplace_back(-90, 0);
+	}
+
+	virtual OutputPoint generate(int dimension) override {
+		const GeoCoord & gc = data.at(pos);
+		++pos;
+		if (gc.lat == 90.0) { //north pole
+			return OutputPoint({ 0, 0, 1 });
+		}
+		else if (gc.lat == -90.0) { //south pole
+			return OutputPoint({ 0, 0, -1 });
+		}
+		else {
+			OutputPoint ret(3);
+			proj.projectFromGeo( mpfr::mpreal(gc.lat), mpfr::mpreal(gc.lon), ret.coords[0], ret.coords[1], ret.coords[2] );
+			return ret;
+		}
+	}
+	
+	virtual bool supports(int dimension) const override {
+		return (dimension == 3);
 	}
 };
 
@@ -191,7 +198,7 @@ struct NSpherePointGenerator: PointGenerator {
 void help(std::ostream & out) {
 	out << "prg OPTIONS\n"
 		"Options:\n"
-		"-g generator\tgenerator = (nplane|nsphere|cgal|geo)\n"
+		"-g generator\tgenerator = (nplane|nsphere|cgal|geo|grid)\n"
 		"-f format\tformat = (rational|split|float|float128)\n"
 		"-d dimensions\n"
 		"-n number\tnumber of points to create\n"
@@ -224,9 +231,9 @@ struct Config {
 					else if (gtStr == "geo") {
 						gt = GT_GEO;
 					}
-                                        else if (gtStr == "geoGrid"){
-                                                gt = GT_GEOGRID;
-                                        }
+					else if (gtStr == "grid"){
+						gt = GT_GEOGRID;
+					}
 					else {
 						std::cerr << "Unsupported generator: " << gtStr << std::endl;
 						return -1;
@@ -315,20 +322,12 @@ int main(int argc, char ** argv) {
 		pg = new GeoPointGenerator();
 	}
 	else if (cfg.gt == GT_GEOGRID) {
-		GeoGridGenerator myPg;
-                if (!myPg.supports(cfg.dimension)) {
-                    std::cerr << "Selected generator does not support the selected dimension" << std::endl;
-                    return -1;
-                }
-                std::vector<OutputPoint> gridPoints = myPg.generateAll( cfg.count );
-                for( OutputPoint & p : gridPoints ){
-                    p.print(std::cout, cfg.ft);
-                    std::cout << '\n';
-                }
-                return 0;
+		pg = new GeoGridGenerator(cfg.count);
 	}
-                
-	
+	else {
+		std::cerr << "No generator was given" << std::endl;
+		return -1;
+	}
         
 	if (!pg->supports(cfg.dimension)) {
 		std::cerr << "Selected generator does not support the selected dimension" << std::endl;
@@ -341,5 +340,8 @@ int main(int argc, char ** argv) {
 		p.print(std::cout, cfg.ft);
 		std::cout << '\n';
 	}
+	
+	delete pg;
+	
 	return 0;
 }
