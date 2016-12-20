@@ -136,7 +136,7 @@ void NDProjectionTest::snapRandom() {
 						using std::abs;
 						mpq_class dist = abs(inputRational[i]-output[i]);
 						std::stringstream ss;
-						ss << "Snap point with significands " << sig << " and snap-type " << snapType << " is too far away: "
+						ss << "Snap point with significands " << sig << " and snap-type " << ProjectSN::toString((ProjectSN::SnapType) snapType) << " is too far away: "
 							<< dist << "=" << Conversion<mpq_class>::toMpreal(dist/eps, 53) << "eps !< " << projEps << '\n';
 						ss << "P(";
 						OutputPoint(inputRational.begin(), inputRational.end()).print(ss, OutputPoint::FM_FLOAT128);
