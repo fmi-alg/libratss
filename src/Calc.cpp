@@ -187,14 +187,13 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 			using std::min;
 			if (ltmp == 0) {
 				cf.push_back(ldiv);
+// 				std::cout << "push " << ldiv << '\n';
 			}
 			else {
 				cf.push_back(udiv);
+// 				std::cout << "push " << udiv << '\n';
 			}
-// 			cf.push_back(ldiv);
-// 			cf.push_back( min(ldiv, udiv)+mpz_class(1) );
 // 			std::cout << "Break since ltmp/utmp == 0" << std::endl;
-// 			std::cout << "push " << min(ldiv, udiv)+mpz_class(1) << '\n';
 			break;
 		}
 		
@@ -217,22 +216,12 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 		assert(cf.back() <= upper);
 		return mpq_class(cf.back());
 	}
-	
+
 	//we now have a (regular) continous fraction in cf, let's reduce it
 	//the form is a_0 + ( 1 / (a_1 + 1 / (a_2 + 1 / (a_3 + ...))))
-	mpq_class result_naive(cf.back());
-	result_naive.canonicalize();
-	for(auto it(cf.rbegin()+1), end(cf.rend()); it != end; ++it) {
-// 		std::cout << "result=" << result << std::endl;
-// 		result is the denominator of the fraction
-		result_naive = 1 / result_naive;
-		result_naive += mpq_class( *it );
-	}
-	result_naive.canonicalize();
-	
+	//we use the fast non-division form to reconstruct our fraction
 	mpz_class pn(cf.front()), pn1(1), pn2(0);
 	mpz_class qn(1), qn1(0), qn2(1);
-// 	mpz_class ptmp, qtmp;
 	for(auto it(cf.begin()+1), end(cf.end()); it != end; ++it) {
 		const mpz_class & a_i = *it;
 		pn = a_i * pn1 + pn2;
@@ -245,32 +234,9 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 	}
 	mpq_class result(qn, pn);
 	result.canonicalize();
-	
-	if (result != result_naive) {
-		std::cout << "result=" << result << '\n';
-		std::cout << "result_naive=" << result_naive << '\n';
-		using std::abs;
-		std::cout.precision(20);
-		std::cout << "diff=" << Conversion<mpq_class>::toMpreal(abs(result-result_naive), 64) << std::endl;
-	}
-	assert(result_naive == result);
-// 	if (result <= lower || result >= upper) {
-// 		std::cout << "result=" << result << std::endl;
-// 	}
-// 	std::cout << "result=" << result << std::endl;
-	if (result > upper) {
-		std::cout << "result=" << result << '\n';
-		std::cout << "upper=" << upper << '\n';
-		std::cout << "lower=" << lower << '\n';
-	}
 	assert(result <= 1 || result >= -1);
 	assert(result >= lower);
 	assert(result <= upper);
-	if (result.get_den() > upper.get_den() || result.get_den() > lower.get_den()) {
-		std::cout << "result=" << result << '\n';
-		std::cout << "upper=" << upper << '\n';
-		std::cout << "lower=" << lower << '\n';
-	}
 	assert(result.get_den() <= lower.get_den());
 	assert(result.get_den() <= upper.get_den());
 	return result;
