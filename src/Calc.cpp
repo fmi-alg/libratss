@@ -47,8 +47,11 @@ mpfr::mpreal Calc::mult(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	return tmp1*tmp2;
 }
 
-mpfr::mpreal Calc::div(const mpfr::mpreal &a, const mpfr::mpreal &b) const {
-	return a / b;
+mpfr::mpreal Calc::div(mpfr::mpreal a, const mpfr::mpreal &b) const {
+	int prec = std::max<int>(a.getPrecision(), b.getPrecision());
+	a.setPrecision(prec);
+	a /= b;
+	return a;
 }
 
 mpfr::mpreal Calc::sq(const mpfr::mpreal& v) const {

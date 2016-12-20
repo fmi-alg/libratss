@@ -12,6 +12,23 @@ public:
 	///Values are compatible with the ones defined in ProjectSN::SnapType
 	typedef enum { ST_CF=0x4, ST_FX=0x8, ST_FL=0x10 } SnapType;
 public:
+	template<typename T_FT>
+	inline T_FT add(const T_FT & a, const T_FT & b) const { return a+b; }
+
+	template<typename T_FT>
+	inline T_FT sub(const T_FT & a, const T_FT & b) const { return a-b; }
+
+	template<typename T_FT>
+	inline T_FT mult(const T_FT & a, const T_FT & b) const { return a*b; }
+	
+	template<typename T_FT>
+	inline T_FT div(const T_FT & a, const T_FT & b) const { return a/b; }
+public:
+	mpfr::mpreal add(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
+	mpfr::mpreal sub(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
+	mpfr::mpreal mult(const mpfr::mpreal & a, const mpfr::mpreal & b) const;
+	mpfr::mpreal div(mpfr::mpreal a, const mpfr::mpreal& b) const;
+public:
 	mpfr::mpreal sin(const mpfr::mpreal & v) const;
 	mpfr::mpreal asin(const mpfr::mpreal & v) const;
 
@@ -23,12 +40,9 @@ public:
 	
 	mpfr::mpreal squaredDistance(const mpfr::mpreal & a, const mpfr::mpreal & b) const;
 	mpfr::mpreal squaredDistance(const mpfr::mpreal & a, const mpfr::mpreal & b, const mpfr::mpreal & c) const;
-	mpfr::mpreal mult(const mpfr::mpreal & a, const mpfr::mpreal & b) const;
-	mpfr::mpreal div(const mpfr::mpreal & a, const mpfr::mpreal & b) const;
 	mpfr::mpreal sq(const mpfr::mpreal & v) const;
 	mpfr::mpreal sqrt(const mpfr::mpreal & v) const;
-	mpfr::mpreal add(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
-	mpfr::mpreal sub(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
+public:
 	mpfr::mpreal toFixpoint(const mpfr::mpreal & v, int significands = -1) const;
 	void makeFixpoint(mpfr::mpreal& v, int significands = -1) const;
 public:
