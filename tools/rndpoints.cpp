@@ -92,38 +92,38 @@ struct GeoGridGenerator: PointGenerator {
 		return (dimension == 3);
 	}
         
-        std::vector<OutputPoint> generateAll( uint32_t nofSlices ){
-            // nofSlices >= 1== number of slices on an eighth sphere
-            std::vector<OutputPoint> result(0);
-            if( nofSlices < 1)
-                return result;
-            
-            OutputPoint northPole(3);
-            northPole.coords = { 0, 0, 1 };
-            result.push_back( northPole );     // north pole
-            
-            // lat in [-90,+90]
-            // lon in [0,360)
-            
-            const double angleInc = 90.0 / nofSlices;
-            
-            for( int sLat=1; sLat <2*nofSlices; ++sLat ){
-                double lat = +90.0 - angleInc * sLat;
-                
-                for( int sLon=0; sLon < 4*nofSlices; ++sLon ){
-                    OutputPoint ret(3);
-                    double lon = angleInc * sLon;
-                    proj.projectFromGeo( mpfr::mpreal(lat), mpfr::mpreal(lon), ret.coords[0], ret.coords[1], ret.coords[2]);
-                    result.push_back( ret );
-                }
-            }
-            
-            OutputPoint southPole(3);
-            southPole.coords = { 0, 0, -1 };
-            result.push_back( southPole );     // south pole
-            
-            return result;
-        }
+	std::vector<OutputPoint> generateAll( uint32_t nofSlices ){
+		// nofSlices >= 1== number of slices on an eighth sphere
+		std::vector<OutputPoint> result(0);
+		if( nofSlices < 1)
+			return result;
+		
+		OutputPoint northPole(3);
+		northPole.coords = { 0, 0, 1 };
+		result.push_back( northPole );     // north pole
+		
+		// lat in [-90,+90]
+		// lon in [0,360)
+		
+		const double angleInc = 90.0 / nofSlices;
+		
+		for( int sLat=1; sLat <2*nofSlices; ++sLat ){
+			double lat = +90.0 - angleInc * sLat;
+			
+			for( int sLon=0; sLon < 4*nofSlices; ++sLon ){
+				OutputPoint ret(3);
+				double lon = angleInc * sLon;
+				proj.projectFromGeo( mpfr::mpreal(lat), mpfr::mpreal(lon), ret.coords[0], ret.coords[1], ret.coords[2]);
+				result.push_back( ret );
+			}
+		}
+		
+		OutputPoint southPole(3);
+		southPole.coords = { 0, 0, -1 };
+		result.push_back( southPole );     // south pole
+		
+		return result;
+	}
 };
 
 struct NPlanePointGenerator: PointGenerator {
