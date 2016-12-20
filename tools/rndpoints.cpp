@@ -191,13 +191,8 @@ struct NSpherePointGenerator: PointGenerator {
 void help(std::ostream & out) {
 	out << "prg OPTIONS\n"
 		"Options:\n"
-<<<<<<< HEAD
-		"-g generator\tgenerator = (nplane|nsphere|cgal|geo|geoGrid)\n"
-		"-f format\tformat = (rational|split|float|float128)"
-=======
 		"-g generator\tgenerator = (nplane|nsphere|cgal|geo)\n"
 		"-f format\tformat = (rational|split|float|float128)\n"
->>>>>>> 7c1a01bd1b304e85dc400c453820a3e5e05a2f1a
 		"-d dimensions\n"
 		"-n number\tnumber of points to create\n"
 		<< std::endl;
