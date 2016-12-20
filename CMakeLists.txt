@@ -76,6 +76,7 @@ endif()#hasParent
 
 set(LIB_SOURCES_CPP
 	src/Conversion.cpp
+	src/ProjectSN.cpp
 	src/ProjectS2.cpp
 	src/Calc.cpp
 	src/GeoCalc.cpp
