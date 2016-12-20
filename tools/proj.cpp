@@ -174,7 +174,7 @@ struct Config {
 				return 0;
 			}
 			else {
-				std::cout << "Unknown command line option: " << token << std::endl;
+				std::cerr << "Unknown command line option: " << token << std::endl;
 				return -1;
 			}
 		}
@@ -243,7 +243,7 @@ int main(int argc, char ** argv) {
 	}
 	
 	if (cfg.verbose) {
-		std::cout << cfg << std::endl;
+		std::cerr << cfg << std::endl;
 	}
 	
 	std::istream * inFile = 0;
@@ -276,7 +276,6 @@ int main(int argc, char ** argv) {
 		outFile = &std::cout;
 	}
 	
-
 	InputPoint ip;
 	OutputPoint op;
 	
