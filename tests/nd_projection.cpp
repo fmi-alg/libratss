@@ -81,13 +81,14 @@ void NDProjectionTest::fixPointRandom() {
 }
 
 void NDProjectionTest::snapRandom() {
-	std::array<int, 4> precision = {32, 53, 63, 128};
-// 	std::array<int, 3> snapMethod = {ProjectSN::ST_FX, ProjectSN::ST_FL, ProjectSN::ST_CF};
+	std::array<int, 10> significands = {2, 3, 4, 8, 16, 23, 32, 53, 64, 128};
+// 	std::array<int, 5> significands = {23, 32, 53, 64, 128};
+	std::array<int, 3> snapMethod = {ProjectSN::ST_FX, ProjectSN::ST_FL, ProjectSN::ST_CF};
 // 	std::array<int, 2> snapMethod = {ProjectSN::ST_FX, ProjectSN::ST_FL};
-// 	std::array<int, 2> snapLocation = {ProjectSN::ST_PLANE, ProjectSN::ST_SPHERE };
+	std::array<int, 2> snapLocation = {ProjectSN::ST_PLANE, ProjectSN::ST_SPHERE };
 
-	std::array<int, 1> snapMethod = {ProjectSN::ST_CF};
-	std::array<int, 1> snapLocation = {ProjectSN::ST_SPHERE};
+// 	std::array<int, 1> snapMethod = {ProjectSN::ST_CF};
+// 	std::array<int, 1> snapLocation = {ProjectSN::ST_SPHERE};
 	
 	std::vector<SphericalCoord> coords = getRandomPolarPoints(num_random_test_points);
 	
@@ -98,15 +99,17 @@ void NDProjectionTest::snapRandom() {
 	std::array<mpq_class, 3> inputRational;
 	std::array<mpq_class, 3> output;
 	
-	for(int prec : precision) {
-		mpq_class eps( Conversion<mpfr::mpreal>::toMpq( mpfr::mpreal(1, prec+1) >> prec ));
-		mpq_class projEps = eps*3*9*2;
+	for(int sig : significands) {
+		int prec = std::max<int>(53, 2*sig);
+		mpq_class eps(mpz_class(1), mpz_class(1) << sig);
+		mpq_class eps2 = eps*eps;
+		mpq_class maxSqLen = 1+6*eps+3*eps2;
+		mpq_class projEps = eps*3;
 		for(const SphericalCoord & sc : coords) {
-			gc.cartesianFromSpherical(mpfr::mpreal(sc.theta, 2*prec), mpfr::mpreal(sc.phi, 2*prec), input[0], input[1], input[2]);
-			for(mpfr::mpreal & x : input) {
-				x.setPrecision(prec, MPFR_RNDZ);
-			}
-			std::transform(input.begin(), input.end(), inputRational.begin(), [](const mpfr::mpreal & x) { return Conversion<mpfr::mpreal>::toMpq(x);});
+			gc.cartesianFromSpherical(mpfr::mpreal(sc.theta, prec), mpfr::mpreal(sc.phi, prec), input[0], input[1], input[2]);
+			std::transform(input.begin(), input.end(), inputRational.begin(), [](const mpfr::mpreal & x) {
+				return Conversion<mpfr::mpreal>::toMpq(x);
+			});
 			
 			{
 				mpq_class sqLenInput(0);
@@ -117,14 +120,14 @@ void NDProjectionTest::snapRandom() {
 				ss << "Input points are too far away: (squared-length - 1) =";
 				ss << Conversion<mpq_class>::toMpreal(sqLenInput, 128);
 				ss << " ~ " << Conversion<mpq_class>::toMpreal((sqLenInput-1)/eps, 53) << "eps";
-				CPPUNIT_ASSERT_MESSAGE(ss.str(), (sqLenInput-1) < 9*eps);
+				CPPUNIT_ASSERT_MESSAGE(ss.str(), sqLenInput < maxSqLen);
 			}
 
-			for (int sl : snapLocation) {
-				for(int sm : snapMethod) {
+			for(int sm : snapMethod) {
+				for (int sl : snapLocation) {
 					int snapType = sm | sl;
 					
-					p.snap(input.begin(), input.end(), output.begin(), snapType);
+					p.snap(input.begin(), input.end(), output.begin(), snapType, sig);
 					
 					mpq_class sqLen = output[0]*output[0] + output[1]*output[1] + output[2]*output[2];
 					CPPUNIT_ASSERT_EQUAL_MESSAGE("Snapped point is not on the sphere", mpq_class(1), sqLen);
@@ -133,7 +136,7 @@ void NDProjectionTest::snapRandom() {
 						using std::abs;
 						mpq_class dist = abs(inputRational[i]-output[i]);
 						std::stringstream ss;
-						ss << "Snap point with precision " << prec << " and snap-type " << snapType << " is too far away: "
+						ss << "Snap point with significands " << sig << " and snap-type " << snapType << " is too far away: "
 							<< dist << "=" << Conversion<mpq_class>::toMpreal(dist/eps, 53) << "eps !< " << projEps << '\n';
 						ss << "P(";
 						OutputPoint(inputRational.begin(), inputRational.end()).print(ss, OutputPoint::FM_FLOAT128);
