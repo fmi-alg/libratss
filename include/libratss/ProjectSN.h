@@ -21,6 +21,8 @@ public:
 		ST_NORMALIZE=0x20
 	} SnapType;
 public:
+	static std::string toString(SnapType st);
+public:
 	template<typename T_FT_ITERATOR>
 	PositionOnSphere positionOnSphere(T_FT_ITERATOR begin, const T_FT_ITERATOR & end) const WARN_UNUSED_RESULT;
 	
