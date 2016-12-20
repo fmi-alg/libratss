@@ -24,6 +24,8 @@ struct OutputPoint {
 	OutputPoint();
 	template<typename T_ITERATOR>
 	OutputPoint(const T_ITERATOR & begin, const T_ITERATOR & end) : coords(begin, end) {}
+	template<typename T_VALUE>
+	OutputPoint(const std::initializer_list<T_VALUE> & il) : coords(il.begin(), il.end()) {}
 	OutputPoint(int dimension);
 	OutputPoint(const OutputPoint & other);
 	OutputPoint(OutputPoint && other);
