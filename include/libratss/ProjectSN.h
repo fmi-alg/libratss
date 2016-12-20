@@ -38,6 +38,18 @@ public:
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:
+	template<typename T_FT>
+	inline T_FT add(const T_FT & a, const T_FT & b) const { return calc().add(a,b); }
+
+	template<typename T_FT>
+	inline T_FT sub(const T_FT & a, const T_FT & b) const { return calc().sub(a,b); }
+
+	template<typename T_FT>
+	inline T_FT mult(const T_FT & a, const T_FT & b) const { return calc().mult(a,b); }
+	
+	template<typename T_FT>
+	inline T_FT div(const T_FT & a, const T_FT & b) const { return calc().div(a, b); }
+private:
 	Calc m_calc;
 };
 
@@ -87,23 +99,23 @@ PositionOnSphere ProjectSN::sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_I
 	FT projVal = *std::next(begin, projCoord-1);
 	FT denom;
 	if (pos < 0) {
-		denom = (1-projVal);
+		denom = sub(FT(1), projVal);
 	}
 	else {
-		denom = (1+projVal);
+		denom = add(FT(1), projVal);
 	}
 	
 	T_FT_INPUT_ITERATOR it(begin);
 	for(int i(1); i < projCoord; ++i, ++it, ++out) {
-		*out = *it / denom;
+		*out = div(*it, denom);
 	}
 	//now comes the projection coordinate
-	*out = 0;
+	*out = div(FT(0), denom); //this makes sure that for mpfr::mpreal *out has the same precision as denom
 	++out;
 	++it;
 	//and the rest
 	for( ; it != end; ++it, ++out) {
-		*out = *it / denom;
+		*out = div(*it, denom);
 	}
 	
 	return pos;
@@ -123,28 +135,28 @@ void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATO
 	{
 		T_FT_INPUT_ITERATOR it(begin);
 		for(int i(1); i < projCoord; ++i, ++it) {
-			denom += (*it) * (*it);
+			denom = add(denom, mult(*it, *it) );
 		}
 		//now comes the projection coordinate, skip it
 		++it;
 		//and the rest
 		for( ; it != end; ++it) {
-			denom += (*it) * (*it);
+			denom = add(denom, mult(*it, *it) );
 		}
 	}
 	{
 		T_FT_INPUT_ITERATOR it(begin);
 		for(int i(1); i < projCoord; ++i, ++it, ++out) {
-			*out = (2 * (*it) ) / denom;
+			*out = div<FT>(2 * (*it), denom);
 		}
 		//and the projection coordinate
-		*out = (std::signbit<int>(pos) ? 1 : -1) * (denom - 2) / denom;
+		*out = (std::signbit<int>(pos) ? 1 : -1) * div<FT>(denom - 2, denom);
 		++out;
 		assert(*it == FT(0));
 		++it;
 		//and the rest
 		for( ; it != end; ++it, ++out) {
-			*out = (2 * (*it) ) / denom;
+			*out = div<FT>(2 * (*it), denom);
 		}
 	}
 }
