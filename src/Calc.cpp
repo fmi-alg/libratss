@@ -108,7 +108,13 @@ void Calc::makeFixpoint(mpfr::mpreal& v, int significands) const {
 			//this means that there are leading zeros,
 			//thus we need to cut off as many bits at the end as we have leading zeros
 			int new_prec = prec + exp;
-			v.setPrecision(new_prec, MPFR_RNDZ);
+			if (new_prec < 2) {
+				v = 0;
+				v.setPrecision(2, MPFR_RNDZ);
+			}
+			else {
+				v.setPrecision(new_prec, MPFR_RNDZ);
+			}
 		}
 		else if (exp > 0) {
 			//exponent does left shifts,
