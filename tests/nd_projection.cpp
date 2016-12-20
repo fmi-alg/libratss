@@ -10,20 +10,36 @@ namespace tests {
 
 class NDProjectionTest: public TestBase {
 CPPUNIT_TEST_SUITE( NDProjectionTest );
-CPPUNIT_TEST( fixPointRandom );
-CPPUNIT_TEST( snapRandom );
-CPPUNIT_TEST( quadrantTest );
+// CPPUNIT_TEST( fixPointRandom );
+// CPPUNIT_TEST( quadrantTest );
+CPPUNIT_TEST( snapFlPlane );
+CPPUNIT_TEST( snapFxPlane );
+CPPUNIT_TEST( snapCfPlane );
+CPPUNIT_TEST( snapFlSphere );
+CPPUNIT_TEST( snapFxSphere );
+CPPUNIT_TEST( snapCfSphere );
 CPPUNIT_TEST_SUITE_END();
 public:
 	using Projector = ProjectSN;
 public:
 	static std::size_t num_random_test_points;
 public:
-	void fixPointRandom();
-	void snapRandom();
-	void bijectionSpecial();
-	void bijectionSpecial2();
+	virtual void setUp() {
+		coords = getRandomPolarPoints(num_random_test_points);
+	}
+public: 
 	void quadrantTest();
+
+	void snapFlPlane() { snapRandom({ProjectSN::ST_FL}, {ProjectSN::ST_PLANE}); }
+	void snapFxPlane() { snapRandom({ProjectSN::ST_FX}, {ProjectSN::ST_PLANE}); }
+	void snapCfPlane() { snapRandom({ProjectSN::ST_CF}, {ProjectSN::ST_PLANE}); }
+	void snapFlSphere() { snapRandom({ProjectSN::ST_FL}, {ProjectSN::ST_SPHERE}); }
+	void snapFxSphere() { snapRandom({ProjectSN::ST_FX}, {ProjectSN::ST_SPHERE}); }
+	void snapCfSphere() { snapRandom({ProjectSN::ST_CF}, {ProjectSN::ST_SPHERE}); }
+protected:
+	void snapRandom(const std::vector<int> & snapMethod, const std::vector<int> & snapLocation);
+private:
+	std::vector<SphericalCoord> coords;
 };
 
 std::size_t NDProjectionTest::num_random_test_points;
@@ -36,6 +52,7 @@ int main(int argc, char ** argv) {
 	srand( 0 );
 	CppUnit::TextUi::TestRunner runner;
 	runner.addTest(  LIB_RATSS_NAMESPACE::tests::NDProjectionTest::suite() );
+// 	runner.eventManager().popProtector();
 	bool ok = runner.run();
 	return ok ? 0 : 1;
 }
@@ -43,55 +60,10 @@ int main(int argc, char ** argv) {
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
 
-void NDProjectionTest::fixPointRandom() {
-	std::vector<SphericalCoord> coords = getRandomPolarPoints(num_random_test_points);
-	
-	Projector p;
-	GeoCalc gc;
-	
-	for(uint32_t prec(16); prec < 128; prec += 16) {
-		for(const SphericalCoord & coord : coords) {
-			mpfr::mpreal xd, yd, zd;
-			gc.cartesianFromSpherical(coord.theta, coord.phi, xd ,yd, zd);
-			
-			CPPUNIT_ASSERT_MESSAGE("Projection to cartesian coordinates is not precise enough", (xd*xd+yd*yd+zd*zd) <= 1.1);
-			
-			mpq_class input[3] = {
-				Conversion<mpfr::mpreal>::toMpq(xd),
-				Conversion<mpfr::mpreal>::toMpq(yd),
-				Conversion<mpfr::mpreal>::toMpq(zd)
-			};
-			mpq_class output[3];
-			auto pos = p.sphere2Plane(input, input+3, output);
-			
-			CPPUNIT_ASSERT(std::abs<int>(pos) >= 1 && std::abs<int>(pos) <= 3);
-			CPPUNIT_ASSERT_MESSAGE("Projection to (d-1) dimensions is not in circle", (output[0]*output[0] + output[1]*output[1]+output[2]*output[2]) <= mpq_class(1));
-			CPPUNIT_ASSERT_EQUAL_MESSAGE("Projection coordinate is not zero", mpq_class(0), output[abs((int)pos)-1]);
-			
-			p.plane2Sphere(output, output+3, pos, input);
-			mpq_class & x = input[0];
-			mpq_class & y = input[1];
-			mpq_class & z = input[2];
-			std::stringstream ss;
-			ss << "Point " << to_string(coord) << " does not project on sphere for precision=" << prec;
-			mpq_class sqlen = x*x+y*y+z*z;
-			CPPUNIT_ASSERT_EQUAL_MESSAGE(ss.str(), mpq_class(1), sqlen);
-		}
-	}
-}
-
-void NDProjectionTest::snapRandom() {
+void NDProjectionTest::snapRandom(const std::vector<int> & snapMethod, const std::vector<int> & snapLocation) {
 	std::array<int, 10> significands = {2, 3, 4, 8, 16, 23, 32, 53, 64, 128};
 // 	std::array<int, 5> significands = {23, 32, 53, 64, 128};
-	std::array<int, 3> snapMethod = {ProjectSN::ST_FX, ProjectSN::ST_FL, ProjectSN::ST_CF};
-// 	std::array<int, 2> snapMethod = {ProjectSN::ST_FX, ProjectSN::ST_FL};
-	std::array<int, 2> snapLocation = {ProjectSN::ST_PLANE, ProjectSN::ST_SPHERE };
 
-// 	std::array<int, 1> snapMethod = {ProjectSN::ST_CF};
-// 	std::array<int, 1> snapLocation = {ProjectSN::ST_SPHERE};
-	
-	std::vector<SphericalCoord> coords = getRandomPolarPoints(num_random_test_points);
-	
 	Projector p;
 	GeoCalc gc;
 	
@@ -136,8 +108,8 @@ void NDProjectionTest::snapRandom() {
 						using std::abs;
 						mpq_class dist = abs(inputRational[i]-output[i]);
 						std::stringstream ss;
-						ss << "Snap point with significands " << sig << " and snap-type " << ProjectSN::toString((ProjectSN::SnapType) snapType) << " is too far away: "
-							<< dist << "=" << Conversion<mpq_class>::toMpreal(dist/eps, 53) << "eps !< " << projEps << '\n';
+						ss << "Snapped point with " << sig << "significands and snap-type " << ProjectSN::toString((ProjectSN::SnapType) snapType) << " is too far away: "
+							<< Conversion<mpq_class>::toMpreal(dist/eps, 53) << '=' << dist<< "eps !< " << projEps << '\n';
 						ss << "P(";
 						OutputPoint(inputRational.begin(), inputRational.end()).print(ss, OutputPoint::FM_FLOAT128);
 						ss << ") -> ";
@@ -151,17 +123,17 @@ void NDProjectionTest::snapRandom() {
 }
 
 void NDProjectionTest::quadrantTest() {
-	std::vector<GeoCoord> coords;
+	std::vector<GeoCoord> myCoords;
 	Projector p;
 	GeoCalc gc;
 	
 	for(double lat(15); lat > -166; lat -= 15) {
 		for(double lon(0); lon < 360; lon += 15) {
-			coords.emplace_back(lat, lon);
+			myCoords.emplace_back(lat, lon);
 		}
 	}
 	for(uint32_t bits(32); bits < 128; bits += 16) {
-		for(const GeoCoord & coord : coords) {
+		for(const GeoCoord & coord : myCoords) {
 			mpfr::mpreal xd, yd, zd;
 			gc.cartesian(coord.lat, coord.lon, xd ,yd, zd);
 			
