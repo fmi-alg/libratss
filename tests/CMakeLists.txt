@@ -19,7 +19,6 @@ MACRO(ADD_TEST_TARGET_SINGLE _name)
 	add_dependencies("${PROJECT_NAME}_${_name}" ratsstests)
 ENDMACRO(ADD_TEST_TARGET_SINGLE)
 
-message("LIBRATSS_LINK_LIBRARIES=${LIBRATSS_LINK_LIBRARIES}")
 set(TEST_LIB_LINK_LIBS
 	ratsstests
 	ratsscommon
