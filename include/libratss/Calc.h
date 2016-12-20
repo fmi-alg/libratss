@@ -29,8 +29,8 @@ public:
 	mpfr::mpreal sqrt(const mpfr::mpreal & v) const;
 	mpfr::mpreal add(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
 	mpfr::mpreal sub(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
-	mpfr::mpreal toFixpoint(const mpfr::mpreal & v) const;
-	void makeFixpoint(mpfr::mpreal& v) const;
+	mpfr::mpreal toFixpoint(const mpfr::mpreal & v, int significands = -1) const;
+	void makeFixpoint(mpfr::mpreal& v, int significands = -1) const;
 public:
 	template<typename T_INPUT_ITERATOR>
 	mpfr::mpreal squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const;
@@ -42,7 +42,7 @@ public:
 	/// r is a fraction with the smallest denominator such that lower <= r <= upper
 	mpq_class within(const mpq_class& lower, const mpq_class& upper) const;
 	
-	mpq_class snap(const mpfr::mpreal & v, int st) const;
+	mpq_class snap(const mpfr::mpreal & v, int st, int eps = -1) const;
 public:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	typename std::enable_if<
@@ -54,7 +54,7 @@ public:
 		>::value,
 		void
 	>::type
-	toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const;
+	toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
 	
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	typename std::enable_if<
@@ -66,7 +66,7 @@ public:
 		>::value,
 		void
 	>::type
-	toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const;
+	toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
 public:
 	std::size_t maxBitCount(const mpq_class &v) const;
 };
@@ -104,9 +104,14 @@ typename std::enable_if<
 	>::value,
 	void
 >::type
-Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const {
-	for( ;begin != end; ++begin, ++out) {
-		*out = *begin;
+Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps) const {
+	if (eps < 0) {
+		for( ;begin != end; ++begin, ++out) {
+			*out = *begin;
+		}
+	}
+	else {
+		throw std::runtime_error("Unsupported options: toRational with rational and eps");
 	}
 }
 
@@ -120,13 +125,13 @@ typename std::enable_if<
 	>::value,
 	void
 >::type
-Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType) const {
+Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps) const {
 	std::transform(
 		begin,
 		end,
 		out,
-		[this, snapType](const mpfr::mpreal & v) {
-			return snap(v, snapType);
+		[this, snapType, eps](const mpfr::mpreal & v) {
+			return snap(v, snapType, eps);
 		}
 	);
 }

@@ -38,11 +38,40 @@ namespace tests {
 
 void CalcTest::withinSpecial() {
 	mpq_class lower, upper, within;
+	std::stringstream ss;
 	
 	lower = mpq_class("7/16");
 	upper = mpq_class("9/16");
 	within = calc.within(lower, upper);
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("[7/16, 8/16]", mpq_class("1/2"), within);
+	ss << "[" << lower << ", " << upper << "] -> " << within;
+	CPPUNIT_ASSERT_EQUAL_MESSAGE(ss.str(), mpq_class("1/2"), within);
+	ss.clear();
+	
+	lower = mpq_class("616882175/4294967296");
+	upper = mpq_class("75303/524288");
+	within = calc.within(lower, upper);
+	ss << "[" << lower << ", " << upper << "] -> " << within;
+	CPPUNIT_ASSERT_MESSAGE(ss.str(), within >= lower);
+	CPPUNIT_ASSERT_MESSAGE(ss.str(), within <= upper);
+	ss.clear();
+
+	lower = mpq_class("93199540/290310467");
+	upper = mpq_class("93199540/290310467");
+	within = calc.within(lower, upper);
+	ss << "[" << lower << ", " << upper << "] -> " << within;
+	CPPUNIT_ASSERT(lower <= upper);
+	CPPUNIT_ASSERT_MESSAGE(ss.str(), within >= lower);
+	CPPUNIT_ASSERT_MESSAGE(ss.str(), within <= upper);
+	ss.clear();
+	
+	lower = mpq_class("86176917/268435456");
+	upper = mpq_class("2891617501446145/9007199254740992");
+	within = calc.within(lower, upper);
+	ss << "[" << lower << ", " << upper << "] -> " << within;
+	CPPUNIT_ASSERT(lower < upper);
+	CPPUNIT_ASSERT_MESSAGE(ss.str(), within >= lower);
+	CPPUNIT_ASSERT_MESSAGE(ss.str(), within <= upper);
+	ss.clear();
 }
 
 }} //end namespace ratss::tests

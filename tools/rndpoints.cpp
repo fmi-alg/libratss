@@ -9,10 +9,9 @@
 #include <CGAL/point_generators_3.h>
 #endif
 
-#include "types.h"
+#include "../common/points.h"
 
 using namespace LIB_RATSS_NAMESPACE;
-using namespace LIB_RATSS_NAMESPACE::tools;
 
 typedef enum {GT_NPLANE, GT_NSPHERE, GT_CGAL, GT_GEO, GT_GEOGRID } GeneratorType;
 
@@ -192,8 +191,13 @@ struct NSpherePointGenerator: PointGenerator {
 void help(std::ostream & out) {
 	out << "prg OPTIONS\n"
 		"Options:\n"
+<<<<<<< HEAD
 		"-g generator\tgenerator = (nplane|nsphere|cgal|geo|geoGrid)\n"
 		"-f format\tformat = (rational|split|float|float128)"
+=======
+		"-g generator\tgenerator = (nplane|nsphere|cgal|geo)\n"
+		"-f format\tformat = (rational|split|float|float128)\n"
+>>>>>>> 7c1a01bd1b304e85dc400c453820a3e5e05a2f1a
 		"-d dimensions\n"
 		"-n number\tnumber of points to create\n"
 		<< std::endl;

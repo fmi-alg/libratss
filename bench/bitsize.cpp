@@ -84,9 +84,13 @@ int main(int argc, char ** argv) {
 	mpq_class xs, ys, zs, xps, yps, zps;
 	for(std::size_t i(0), s(points.size()); i < s; ++i) {
 		const SphericalCoord & c = points[i];
-		mpfr::mpreal theta(c.theta, initialPrecision);
-		mpfr::mpreal phi(c.phi, initialPrecision);
+		mpfr::mpreal theta(c.theta, initialPrecision+6);
+		mpfr::mpreal phi(c.phi, initialPrecision+6);
 		calc.cartesianFromSpherical(theta, phi, xd, yd, zd);
+		
+		xd.setPrecision(initialPrecision, MPFR_RNDZ);
+		yd.setPrecision(initialPrecision, MPFR_RNDZ);
+		zd.setPrecision(initialPrecision, MPFR_RNDZ);
 		
 		//we want the bitsize for the snapping in the plane
 		auto pos = p.sphere2Plane(xd, yd, zd, xpd, ypd, zpd);
@@ -100,12 +104,12 @@ int main(int argc, char ** argv) {
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
 		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
-		      snapFl.update(xps);
-		      snapFl.update(yps);
-		      snapFl.update(zps);
-		      snapFlProj.update(xs);
-		      snapFlProj.update(ys);
-		      snapFlProj.update(zs);
+		snapFl.update(xps);
+		snapFl.update(yps);
+		snapFl.update(zps);
+		snapFlProj.update(xs);
+		snapFlProj.update(ys);
+		snapFlProj.update(zs);
 		
 		//snap with fix point
 		xps = calc.snap(xpd, Calc::ST_FX);
