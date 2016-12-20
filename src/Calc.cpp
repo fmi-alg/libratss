@@ -311,8 +311,15 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 	else if (st & ST_FX) {
 		return Conversion<mpfr::mpreal>::toMpq( toFixpoint(v, significands) );
 	}
-	else if (st & st & ST_FL) {
-		return Conversion<mpfr::mpreal>::toMpq( v );
+	else if (st & ST_FL) {
+		if (significands > 0 && significands != v.getPrecision()) {
+			mpfr::mpreal tmp(v);
+			tmp.setPrecision(significands);
+			return Conversion<mpfr::mpreal>::toMpq(tmp);
+		}
+		else {
+			return Conversion<mpfr::mpreal>::toMpq( v );
+		}
 	}
 	else {
 		throw std::runtime_error("ratss::Calc::snap: Unsupported snap type");
