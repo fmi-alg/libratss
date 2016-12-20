@@ -120,7 +120,12 @@ void Calc::makeFixpoint(mpfr::mpreal& v, int significands) const {
 		}
 	}
 	else if (v.getPrecision() < significands) {
-		throw std::overflow_error("Calc::makeFixpoint: Epsilon is smaller than input precision");
+		throw std::domain_error(
+			"Calc::makeFixpoint: Number of signifcands is " +
+			std::to_string(significands) +
+			" which is smaller than input precision which is " +
+			std::to_string(v.getPrecision())
+		);
 	}
 	else {
 		v.setPrecision(significands);
@@ -284,7 +289,12 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 			return within(lower, upper);
 		}
 		else if (v.getPrecision() < significands) {
-			throw std::overflow_error("Calc::snap: Epsilon is smaller than input precision");
+			throw std::domain_error(
+				"Calc::makeFixpoint: Number of signifcands is " +
+				std::to_string(significands) +
+				" which is smaller than input precision which is " +
+				std::to_string(v.getPrecision())
+			);
 		}
 		else {
 			mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
