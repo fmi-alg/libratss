@@ -9,7 +9,9 @@ namespace tests {
 
 class CalcTest: public TestBase {
 CPPUNIT_TEST_SUITE( CalcTest );
-CPPUNIT_TEST( withinSpecial );
+// CPPUNIT_TEST( withinSpecial );
+// CPPUNIT_TEST( contFracRandom );
+CPPUNIT_TEST( jacobiPerron2D );
 CPPUNIT_TEST_SUITE_END();
 public:
 	static std::size_t num_random_test_points;
@@ -17,6 +19,8 @@ public:
 	Calc calc;
 public:
 	void withinSpecial();
+	void contFracRandom();
+	void jacobiPerron2D();
 };
 
 std::size_t CalcTest::num_random_test_points;
@@ -35,6 +39,22 @@ int main(int argc, char ** argv) {
 
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
+
+void CalcTest::contFracRandom() {
+	;
+}
+
+void CalcTest::jacobiPerron2D() {
+	mpq_class input1("3/16");
+	mpq_class input2("3/11");
+	
+	mpq_class output1, output2;
+	
+	calc.jacobiPerron2D(input1, input2, output1, output2, 16);
+	
+	CPPUNIT_ASSERT_EQUAL(input1, output1);
+	CPPUNIT_ASSERT_EQUAL(input2, output2);
+}
 
 void CalcTest::withinSpecial() {
 	mpq_class lower, upper, within;

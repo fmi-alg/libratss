@@ -18,7 +18,8 @@ public:
 		ST_CF=0x4, //snap by continous fraction
 		ST_FX=0x8, //snap by fix point
 		ST_FL=0x10, //snap by floating point
-		ST_NORMALIZE=0x20
+		ST_JP=0x20, // jacobi perron
+		ST_NORMALIZE=0x40
 	} SnapType;
 public:
 	static std::string toString(SnapType st);
@@ -165,7 +166,7 @@ void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATO
 
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps) const {
+void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands) const {
 	using input_ft = typename std::iterator_traits<T_INPUT_ITERATOR>::value_type;
 	using std::distance;
 	std::size_t dims = distance(begin, end);
@@ -181,7 +182,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 	PositionOnSphere pos;
 	if (snapType & ST_SPHERE) {
 		std::vector<mpq_class> coords_sphere_pq(dims);
-		calc().toRational(begin, end, coords_sphere_pq.begin(), snapType, eps);
+		calc().toRational(begin, end, coords_sphere_pq.begin(), snapType, significands);
 		pos = sphere2Plane(coords_sphere_pq.begin(), coords_sphere_pq.end(), coords_plane_pq.begin());
 	}
 	else if (snapType & ST_PLANE) {
@@ -189,10 +190,29 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		pos = sphere2Plane(begin, end, coords_plane.begin());
 		//this fixes the eps guarantee at the cost of 2 more bits. This is independent of the number of bits
 		//The question remains: why?
-		if (eps > 0 && snapType & (ST_CF|ST_FX)) {
-			eps += 2;
+		if (significands > 0 && snapType & (ST_CF|ST_FX)) {
+			significands += 2;
 		}
-		calc().toRational(coords_plane.begin(), coords_plane.end(), coords_plane_pq.begin(), snapType, eps);
+		if (snapType & ST_JP) {
+			std::vector<mpfr::mpreal> tmpInput;
+			std::vector<mpq_class> tmpOutput(2);
+			
+			for(int i(0); i < 3; ++i) {
+				if (i != pos) {
+					tmpInput.emplace_back( coords_plane.at(i));
+				}
+			}
+			calc().toRational(tmpInput.begin(), tmpInput.end(), tmpOutput.begin(), snapType, significands);
+			for(int i(0); i < 3; ++i) {
+				if (i == pos) {
+					continue;
+				}
+				coords_plane_pq[i] = Conversion<mpfr::mpreal>::toMpq(coords_plane.at(i));
+			}
+		}
+		else {
+			calc().toRational(coords_plane.begin(), coords_plane.end(), coords_plane_pq.begin(), snapType, significands);
+		}
 	}
 	else {
 		throw std::runtime_error("ratss::ProjectSN::snap: Unsupported snap type");

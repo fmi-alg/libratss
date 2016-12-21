@@ -10,7 +10,7 @@ namespace LIB_RATSS_NAMESPACE {
 class Calc {
 public:
 	///Values are compatible with the ones defined in ProjectSN::SnapType
-	typedef enum { ST_CF=0x4, ST_FX=0x8, ST_FL=0x10 } SnapType;
+	typedef enum { ST_CF=0x4, ST_FX=0x8, ST_FL=0x10, ST_JP=0x20 } SnapType;
 public:
 	template<typename T_FT>
 	inline T_FT add(const T_FT & a, const T_FT & b) const { return a+b; }
@@ -55,6 +55,10 @@ public:
 	///@return r a number satisfying the following conditions:
 	/// r is a fraction with the smallest denominator such that lower <= r <= upper
 	mpq_class within(const mpq_class& lower, const mpq_class& upper) const;
+	
+	mpq_class contFrac(const mpq_class& value, int significands) const;
+	
+	void jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class& output2, int significands) const;
 	
 	mpq_class snap(const mpfr::mpreal & v, int st, int eps = -1) const;
 public:
@@ -139,15 +143,32 @@ typename std::enable_if<
 	>::value,
 	void
 >::type
-Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps) const {
-	std::transform(
-		begin,
-		end,
-		out,
-		[this, snapType, eps](const mpfr::mpreal & v) {
-			return snap(v, snapType, eps);
+Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands) const {
+	if (snapType & ST_JP) {
+		using std::distance;
+		if (distance(begin, end) != 2) {
+			throw std::domain_error("Calc::toRational: Snapping with jacobiPerron only supports dimension 2");
 		}
-	);
+		mpq_class input1( Conversion<mpfr::mpreal>::toMpq(*begin) );
+		++begin;
+		mpq_class input2( Conversion<mpfr::mpreal>::toMpq(*begin) );
+		mpq_class output1, output2;
+		jacobiPerron2D(input1, input2, output1, output2, significands);
+		*out = output1;
+		++out;
+		*out = output2;
+		++out;
+	}
+	else {
+		std::transform(
+			begin,
+			end,
+			out,
+			[this, snapType, significands](const mpfr::mpreal & v) {
+				return snap(v, snapType, significands);
+			}
+		);
+	}
 }
 
 }//end namespace LIB_RATSS_NAMESPACE

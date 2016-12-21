@@ -1,6 +1,9 @@
 #include <libratss/Calc.h>
+
 #include <assert.h>
 #include <cmath>
+
+#include <libratss/internal/Matrix.h>
 
 namespace LIB_RATSS_NAMESPACE {
 
@@ -145,11 +148,35 @@ mpfr::mpreal Calc::toFixpoint(const mpfr::mpreal& v, int significands) const {
 	return c;
 }
 
+mpq_class fromRegContFrac(const std::vector<mpz_class> & cf) {
+	if (cf.size() == 1) {
+		return mpq_class(cf.back());
+	}
+
+	//we have a regular continous fraction in cf, let's reduce it
+	//the form is a_0 + ( 1 / (a_1 + 1 / (a_2 + 1 / (a_3 + ...))))
+	//we use the fast non-division form to reconstruct our fraction
+	mpz_class pn(cf.front()), pn1(1), pn2(0);
+	mpz_class qn(1), qn1(0), qn2(1);
+	for(auto it(cf.begin()+1), end(cf.end()); it != end; ++it) {
+		const mpz_class & a_i = *it;
+		pn = a_i * pn1 + pn2;
+		pn2 = pn1;
+		pn1 = pn;
+		
+		qn = a_i * qn1 + qn2;
+		qn2 = qn1;
+		qn1 = qn;
+	}
+	mpq_class result(qn, pn);
+	result.canonicalize();
+	return result;
+}
+
 mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
-// 	if (lower == upper) {
-// 		return lower;
-// 	}
-	
+	if (lower == upper) {
+		return lower;
+	}
 	if (lower > upper) {
 		return within(upper, lower);
 	}
@@ -217,35 +244,171 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 		ltmp = 1  / ltmp;
 		utmp = 1 / utmp;
 	}
-	if (cf.size() == 1) {
-		assert(cf.back() >= lower);
-		assert(cf.back() <= upper);
-		return mpq_class(cf.back());
-	}
-
-	//we now have a (regular) continous fraction in cf, let's reduce it
-	//the form is a_0 + ( 1 / (a_1 + 1 / (a_2 + 1 / (a_3 + ...))))
-	//we use the fast non-division form to reconstruct our fraction
-	mpz_class pn(cf.front()), pn1(1), pn2(0);
-	mpz_class qn(1), qn1(0), qn2(1);
-	for(auto it(cf.begin()+1), end(cf.end()); it != end; ++it) {
-		const mpz_class & a_i = *it;
-		pn = a_i * pn1 + pn2;
-		pn2 = pn1;
-		pn1 = pn;
-		
-		qn = a_i * qn1 + qn2;
-		qn2 = qn1;
-		qn1 = qn;
-	}
-	mpq_class result(qn, pn);
-	result.canonicalize();
+	mpq_class result = fromRegContFrac(cf);
 	assert(result <= 1 || result >= -1);
 	assert(result >= lower);
 	assert(result <= upper);
 	assert(result.get_den() <= lower.get_den());
 	assert(result.get_den() <= upper.get_den());
 	return result;
+}
+
+mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
+	
+	if (value < 0) {
+		return -contFrac(-value, significands);
+	}
+	if (value == 0) {
+		return value;
+	}
+	mpz_class epsDenom(1);
+	epsDenom <<= significands;
+	
+	if (value >= 1) {
+		mpz_class intPart = value.get_num() / value.get_den();
+		mpq_class remainder = value - intPart;
+		if (remainder < mpq_class(mpz_class(1), epsDenom)) {
+			return mpq_class(intPart);
+		}
+		return intPart + contFrac(remainder, significands);
+	}
+	//we now know that 0 < value < 1
+		
+	std::vector<mpz_class> cf;
+	
+	mpz_class distUpperBoundDenom;
+	mpz_class intPart;
+	mpq_class tmp(value);
+
+	//take care of the first iteration
+	intPart = tmp.get_num() / tmp.get_den();
+	tmp -= intPart;
+	
+	if (tmp < epsDenom) { //distance to real value is smaller than eps
+		return mpq_class(mpz_class(1), mpz_class(intPart));
+	}
+	
+	cf.emplace_back( std::move(intPart) );
+	tmp = 1 / tmp;
+
+	//a_1 is now in cf, calculate a_2...
+	//eps is of the form 1/number, our bound is
+	//abs(value-p_n/q_n) < 1/(a_(n+1) * q_n**2 )
+	while(true) {
+		intPart = tmp.get_num() / tmp.get_den();
+		mpz_class qsq = cf.back()*cf.back();
+		distUpperBoundDenom = (intPart) * qsq;
+		
+		if (distUpperBoundDenom > epsDenom) {
+			break;
+		}
+		
+		tmp -= intPart;
+		tmp = 1 / tmp;
+		
+		cf.emplace_back( std::move(intPart) );
+	}
+	mpq_class result = fromRegContFrac(cf);
+	
+	using std::abs;
+	assert( abs(result-value) <= mpq_class(mpz_class(1), epsDenom) );
+	return result;
+}
+
+void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class & output2, int significands) const {
+	using Matrix = internal::Matrix<mpz_class>;
+	
+	if (input1 < 0) {
+		jacobiPerron2D(-input1, input2, output1, output2, significands);
+		output1 *= -1;
+	}
+	if (input2 < 0) {
+		jacobiPerron2D(input1, -input2, output1, output2, significands);
+		output2 *= -1;
+	}
+	
+	//input1 && input2 >= 0
+	
+	if (input1 > 1) {
+		mpz_class tmp1 = input1.get_num() / input1.get_den();
+		jacobiPerron2D(input1-tmp1, input2, output1, output2, significands);
+		output1 += tmp1;
+	}
+	if (input2 > 1) {
+		mpz_class tmp2 = input2.get_num() / input2.get_den();
+		jacobiPerron2D(input1, input2-tmp2, output1, output2, significands);
+		output2 += tmp2;
+	}
+	
+	// 0 <= input1 && input2 <= 1
+	
+	Matrix result( Matrix::identity(3) );
+	Matrix mtxStep(3);
+	mtxStep(1, 0) = 1;
+	mtxStep(2, 1) = 1;
+	mtxStep(0, 2) = 1;
+	
+	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands);
+	
+	mpz_class an, bn;
+	
+	mpq_class alpha(input1), beta(input2);
+	
+	mpq_class tmp1, tmp2;
+	
+	std::size_t counter = 0;
+	
+	std::cout.precision(std::numeric_limits<double>::digits10+1);
+	std::cout << std::scientific;
+	
+	std::cout << '\n';
+	while(alpha != 0) {
+		std::cout << "alpha_" << counter << ": " << alpha << '\n';
+		std::cout << "beta_" << counter << ": " << beta << '\n';
+	
+		tmp1 = 1 / alpha;
+		an = tmp1.get_num() / tmp1.get_den();
+		
+		tmp2 = beta / alpha;
+		bn = tmp2.get_num() / tmp2.get_den();
+		
+		std::cout << "a_" << counter << ": " << an << '\n';
+		std::cout << "b_" << counter << ": " << bn << '\n';
+		
+		alpha = tmp2 - bn;
+		beta = tmp1 - an;
+		
+		mtxStep(0,0) = an;
+		mtxStep(2,0) = bn;
+		
+		result = result * mtxStep;
+		
+		output1 = mpq_class( result(1, 0), result(0, 0) );
+		output2 = mpq_class( result(2, 0), result(0, 0) );
+		
+		std::cout << "output1_" << counter << ": " << output1 << '\n';
+		std::cout << "output2_" << counter << ": " << output2 << '\n';
+		std::cout << "result(0,0)_" << counter << ": " << result(0,0) << '\n';
+		std::cout << "result(1,0)_" << counter << ": " << result(1,0) << '\n';
+		std::cout << "result(2,0)_" << counter << ": " << result(2,0) << '\n';
+		
+		using std::abs;
+		const mpq_class diff1 = abs(output1-input1);
+		const mpq_class diff2 = abs(output2-input2);
+		
+		
+		std::cout << "eps=" << eps << '\n';
+		std::cout << "output1=" << output1 << '\n';
+		std::cout << "output2=" << output2 << '\n';
+		std::cout << "abs(output1-input1)=" << Conversion<mpq_class>::toMpreal(diff1, 128) << '\n';
+		std::cout << "abs(output2-input2)=" << Conversion<mpq_class>::toMpreal(diff2, 128) << '\n';
+		std::cout << std::endl;
+		if ( diff1 <= eps && diff2 <= eps) {
+			break;
+		}
+		
+		++counter;
+	}
 }
 
 mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {

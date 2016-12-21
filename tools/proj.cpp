@@ -83,6 +83,9 @@ struct Config {
 					else if (stStr == "fl") {
 						snapType |= ProjectSN::ST_FL;
 					}
+					else if ( stStr == "jp") {
+						snapType |= ProjectSN::ST_JP;
+					}
 					else {
 						std::cerr << "Unrecognized snap method: " << stStr << std::endl;
 						return -1;

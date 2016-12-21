@@ -11,6 +11,7 @@ std::string ProjectSN::toString(ProjectSN::SnapType st) {
 	PRINT_FIELD_NAME(ST_CF)
 	PRINT_FIELD_NAME(ST_FX)
 	PRINT_FIELD_NAME(ST_FL)
+	PRINT_FIELD_NAME(ST_JP)
 	PRINT_FIELD_NAME(ST_NORMALIZE)
 	
 	if (result.size()) {
