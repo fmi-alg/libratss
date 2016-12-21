@@ -76,7 +76,8 @@ void NDProjectionTest::snapRandom(const std::vector<int> & snapMethod, const std
 		mpq_class eps(mpz_class(1), mpz_class(1) << sig);
 		mpq_class eps2 = eps*eps;
 		mpq_class maxSqLen = 1+6*eps+3*eps2;
-		mpq_class projEps = eps*3;
+		//use 2.1 here since an exact 2.0 would only be correct if the reference input point would be the real one (which can't be the case)
+		mpq_class projEps = eps*2.1;
 		for(const SphericalCoord & sc : coords) {
 			gc.cartesianFromSpherical(mpfr::mpreal(sc.theta, prec), mpfr::mpreal(sc.phi, prec), input[0], input[1], input[2]);
 			std::transform(input.begin(), input.end(), inputRational.begin(), [](const mpfr::mpreal & x) {
