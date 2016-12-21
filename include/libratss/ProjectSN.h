@@ -187,6 +187,11 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 	else if (snapType & ST_PLANE) {
 		std::vector<mpfr::mpreal> coords_plane(dims);
 		pos = sphere2Plane(begin, end, coords_plane.begin());
+		//this fixes the eps guarantee at the cost of 2 more bits. This is independent of the number of bits
+		//The question remains: why?
+		if (eps > 0 && snapType & (ST_CF|ST_FX)) {
+			eps += 2;
+		}
 		calc().toRational(coords_plane.begin(), coords_plane.end(), coords_plane_pq.begin(), snapType, eps);
 	}
 	else {
