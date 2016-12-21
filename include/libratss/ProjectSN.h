@@ -197,17 +197,22 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 			std::vector<mpfr::mpreal> tmpInput;
 			std::vector<mpq_class> tmpOutput(2);
 			
+			int skipDim = std::abs(pos)-1;
 			for(int i(0); i < 3; ++i) {
-				if (i != pos) {
+				if (i != skipDim) {
 					tmpInput.emplace_back( coords_plane.at(i));
 				}
 			}
+			assert(tmpInput.size() == 2);
 			calc().toRational(tmpInput.begin(), tmpInput.end(), tmpOutput.begin(), snapType, significands);
-			for(int i(0); i < 3; ++i) {
-				if (i == pos) {
+			for(int i(0), j(0); i < 3; ++i) {
+				if (i == skipDim) {
 					continue;
 				}
-				coords_plane_pq[i] = Conversion<mpfr::mpreal>::toMpq(coords_plane.at(i));
+				else {
+					coords_plane_pq[i] = tmpOutput[j];
+					++j;
+				}
 			}
 		}
 		else {
