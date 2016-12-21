@@ -321,10 +321,12 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	if (input1 < 0) {
 		jacobiPerron2D(-input1, input2, output1, output2, significands);
 		output1 *= -1;
+		return;
 	}
 	if (input2 < 0) {
 		jacobiPerron2D(input1, -input2, output1, output2, significands);
 		output2 *= -1;
+		return;
 	}
 	
 	//input1 && input2 >= 0
@@ -333,12 +335,17 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		mpz_class tmp1 = input1.get_num() / input1.get_den();
 		jacobiPerron2D(input1-tmp1, input2, output1, output2, significands);
 		output1 += tmp1;
+		return;
 	}
 	if (input2 > 1) {
 		mpz_class tmp2 = input2.get_num() / input2.get_den();
 		jacobiPerron2D(input1, input2-tmp2, output1, output2, significands);
 		output2 += tmp2;
+		return;
 	}
+	
+	assert(input1 >= 0 && input1 <= 1);
+	assert(input2 >= 0 && input2 <= 1);
 	
 	// 0 <= input1 && input2 <= 1
 	
@@ -408,6 +415,11 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		}
 		
 		++counter;
+	}
+	{
+		using std::abs;
+		assert(abs(output1-input1) <= eps);
+		assert(abs(output2-input2) <= eps);
 	}
 }
 
