@@ -317,6 +317,8 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 
 void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class & output2, int significands) const {
 	using Matrix = internal::Matrix<mpz_class>;
+	using std::abs;
+	
 	
 	if (input1 < 0) {
 		jacobiPerron2D(-input1, input2, output1, output2, significands);
@@ -329,7 +331,7 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		return;
 	}
 	
-	//input1 && input2 >= 0
+	//input1, input2 >= 0
 	
 	if (input1 > 1) {
 		mpz_class tmp1 = input1.get_num() / input1.get_den();
@@ -347,15 +349,29 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	assert(input1 >= 0 && input1 <= 1);
 	assert(input2 >= 0 && input2 <= 1);
 	
-	// 0 <= input1 && input2 <= 1
+	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands);
+	
+	if (abs(input1) < eps && abs(input2) < eps) {
+		output1 = 0;
+		output2 = 0;
+		return;
+	}
+	else if (abs(input1) < eps) {
+		output1 = 0;
+		output2 =  within(input2 - eps, input2 + eps); //TODO:use contFrac here
+		return;
+	}
+	else if (abs(input2) < eps) {
+		output2 = 0;
+		output1 = within(input1 - eps, input1 + eps); //TODO:use contFrac here
+		return;
+	}
 	
 	Matrix result( Matrix::identity(3) );
 	Matrix mtxStep(3);
 	mtxStep(1, 0) = 1;
 	mtxStep(2, 1) = 1;
 	mtxStep(0, 2) = 1;
-	
-	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands);
 	
 	mpz_class an, bn;
 	
@@ -385,6 +401,8 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		alpha = tmp2 - bn;
 		beta = tmp1 - an;
 		
+		assert(alpha >= 0 && beta >= 0);
+		
 		mtxStep(0,0) = an;
 		mtxStep(2,0) = bn;
 		
@@ -399,7 +417,6 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		std::cout << "result(1,0)_" << counter << ": " << result(1,0) << '\n';
 		std::cout << "result(2,0)_" << counter << ": " << result(2,0) << '\n';
 		
-		using std::abs;
 		const mpq_class diff1 = abs(output1-input1);
 		const mpq_class diff2 = abs(output2-input2);
 		
@@ -416,8 +433,9 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		
 		++counter;
 	}
+	//TODO: if alpha = 0, but beta not good enough?
+	
 	{
-		using std::abs;
 		assert(abs(output1-input1) <= eps);
 		assert(abs(output2-input2) <= eps);
 	}
