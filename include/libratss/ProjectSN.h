@@ -5,6 +5,7 @@
 #include <libratss/constants.h>
 #include <libratss/Calc.h>
 #include <libratss/enum.h>
+#include "internal/SkipIterator.h"
 #include <assert.h>
 
 namespace LIB_RATSS_NAMESPACE {
@@ -194,26 +195,30 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 			significands += 2;
 		}
 		if (snapType & ST_JP) {
-			std::vector<mpfr::mpreal> tmpInput;
-			std::vector<mpq_class> tmpOutput(2);
-			
-			int skipDim = std::abs(pos)-1;
-			for(int i(0); i < 3; ++i) {
-				if (i != skipDim) {
-					tmpInput.emplace_back( coords_plane.at(i));
-				}
-			}
-			assert(tmpInput.size() == 2);
-			calc().toRational(tmpInput.begin(), tmpInput.end(), tmpOutput.begin(), snapType, significands);
-			for(int i(0), j(0); i < 3; ++i) {
-				if (i == skipDim) {
-					continue;
-				}
-				else {
-					coords_plane_pq[i] = tmpOutput[j];
-					++j;
-				}
-			}
+// 			std::vector<mpfr::mpreal> tmpInput;
+// 			std::vector<mpq_class> tmpOutput(2);
+// 			std::vector<int>::const_iterator;
+// 			
+// 			int skipDim = std::abs(pos)-1;
+// 			for(int i(0); i < 3; ++i) {
+// 				if (i != skipDim) {
+// 					tmpInput.emplace_back( coords_plane.at(i));
+// 				}
+// 			}
+// 			assert(tmpInput.size() == 2);
+// 			calc().toRational(tmpInput.begin(), tmpInput.end(), tmpOutput.begin(), snapType, significands);
+// 			for(int i(0), j(0); i < 3; ++i) {
+// 				if (i == skipDim) {
+// 					continue;
+// 				}
+// 				else {
+// 					coords_plane_pq[i] = tmpOutput[j];
+// 					++j;
+// 				}
+// 			}
+			using SkipInputIterator = internal::SkipIterator<std::vector<mpfr::mpreal>::const_iterator>;
+			using SkipOutputIterator = internal::SkipIterator<std::vector<mpq_class>::iterator>;
+			calc().toRational(SkipInputIterator);
 		}
 		else {
 			calc().toRational(coords_plane.begin(), coords_plane.end(), coords_plane_pq.begin(), snapType, significands);
