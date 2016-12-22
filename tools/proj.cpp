@@ -21,7 +21,8 @@ void help(std::ostream & out) {
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-b\talso print bitsize statistics\n"
 		"\t-n\tnormalize input to length 1\n"
-		"\t-f format\tset format of output: [rational, split, float]\n"
+		"\t-if format\tset input format: [geo, spherical, cartesian]\n"
+		"\t-of format\tset output format: [rational, split, float]\n"
 		"\t-e k\tset manual epsilon to be 2^-k\n"
 		"\t-i\tpath to input\n"
 		"\t-o\tpath to output"
@@ -38,7 +39,10 @@ struct Config {
 	bool stats;
 	bool verbose;
 	bool check;
+	bool progress;
+	InputPoint::Format inFormat;
 	OutputPoint::Format outFormat;
+	
 	
 	Config() :
 	precision(-1),
@@ -48,6 +52,8 @@ struct Config {
 	stats(false),
 	verbose(false),
 	check(false),
+	progress(false),
+	inFormat(InputPoint::FM_CARTESIAN),
 	outFormat(OutputPoint::FM_RATIONAL)
 	{}
 	int parse(int argc, char ** argv) {
@@ -136,7 +142,29 @@ struct Config {
 					return -1;
 				}
 			}
-			else if (token == "-f") {
+			else if (token == "-if") {
+				if (i+1 < argc) {
+					std::string stStr(argv[i+1]);
+					if (stStr == "geo" ) {
+						inFormat = InputPoint::FM_GEO;
+					}
+					else if (stStr == "spherical") {
+						inFormat = InputPoint::FM_SPHERICAL;
+					}
+					else if (stStr == "cartesian") {
+						inFormat = InputPoint::FM_CARTESIAN;
+					}
+					else {
+						std::cerr << "Unrecognized input format: " << stStr << std::endl;
+						help(std::cerr);
+					}
+					++i;
+				}
+				else {
+					return -1;
+				}
+			}
+			else if (token == "-of") {
 				if (i+1 < argc) {
 					std::string stStr(argv[i+1]);
 					if (stStr == "rational" || stStr == "rat" || stStr == "r") {
@@ -172,6 +200,9 @@ struct Config {
 			}
 			else if (token == "-v" || token == "--verbose") {
 				verbose = true;
+			}
+			else if (token == "--progress") {
+				progress = true;
 			}
 			else if (token == "-h" || token == "--help") {
 				return 0;
@@ -217,6 +248,17 @@ std::ostream & operator<<(std::ostream & out, const Config & cfg) {
 	out << "Float conversion location: " << (cfg.snapType & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
 	out << "Check: " << (cfg.check ? "yes" : "no") << '\n';
 	out << "Normalize: " << (cfg.normalize ? "yes" : "no") << '\n';
+	out << "Input format: ";
+	if (cfg.inFormat == InputPoint::FM_GEO) {
+		out << "geo";
+	}
+	else if (cfg.inFormat == InputPoint::FM_SPHERICAL) {
+		out << "spherical";
+	}
+	else if (cfg.inFormat == InputPoint::FM_CARTESIAN) {
+		out << "cartesian";
+	}
+	out << '\n';
 	out << "Output format: ";
 	if (cfg.outFormat == OutputPoint::FM_FLOAT) {
 		out << "float";
@@ -282,12 +324,19 @@ int main(int argc, char ** argv) {
 	InputPoint ip;
 	OutputPoint op;
 	
+	if (cfg.progress) {
+		std::cout << std::endl;
+	}
+	std::size_t counter = 0;
 	while( inFile->good() ) {
-		for( ; inFile->good() && inFile->peek() == '\n'; inFile->get()) {}
+		for( ; inFile->good() && inFile->peek() == '\n'; ) {
+			inFile->get();
+			outFile->put('\n');
+		}
 		if (!inFile->good()) {
 			break;
 		}
-		ip.assign(*inFile);
+		ip.assign(*inFile, cfg.inFormat, cfg.precision);
 		if (cfg.normalize) {
 			if (cfg.verbose) {
 				std::cerr << "Normalizing (" << ip << ") to ";
@@ -309,13 +358,19 @@ int main(int argc, char ** argv) {
 			return -1;
 		}
 		op.print(*outFile, cfg.outFormat);
-		*outFile << '\n';
+		if (inFile->peek() != '\n') {
+			outFile->put(' ');
+		}
+		
+		++counter;
+		if (cfg.progress && counter % 1000 == 0) {
+			std::cout << '\xd' << counter/1000 << "k" << std::flush;
+		}
 	}
 	
 	if (cfg.stats) {
 		std::cerr << bc << std::endl;
 	}
-	
 	
 	return 0;
 }
