@@ -17,7 +17,7 @@ void help(std::ostream & out) {
 		"Options:\n"
 		"\t-v\tverbose\n"
 		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (cf|fl|fx)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point\n"
+		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-b\talso print bitsize statistics\n"
 		"\t-n\tnormalize input to length 1\n"

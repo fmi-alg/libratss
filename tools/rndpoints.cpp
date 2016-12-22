@@ -191,7 +191,7 @@ struct NSpherePointGenerator: PointGenerator {
 void help(std::ostream & out) {
 	out << "prg OPTIONS\n"
 		"Options:\n"
-		"-g generator\tgenerator = (nplane|nsphere|cgal|geo)\n"
+		"-g generator\tgenerator = (nplane|nsphere|cgal|geo|geogrid)\n"
 		"-f format\tformat = (rational|split|float|float128)\n"
 		"-d dimensions\n"
 		"-n number\tnumber of points to create\n"
@@ -224,9 +224,9 @@ struct Config {
 					else if (gtStr == "geo") {
 						gt = GT_GEO;
 					}
-                                        else if (gtStr == "geoGrid"){
-                                                gt = GT_GEOGRID;
-                                        }
+					else if (gtStr == "geogrid" || gtStr == "geoGrid"){
+						gt = GT_GEOGRID;
+					}
 					else {
 						std::cerr << "Unsupported generator: " << gtStr << std::endl;
 						return -1;
