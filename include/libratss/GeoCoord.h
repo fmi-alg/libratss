@@ -29,6 +29,7 @@ public:
 };
 
 std::ostream & operator<<(std::ostream & out, const GeoCoord & gc);
+std::istream & operator>>(std::istream & in, GeoCoord & gc);
 
 std::string to_string(const GeoCoord & sc);
 

@@ -29,6 +29,7 @@ public:
 };
 
 std::ostream & operator<<(std::ostream & out, const SphericalCoord & sc);
+std::istream & operator>>(std::istream & in, SphericalCoord & sc);
 
 std::string to_string(const SphericalCoord & sc);
 

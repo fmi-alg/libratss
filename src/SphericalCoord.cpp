@@ -3,6 +3,7 @@
 #include <libratss/GeoCoord.h>
 #include <cmath>
 #include <ostream>
+#include <istream>
 
 namespace LIB_RATSS_NAMESPACE {
 
@@ -52,6 +53,11 @@ bool SphericalCoord::operator<(const SphericalCoord & other) const {
 std::ostream & operator<<(std::ostream & out, const SphericalCoord & sc) {
 	out << sc.theta << ' ' << sc.phi;
 	return out;
+}
+
+std::istream & operator<<(std::istream & in, SphericalCoord & sc) {
+	in >> sc.theta >> sc.phi;
+	return in;
 }
 
 std::string to_string(const SphericalCoord &sc) {
