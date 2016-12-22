@@ -23,7 +23,7 @@ public:
 	}
 	FT min() const { return m_min; }
 	FT max() const { return m_max; }
-	FT mean() const { return (m_count ? m_sum/m_count : FT(0)); }
+	double mean() const { return (m_count ? m_sum/(double)m_count : FT(0)); }
 	FT sum() const { return m_sum; }
 	void print(std::ostream & out, const std::string & prefix) const {
 		out << prefix << "min: " << min() << '\n';
