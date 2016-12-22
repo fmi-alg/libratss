@@ -9,42 +9,60 @@
 namespace LIB_RATSS_NAMESPACE {
 namespace internal {
 
-template<typename T_PARENT_CLASS, typename TIterator, typename TValue = typename std::iterator_traits<base_iterator_type>::value_type>
-class SkipIteratorDerefer: public
+template<typename T_PARENT_CLASS, typename TIterator, typename TPointer = typename std::iterator_traits<TIterator>::pointer>
+class SkipIteratorDerefer;
+
+
+template<typename T_PARENT_CLASS, typename TIterator, typename TValue>
+class SkipIteratorDerefer<T_PARENT_CLASS, TIterator, TValue*>: public
 	std::iterator<
 		std::forward_iterator_tag,
 		typename std::iterator_traits<TIterator>::value_type,
 		typename std::iterator_traits<TIterator>::difference_type,
-		typename std::iterator_traits<TIterator>::pointer_type,
-		typename std::iterator_traits<TIterator>::reference_type
+		typename std::iterator_traits<TIterator>::pointer,
+		typename std::iterator_traits<TIterator>::reference
 	>
 {
 public:
-	T & operator*() { return *(T_PARENT_CLASS::it()); }
+	TValue & operator*() { return *(static_cast<T_PARENT_CLASS*>(this)->it()); }
 };
 
 template<typename T_PARENT_CLASS, typename TIterator, typename TValue>
-struct SkipIteratorDerefer<T_PARENT_CLASS, TIterator, const TValue>: public
+class SkipIteratorDerefer<T_PARENT_CLASS, TIterator, const TValue*>: public
 	std::iterator<
-		std::forward_iterator_tag,
+		std::input_iterator_tag,
 		typename std::iterator_traits<TIterator>::value_type,
 		typename std::iterator_traits<TIterator>::difference_type,
-		typename std::iterator_traits<TIterator>::pointer_type,
-		typename std::iterator_traits<TIterator>::reference_type
+		typename std::iterator_traits<TIterator>::pointer,
+		typename std::iterator_traits<TIterator>::reference
 	>
 {
 public:
-	const T & operator*() const { return *(T_PARENT_CLASS::it()); }
+	const TValue & operator*() const { return *(static_cast<const T_PARENT_CLASS*>(this)->it()); }
 };
 
-template<typename T>
-class SkipIteratorBase: public SkipIteratorDerefer<SkipIteratorBase<T>, T> {
+template<typename TIterator>
+class SkipIteratorBase: public SkipIteratorDerefer<SkipIteratorBase<TIterator>, TIterator> {
 public:
 	using base_iterator_type = TIterator;
-protected:
-	SkipIteratorBase(const base_iterator_type & it, std::size_t skip) : m_it(it), m_skip(skip) {
-		if (skip == 0) {
+	using MyBaseClass = SkipIteratorDerefer<SkipIteratorBase<TIterator>, TIterator>;
+	using value_type = typename MyBaseClass::value_type;
+	using difference_type = typename MyBaseClass::difference_type;
+	using reference = typename MyBaseClass::reference;
+	using pointer = typename MyBaseClass::pointer;
+public:
+	///@param dimSkip starts from 1, set to 0 for past the end iterator
+	SkipIteratorBase(const base_iterator_type & it, int skipDim) : m_it(it) {
+		assert(skipDim >= 0);
+		if (skipDim == 1) {
 			++m_it;
+			m_skip = 0;
+		}
+		else if (skipDim == 0){
+			m_skip = 0;
+		}
+		else {
+			m_skip = skipDim-1;
 		}
 	}
 	SkipIteratorBase(const SkipIteratorBase & other) : m_it(other.m_it), m_skip(other.m_skip) {}
@@ -63,24 +81,30 @@ protected:
 			--m_skip;
 		}
 	}
-	difference_type operator-(const SkipIteratorBase & other) {
+	difference_type operator-(const SkipIteratorBase & other) const {
 		//we have multiple cases here: skip1 < skip2, skip2 < skip1, skip1 == skip2
-		if (m_skip < other.m_skip) {
+		//the order of the ifs is relevant!
 		
+		using std::distance;
+		
+		if (m_skip == 0 && other.m_skip == 0) { //both are after the skip
+			return distance(other.m_it, m_it);
 		}
-		else if (other.m_skip < m_skip) {
-			
+		
+		//other.m_skip != 0 -> m_it is before the skip -> skip is between
+		//m_skip == 0 -> other.m_it is before the skip -> skip is between
+		if (m_skip == 0 || other.m_skip == 0) {
+			return distance(other.m_it, m_it) - 1;
 		}
-		else { //m_skip == other.m_skip
-			assert(m_it == other.m_it);
-			return 0;
-		}
+		
+		//both are before the skip
+		return distance(other.m_it, m_it);
 	}
-	bool operator==(const SkipIterator & other) { return m_it == other.m_it; }
-	bool operator!=(const SkipIterator & other) { return m_it != other.m_it; }
-protected:
-	const base_iterator_type & it() const;
-	base_iterator_type & it();
+	bool operator==(const SkipIteratorBase & other) { return m_it == other.m_it; }
+	bool operator!=(const SkipIteratorBase & other) { return m_it != other.m_it; }
+public:
+	const base_iterator_type & it() const { return m_it; }
+	base_iterator_type & it() { return m_it; }
 protected:
 	base_iterator_type m_it;
 	std::size_t m_skip;
@@ -90,5 +114,13 @@ template<typename TIterator>
 using SkipIterator = SkipIteratorBase<TIterator>;
 
 }}//end namespace LIB_RATSS_NAMESPACE::internal
+
+namespace std {
+	template<typename TIterator>
+	typename LIB_RATSS_NAMESPACE::internal::SkipIterator<TIterator>::difference_type
+	distance(const LIB_RATSS_NAMESPACE::internal::SkipIterator<TIterator> & __first, const LIB_RATSS_NAMESPACE::internal::SkipIterator<TIterator> & __last) {
+		return __last.operator-( __first);
+	}
+}
 
 #endif
