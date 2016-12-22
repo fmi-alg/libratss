@@ -11,12 +11,35 @@ void InputPoint::setPrecision(int precision) {
 		v.setPrecision(precision, MPFR_RNDZ);
 	}
 }
-void InputPoint::assign(std::istream & is) {
+void InputPoint::assign(std::istream & is, Format fmt, int precision) {
 	coords.clear();
-	while (is.good() && is.peek() != '\n') {
-		mpfr::mpreal tmp;
-		is >> tmp;
-		coords.emplace_back( std::move(tmp) );
+	if (fmt == FM_CARTESIAN) {
+		while (is.good() && is.peek() != '\n') {
+			mpfr::mpreal tmp;
+			is >> tmp;
+			coords.emplace_back( std::move(tmp) );
+		}
+	}
+	else if (fmt == FM_GEO) {
+		coords.resize(3);
+		mpfr::mpreal lat, lon;
+		is >> lat >> lon;
+		precision = std::max<int>(precision, 53);
+		lat.setPrecision(precision);
+		lon.setPrecision(precision);
+		c.cartesian(lat, lon, coords[0], coords[1], coords[2]);
+	}
+	else if (fmt == FM_SPHERICAL) {
+		coords.resize(3);
+		mpfr::mpreal theta, phi;
+		is >> theta >> phi;
+		precision = std::max<int>(precision, 53);
+		theta.setPrecision(precision);
+		phi.setPrecision(precision);
+		c.cartesianFromSpherical(theta, phi, coords[0], coords[1], coords[2]);
+	}
+	else {
+		throw std::runtime_error("ratss::InputPoint: unsupported format");
 	}
 }
 void InputPoint::print(std::ostream & out) const {

@@ -3,16 +3,17 @@
 #pragma once
 
 #include <libratss/constants.h>
-#include <libratss/Calc.h>
+#include <libratss/GeoCalc.h>
 
 namespace LIB_RATSS_NAMESPACE {
 
 struct InputPoint {
-	Calc c;
+	typedef enum {FM_GEO, FM_SPHERICAL, FM_CARTESIAN} Format;
+	GeoCalc c;
 	std::vector<mpfr::mpreal> coords;
 	void normalize();
 	void setPrecision(int precision);
-	void assign(std::istream & is);
+	void assign(std::istream & is, Format fmt, int precision);
 	void print(std::ostream & out) const;
 	mpfr::mpreal epsUpperBound() const;
 	mpfr::mpreal sqLen() const;
