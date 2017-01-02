@@ -4,10 +4,28 @@
 
 #include <libratss/constants.h>
 #include <libratss/util/InputOutputPoints.h>
+#include <exception>
 
 namespace LIB_RATSS_NAMESPACE {
 
+/** This is a simple class to parse command line options usualy needed when dealing with programs using libratss
+  * 
+  *
+  *
+  *
+  */
+
+
 class BasicCmdLineOptions {
+public:
+	class ParseError: public std::exception {
+	private:
+		std::string m_msg;
+	public:
+		ParseError(const std::string & what) : m_msg(what) {}
+		virtual ~ParseError() throw() {}
+		virtual const char* what() const throw() override { return m_msg.c_str(); }
+	};
 public:
 	std::string inFileName;
 	std::string outFileName;

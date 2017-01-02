@@ -159,12 +159,20 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		else if (token == "-h" || token == "--help") {
 			return 0;
 		}
-		else if (this->parse(token, i, argc, argv)) {
-			; //accepted by sub class
-		}
 		else {
-			std::cerr << "Unknown command line option: " << token << std::endl;
-			return -1;
+			bool parseOk = false;
+			try {
+				parseOk = this->parse(token, i, argc, argv);
+			}
+			catch (const ParseError & e) {
+				std::cerr << e.what() << std::endl;
+				return -1;
+			}
+			
+			if (!parseOk) {
+				std::cerr << "Unknown command line option: " << token << std::endl;
+				return -1;
+			}
 		}
 	}
 	
