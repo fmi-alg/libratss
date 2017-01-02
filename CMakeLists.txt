@@ -82,6 +82,8 @@ set(LIB_SOURCES_CPP
 	src/GeoCalc.cpp
 	src/GeoCoord.cpp
 	src/SphericalCoord.cpp
+	src/util/BasicCmdLineOptions.cpp
+	src/util/InputOutputPoints.cpp
 )
 
 if (CGAL_FOUND)

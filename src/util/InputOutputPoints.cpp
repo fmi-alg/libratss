@@ -1,4 +1,4 @@
-#include "points.h"
+#include <libratss/util/InputOutputPoints.h>
 
 namespace LIB_RATSS_NAMESPACE {
 

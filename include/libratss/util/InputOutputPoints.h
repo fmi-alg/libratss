@@ -1,5 +1,5 @@
-#ifndef LIB_RATSS_COMMON_POINTS_H
-#define LIB_RATSS_COMMON_POINTS_H
+#ifndef LIB_RATSS_UTIL_INPUT_OUTPUT_POINTS_H
+#define LIB_RATSS_UTIL_INPUT_OUTPUT_POINTS_H
 #pragma once
 
 #include <libratss/constants.h>

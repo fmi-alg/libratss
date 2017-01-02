@@ -9,7 +9,7 @@
 #include <CGAL/point_generators_3.h>
 #endif
 
-#include "../common/points.h"
+#include <libratss/util/InputOutputPoints.h>
 
 using namespace LIB_RATSS_NAMESPACE;
 
