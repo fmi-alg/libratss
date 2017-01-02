@@ -17,6 +17,7 @@ outFormat(OutputPoint::FM_RATIONAL)
 BasicCmdLineOptions::~BasicCmdLineOptions() {}
 
 int BasicCmdLineOptions::parse(int argc, char ** argv) {
+	int numParsedOpts = 0;
 	for(int i(1); i < argc; ++i) {
 		std::string token(argv[i]);
 		if (token == "-p") {
@@ -174,6 +175,7 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				return -1;
 			}
 		}
+		++numParsedOpts;
 	}
 	
 	if (precision < 0) {
@@ -188,7 +190,7 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		snapType |= ProjectSN::ST_FX;
 	}
 	
-	return 1;
+	return numParsedOpts;
 }
 
 bool BasicCmdLineOptions::parse(const std::string & currentToken,int & i, int argc, char ** argv) {
