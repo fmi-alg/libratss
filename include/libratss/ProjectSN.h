@@ -38,7 +38,7 @@ public:
 public:
 	///@param out an iterator accepting mpq_class
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
+	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands = -1) const;
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:
