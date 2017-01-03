@@ -52,7 +52,6 @@ int main(int argc, char ** argv) {
 	
 	ProjectSN proj;
 	InputPoint ip;
-	OutputPoint op;
 	
 	std::map<PositionOnSphere, RGBA> colMap;
 	colMap[SP_DIM1_POSITIVE] = RGBA(255, 0, 0, 255);
@@ -80,15 +79,23 @@ int main(int argc, char ** argv) {
 		std::getline(io.input(), line);
 		ss << line;
 		ip.assign(ss, cfg.inFormat, cfg.precision);
+		ss.clear();
 		if (cfg.normalize) {
 			ip.normalize();
 		}
-		ip.setPrecision(cfg.precision);
-		op.clear();
-		op.resize(ip.coords.size());
+		
 		PositionOnSphere pos = proj.positionOnSphere(ip.coords.begin(), ip.coords.end());
 		
-		io.output() << line << ' ' << colMap.at(pos) << '\n';
+		const RGBA * color = 0;
+		try {
+			color = &colMap.at(pos);
+		}
+		catch (std::out_of_range & e) {
+			std::cout << "Discarding point " << line << " with snap pole=" << (int) pos << std::endl;
+		}
+		if (color) {
+			io.output() << line << ' ' << *color << '\n';
+		}
 		
 		++counter;
 		if (cfg.progress && counter % 1000 == 0) {
