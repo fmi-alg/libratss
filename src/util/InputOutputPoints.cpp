@@ -122,6 +122,34 @@ void OutputPoint::print(std::ostream & out, Format fmt) const {
 		}
 		out.precision(prec);
 	}
+	else if (fmt == FM_GEO) {
+		if (coords.size() != 3) {
+			throw std::runtime_error("ratss::OutputPoint::print: requesting FM_GEO which only makes sense with 3 coordinates");
+		}
+		std::streamsize prec = out.precision();
+		out.precision(std::numeric_limits<double>::digits10+1);
+		mpfr::mpreal x = Conversion<mpq_class>::toMpreal(coords.at(0), 128);
+		mpfr::mpreal y = Conversion<mpq_class>::toMpreal(coords.at(1), 128);
+		mpfr::mpreal z = Conversion<mpq_class>::toMpreal(coords.at(2), 128);
+		mpfr::mpreal lat, lon;
+		c.geo(x, y, z, lat, lon);
+		out << lat << ' ' << lon;
+		out.precision(prec);
+	}
+	else if (fmt == FM_SPHERICAL) {
+		if (coords.size() != 3) {
+			throw std::runtime_error("ratss::OutputPoint::print: requesting FM_SPHERICAL which only makes sense with 3 coordinates");
+		}
+		std::streamsize prec = out.precision();
+		out.precision(std::numeric_limits<double>::digits10+1);
+		mpfr::mpreal x = Conversion<mpq_class>::toMpreal(coords.at(0), 128);
+		mpfr::mpreal y = Conversion<mpq_class>::toMpreal(coords.at(1), 128);
+		mpfr::mpreal z = Conversion<mpq_class>::toMpreal(coords.at(2), 128);
+		mpfr::mpreal theta, phi;
+		c.spherical(x, y, z, theta, phi);
+		out << theta << ' ' << phi;
+		out.precision(prec);
+	}
 }
 
 bool OutputPoint::valid() const {

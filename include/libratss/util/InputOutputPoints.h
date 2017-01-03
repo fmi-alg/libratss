@@ -20,7 +20,8 @@ struct InputPoint {
 };
 
 struct OutputPoint {
-	typedef enum {FM_INVALID=0, FM_RATIONAL, FM_SPLIT_RATIONAL, FM_FLOAT, FM_FLOAT128} Format;
+	typedef enum {FM_INVALID=0, FM_RATIONAL, FM_SPLIT_RATIONAL, FM_FLOAT, FM_FLOAT128, FM_GEO, FM_SPHERICAL} Format;
+	GeoCalc c;
 	std::vector<mpq_class> coords;
 	OutputPoint();
 	template<typename T_ITERATOR>
