@@ -84,6 +84,7 @@ set(LIB_SOURCES_CPP
 	src/SphericalCoord.cpp
 	src/util/BasicCmdLineOptions.cpp
 	src/util/InputOutputPoints.cpp
+	src/util/InputOutput.cpp
 )
 
 if (CGAL_FOUND)
