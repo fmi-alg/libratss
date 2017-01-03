@@ -1,6 +1,7 @@
 #include <libratss/ProjectSN.h>
 #include <libratss/util/BasicCmdLineOptions.h>
 #include <libratss/util/InputOutputPoints.h>
+#include <libratss/util/InputOutput.h>
 
 #include "../common/stats.h"
 #include <fstream>
@@ -63,63 +64,37 @@ int main(int argc, char ** argv) {
 		return ret;
 	}
 	
+	InputOutput io;
+	io.setInput(cfg.inFileName);
+	io.setOutput(cfg.outFileName);
+	
 	if (cfg.verbose) {
-		cfg.print(std::cerr);
-	}
-	
-	std::istream * inFile = 0;
-	std::ostream * outFile = 0;
-	
-	std::ifstream inFileHandle;
-	std::ofstream outFileHandle;
-	
-	if (cfg.inFileName.size()) {
-		inFileHandle.open(cfg.inFileName);
-		if (!inFileHandle.is_open()) {
-			std::cerr << "Could not open input file: " << cfg.inFileName << '\n';
-			return -1;
-		}
-		inFile = &inFileHandle;
-	}
-	else {
-		inFile = &std::cin;
-	}
-	
-	if (cfg.outFileName.size()) {
-		outFileHandle.open(cfg.outFileName);
-		if (!outFileHandle.is_open()) {
-			std::cerr << "Could not open output file: " << cfg.outFileName << '\n';
-			return -1;
-		}
-		outFile = &outFileHandle;
-	}
-	else {
-		outFile = &std::cout;
+		cfg.print(io.info());
 	}
 	
 	InputPoint ip;
 	OutputPoint op;
 	
 	if (cfg.progress) {
-		std::cout << std::endl;
+		io.info() << std::endl;
 	}
 	std::size_t counter = 0;
-	while( inFile->good() ) {
-		for( ; inFile->good() && inFile->peek() == '\n'; ) {
-			inFile->get();
-			outFile->put('\n');
+	while( io.input().good() ) {
+		for( ; io.input().good() && io.input().peek() == '\n'; ) {
+			io.input().get();
+			io.output().put('\n');
 		}
-		if (!inFile->good()) {
+		if (!io.input().good()) {
 			break;
 		}
-		ip.assign(*inFile, cfg.inFormat, cfg.precision);
+		ip.assign(io.input(), cfg.inFormat, cfg.precision);
 		if (cfg.normalize) {
 			if (cfg.verbose) {
-				std::cerr << "Normalizing (" << ip << ") to ";
+				io.info() << "Normalizing (" << ip << ") to ";
 			}
 			ip.normalize();
 			if (cfg.verbose) {
-				std::cerr << '(' << ip << ')' << '\n';
+				io.info() << '(' << ip << ')' << '\n';
 			}
 		}
 		ip.setPrecision(cfg.precision);
@@ -130,22 +105,22 @@ int main(int argc, char ** argv) {
 			bc.update(op.coords.begin(), op.coords.end());
 		}
 		if (cfg.check && !op.valid()) {
-			std::cerr << "Invalid projection for point " << ip << std::endl;
+			io.info() << "Invalid projection for point " << ip << std::endl;
 			return -1;
 		}
-		op.print(*outFile, cfg.outFormat);
-		if (inFile->peek() != '\n') {
-			outFile->put(' ');
+		op.print(io.output(), cfg.outFormat);
+		if (io.input().peek() != '\n') {
+			io.output().put(' ');
 		}
 		
 		++counter;
 		if (cfg.progress && counter % 1000 == 0) {
-			std::cout << '\xd' << counter/1000 << "k" << std::flush;
+			io.info() << '\xd' << counter/1000 << "k" << std::flush;
 		}
 	}
 	
 	if (cfg.stats) {
-		std::cerr << bc << std::endl;
+		io.info() << bc << std::endl;
 	}
 	
 	return 0;
