@@ -139,6 +139,12 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if (stStr == "float128" || stStr == "f128") {
 					outFormat = OutputPoint::FM_FLOAT128;
 				}
+				else if (stStr == "geo") {
+					outFormat = OutputPoint::FM_GEO;
+				}
+				else if (stStr == "spherical") {
+					outFormat = OutputPoint::FM_SPHERICAL;
+				}
 				else {
 					std::cerr << "Unrecognized output format: " << stStr << std::endl;
 				}
