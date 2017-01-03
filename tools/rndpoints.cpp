@@ -192,7 +192,7 @@ void help(std::ostream & out) {
 	out << "prg OPTIONS\n"
 		"Options:\n"
 		"-g generator\tgenerator = (nplane|nsphere|cgal|geo|geogrid)\n"
-		"-f format\tformat = (rational|split|float|float128)\n"
+		"-f format\tformat = (rational|split|float|float128|geo|spherical)\n"
 		"-d dimensions\n"
 		"-n number\tnumber of points to create\n"
 		<< std::endl;
@@ -253,6 +253,12 @@ struct Config {
 					else if (ftStr == "float128") {
 						ft = OutputPoint::FM_FLOAT128;
 					}
+					else if (ftStr == "geo") {
+						ft = OutputPoint::FM_GEO;
+					}
+					else if (ftStr == "spherical") {
+						ft = OutputPoint::FM_SPHERICAL;
+					}
 					else {
 						std::cerr << "Unsupported output format: " << ftStr << std::endl;
 						return -1;
@@ -289,6 +295,12 @@ struct Config {
 				return 0;
 			}
 		}
+		
+		if (dimension != 3 && (ft == OutputPoint::FM_SPHERICAL || ft == OutputPoint::FM_GEO)) {
+			std::cerr << "Forcing dimension to 3" << std::endl;
+			dimension = 3;
+		}
+		
 		return 1;
 	}
 };
@@ -316,20 +328,18 @@ int main(int argc, char ** argv) {
 	}
 	else if (cfg.gt == GT_GEOGRID) {
 		GeoGridGenerator myPg;
-                if (!myPg.supports(cfg.dimension)) {
-                    std::cerr << "Selected generator does not support the selected dimension" << std::endl;
-                    return -1;
-                }
-                std::vector<OutputPoint> gridPoints = myPg.generateAll( cfg.count );
-                for( OutputPoint & p : gridPoints ){
-                    p.print(std::cout, cfg.ft);
-                    std::cout << '\n';
-                }
-                return 0;
+		if (!myPg.supports(cfg.dimension)) {
+			std::cerr << "Selected generator does not support the selected dimension" << std::endl;
+			return -1;
+		}
+		std::vector<OutputPoint> gridPoints = myPg.generateAll( cfg.count );
+		for( OutputPoint & p : gridPoints ){
+			p.print(std::cout, cfg.ft);
+			std::cout << '\n';
+		}
+		return 0;
 	}
-                
-	
-        
+
 	if (!pg->supports(cfg.dimension)) {
 		std::cerr << "Selected generator does not support the selected dimension" << std::endl;
 		delete pg;
