@@ -77,7 +77,7 @@ public:
 	}
 	~ReferenceWrapperIterator() {}
 public:
-	ReferenceWrapperIterator & operator++() { ++m_base; }
+	ReferenceWrapperIterator & operator++() { ++m_base; return *this; }
 	reference_type operator*() { return m_base->get(); }
 	bool operator!=(const ReferenceWrapperIterator & other) { return m_base != other.m_base; }
 	bool operator==(const ReferenceWrapperIterator & other) { return m_base == other.m_base; }
@@ -107,7 +107,7 @@ public:
 	}
 	~ReferenceWrapperIterator() {}
 public:
-	ReferenceWrapperIterator & operator++() { ++m_base; }
+	ReferenceWrapperIterator & operator++() { ++m_base; return *this; }
 	reference_type operator*() const { return m_base->get(); }
 	bool operator!=(const ReferenceWrapperIterator & other) { return m_base != other.m_base; }
 	bool operator==(const ReferenceWrapperIterator & other) { return m_base == other.m_base; }
