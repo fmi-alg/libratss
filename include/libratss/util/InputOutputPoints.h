@@ -8,7 +8,7 @@
 namespace LIB_RATSS_NAMESPACE {
 
 struct InputPoint {
-	typedef enum {FM_INVALID=0, FM_GEO, FM_SPHERICAL, FM_CARTESIAN} Format;
+	typedef enum {FM_INVALID=0, FM_GEO, FM_SPHERICAL, FM_CARTESIAN_FLOAT, FM_CARTESIAN_RATIONAL, FM_CARTESIAN_SPLIT_RATIONAL} Format;
 	GeoCalc c;
 	std::vector<mpfr::mpreal> coords;
 	void normalize();

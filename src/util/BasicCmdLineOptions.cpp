@@ -10,7 +10,7 @@ snapType(ProjectSN::ST_NONE),
 normalize(false),
 verbose(false),
 progress(false),
-inFormat(InputPoint::FM_CARTESIAN),
+inFormat(InputPoint::FM_CARTESIAN_FLOAT),
 outFormat(OutputPoint::FM_RATIONAL)
 {}
 
@@ -106,14 +106,20 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		else if (token == "-if") {
 			if (i+1 < argc) {
 				std::string stStr(argv[i+1]);
-				if (stStr == "geo" ) {
+				if (stStr == "geo" || stStr == "g") {
 					inFormat = InputPoint::FM_GEO;
 				}
-				else if (stStr == "spherical") {
+				else if (stStr == "spherical" || stStr == "sl") {
 					inFormat = InputPoint::FM_SPHERICAL;
 				}
-				else if (stStr == "cartesian") {
-					inFormat = InputPoint::FM_CARTESIAN;
+				else if (stStr == "cartesian" || stStr == "c" || stStr == "float" || stStr == "f" || stStr == "float128" || stStr == "f128") {
+					inFormat = InputPoint::FM_CARTESIAN_FLOAT;
+				}
+				else if (stStr == "rational" || stStr == "r") {
+					inFormat = InputPoint::FM_CARTESIAN_RATIONAL;
+				}
+				else if (stStr == "split" || stStr == "sr") {
+					inFormat = InputPoint::FM_CARTESIAN_SPLIT_RATIONAL;
 				}
 				else {
 					std::cerr << "Unrecognized input format: " << stStr << std::endl;
@@ -130,7 +136,7 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				if (stStr == "rational" || stStr == "rat" || stStr == "r") {
 					outFormat = OutputPoint::FM_RATIONAL;
 				}
-				else if (stStr == "split" || stStr == "sr" || stStr == "s") {
+				else if (stStr == "split" || stStr == "sr") {
 					outFormat = OutputPoint::FM_SPLIT_RATIONAL;
 				}
 				else if (stStr == "float" || stStr == "double" || stStr == "d" || stStr == "f") {
@@ -139,10 +145,10 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if (stStr == "float128" || stStr == "f128") {
 					outFormat = OutputPoint::FM_FLOAT128;
 				}
-				else if (stStr == "geo") {
+				else if (stStr == "geo" || stStr == "g") {
 					outFormat = OutputPoint::FM_GEO;
 				}
-				else if (stStr == "spherical") {
+				else if (stStr == "spherical" || stStr == "sl") {
 					outFormat = OutputPoint::FM_SPHERICAL;
 				}
 				else {
@@ -211,8 +217,8 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-n\tnormalize input to length 1\n"
-		"\t-if format\tset input format: [geo, spherical, cartesian]\n"
-		"\t-of format\tset output format: [rational, split, float]\n"
+		"\t-if format\tset input format: [spherical, geo, cartesian=[rational, split, float, float128]]\n"
+		"\t-of format\tset output format: [spherical, geo, rational, split, float, float128]\n"
 		"\t-e k\tset manual epsilon to be 2^-k\n"
 		"\t-i\tpath to input\n"
 		"\t-o\tpath to output";
@@ -243,8 +249,14 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	else if (inFormat == InputPoint::FM_SPHERICAL) {
 		out << "spherical";
 	}
-	else if (inFormat == InputPoint::FM_CARTESIAN) {
-		out << "cartesian";
+	else if (inFormat == InputPoint::FM_CARTESIAN_FLOAT) {
+		out << "cartesian floating point";
+	}
+	else if (inFormat == InputPoint::FM_CARTESIAN_RATIONAL) {
+		out << "cartesian rational";
+	}
+	else if (inFormat == InputPoint::FM_CARTESIAN_SPLIT_RATIONAL) {
+		out << "cartesian split rational";
 	}
 	out << '\n';
 	out << "Output format: ";

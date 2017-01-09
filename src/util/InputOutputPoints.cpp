@@ -13,11 +13,27 @@ void InputPoint::setPrecision(int precision) {
 }
 void InputPoint::assign(std::istream & is, Format fmt, int precision) {
 	coords.clear();
-	if (fmt == FM_CARTESIAN) {
+	if (fmt == FM_CARTESIAN_FLOAT) {
 		while (is.good() && is.peek() != '\n') {
 			mpfr::mpreal tmp;
 			is >> tmp;
 			coords.emplace_back( std::move(tmp) );
+		}
+	}
+	else if (fmt == FM_CARTESIAN_RATIONAL) {
+		mpq_class tmp;
+		while (is.good() && is.peek() != '\n') {
+			is >> tmp;
+			coords.emplace_back( Conversion<mpq_class>::toMpreal(tmp, precision) );
+		}
+	}
+	else if (fmt == FM_CARTESIAN_SPLIT_RATIONAL) {
+		mpz_class num, denom;
+		mpq_class tmp;
+		while (is.good() && is.peek() != '\n') {
+			is >> num >> denom;
+			tmp = mpq_class(num, denom);
+			coords.emplace_back( Conversion<mpq_class>::toMpreal(tmp, precision) );
 		}
 	}
 	else if (fmt == FM_GEO) {
