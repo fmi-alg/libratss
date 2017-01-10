@@ -16,7 +16,7 @@ using namespace LIB_RATSS_NAMESPACE;
 typedef enum {GT_NPLANE, GT_NSPHERE, GT_CGAL, GT_GEO, GT_GEOGRID } GeneratorType;
 
 struct PointGenerator {
-	virtual OutputPoint generate(int dimension) = 0;
+	virtual RationalPoint generate(int dimension) = 0;
 	virtual bool supports(int dimension) const = 0;
 };
 
@@ -31,11 +31,11 @@ struct CGALPointGenerator: PointGenerator {
 	
 	CGALPointGenerator() : rnd(1.0) {}
 	
-	virtual OutputPoint generate(int dimension) override {
+	virtual RationalPoint generate(int dimension) override {
 		K::Point_3 p = *rnd;
 		++rnd;
 		std::array<mpfr::mpreal, 3> vec = {p.x(), p.y(), p.z()};
-		OutputPoint ret(3);
+		RationalPoint ret(3);
 		
 		proj.snap(vec.begin(), vec.end(), ret.coords.begin(), ProjectSN::ST_CF | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
 		return ret;
@@ -47,8 +47,8 @@ struct CGALPointGenerator: PointGenerator {
 };
 #else
 	struct CGALPointGenerator: PointGenerator {
-		virtual OutputPoint generate(int dimension) override {
-			return OutputPoint();
+		virtual RationalPoint generate(int dimension) override {
+			return RationalPoint();
 		}
 		virtual bool supports(int dimension) const override {
 			return false;
@@ -70,8 +70,8 @@ struct GeoPointGenerator: PointGenerator {
 		gen(std::chrono::system_clock::now().time_since_epoch().count())
 	{}
 	
-	virtual OutputPoint generate(int dimension) override {
-		OutputPoint ret(3);
+	virtual RationalPoint generate(int dimension) override {
+		RationalPoint ret(3);
 		proj.projectFromGeo(urdLat(gen), urdLon(gen), ret.coords[0], ret.coords[1], ret.coords[2]);
 		return ret;
 	}
@@ -84,21 +84,21 @@ struct GeoPointGenerator: PointGenerator {
 struct GeoGridGenerator: PointGenerator {
 	ProjectS2 proj;
 
-	virtual OutputPoint generate(int dimension) override {
-		return OutputPoint();
+	virtual RationalPoint generate(int dimension) override {
+		return RationalPoint();
 	}
 	
 	virtual bool supports(int dimension) const override {
 		return (dimension == 3);
 	}
         
-	std::vector<OutputPoint> generateAll( uint32_t nofSlices ){
+	std::vector<RationalPoint> generateAll( uint32_t nofSlices ){
 		// nofSlices >= 1== number of slices on an eighth sphere
-		std::vector<OutputPoint> result(0);
+		std::vector<RationalPoint> result(0);
 		if( nofSlices < 1)
 			return result;
 		
-		OutputPoint northPole(3);
+		RationalPoint northPole(3);
 		northPole.coords = { 0, 0, 1 };
 		result.push_back( northPole );     // north pole
 		
@@ -111,14 +111,14 @@ struct GeoGridGenerator: PointGenerator {
 			double lat = +90.0 - angleInc * sLat;
 			
 			for( int sLon=0; sLon < 4*nofSlices; ++sLon ){
-				OutputPoint ret(3);
+				RationalPoint ret(3);
 				double lon = angleInc * sLon;
 				proj.projectFromGeo( mpfr::mpreal(lat), mpfr::mpreal(lon), ret.coords[0], ret.coords[1], ret.coords[2]);
 				result.push_back( ret );
 			}
 		}
 		
-		OutputPoint southPole(3);
+		RationalPoint southPole(3);
 		southPole.coords = { 0, 0, -1 };
 		result.push_back( southPole );     // south pole
 		
@@ -134,16 +134,16 @@ struct NPlanePointGenerator: PointGenerator {
 	
 	NPlanePointGenerator() : circleRnd(-1.0, 1.0), boolRnd(0, 1) {}
 	
-	void gen_plane_point(std::size_t count, InputPoint & ip) {
+	void gen_plane_point(std::size_t count, FloatPoint & ip) {
 		ip.coords.resize(count);
 		for(mpfr::mpreal & v : ip.coords) {
 			v = circleRnd(gen);
 		}
 	}
 	
-	virtual OutputPoint generate(int dimension) override {
-		InputPoint ip;
-		OutputPoint ret;
+	virtual RationalPoint generate(int dimension) override {
+		FloatPoint ip;
+		RationalPoint ret;
 		ret.resize(dimension); 
 		while (true) {
 			gen_plane_point(dimension-1, ip);
@@ -172,9 +172,9 @@ struct NSpherePointGenerator: PointGenerator {
 	
 	NSpherePointGenerator() : circleRnd(0.0, 1.0) {}
 	
-	virtual OutputPoint generate(int dimension) override {
+	virtual RationalPoint generate(int dimension) override {
 		std::vector<mpfr::mpreal> vec; 
-		OutputPoint ret;
+		RationalPoint ret;
 		ret.resize(dimension); 
 		for(int i(0); i < dimension; ++i) {
 			vec.emplace_back( circleRnd(gen) );
@@ -200,11 +200,11 @@ void help(std::ostream & out) {
 
 struct Config {
 	GeneratorType gt;
-	OutputPoint::Format ft;
+	RationalPoint::Format ft;
 	int dimension;
 	uint32_t count;
 	
-	Config() : gt(GT_NPLANE), ft(OutputPoint::FM_RATIONAL), dimension(3), count(0) {}
+	Config() : gt(GT_NPLANE), ft(RationalPoint::FM_RATIONAL), dimension(3), count(0) {}
 	
 	int parse(int argc, char ** argv) {
 		for(int i(1); i < argc; ++i) {
@@ -242,22 +242,22 @@ struct Config {
 				if (i+1 < argc) {
 					std::string ftStr(argv[i+1]);
 					if (ftStr == "rational") {
-						ft = OutputPoint::FM_RATIONAL;
+						ft = RationalPoint::FM_RATIONAL;
 					}
 					else if (ftStr == "split") {
-						ft = OutputPoint::FM_SPLIT_RATIONAL;
+						ft = RationalPoint::FM_SPLIT_RATIONAL;
 					}
 					else if (ftStr == "float") {
-						ft = OutputPoint::FM_FLOAT;
+						ft = RationalPoint::FM_FLOAT;
 					}
 					else if (ftStr == "float128") {
-						ft = OutputPoint::FM_FLOAT128;
+						ft = RationalPoint::FM_FLOAT128;
 					}
 					else if (ftStr == "geo") {
-						ft = OutputPoint::FM_GEO;
+						ft = RationalPoint::FM_GEO;
 					}
 					else if (ftStr == "spherical") {
-						ft = OutputPoint::FM_SPHERICAL;
+						ft = RationalPoint::FM_SPHERICAL;
 					}
 					else {
 						std::cerr << "Unsupported output format: " << ftStr << std::endl;
@@ -296,7 +296,7 @@ struct Config {
 			}
 		}
 		
-		if (dimension != 3 && (ft == OutputPoint::FM_SPHERICAL || ft == OutputPoint::FM_GEO)) {
+		if (dimension != 3 && (ft == RationalPoint::FM_SPHERICAL || ft == RationalPoint::FM_GEO)) {
 			std::cerr << "Forcing dimension to 3" << std::endl;
 			dimension = 3;
 		}
@@ -332,8 +332,8 @@ int main(int argc, char ** argv) {
 			std::cerr << "Selected generator does not support the selected dimension" << std::endl;
 			return -1;
 		}
-		std::vector<OutputPoint> gridPoints = myPg.generateAll( cfg.count );
-		for( OutputPoint & p : gridPoints ){
+		std::vector<RationalPoint> gridPoints = myPg.generateAll( cfg.count );
+		for( RationalPoint & p : gridPoints ){
 			p.print(std::cout, cfg.ft);
 			std::cout << '\n';
 		}
@@ -347,7 +347,7 @@ int main(int argc, char ** argv) {
 	}
 	
 	for(uint32_t i(0); i < cfg.count; ++i) {
-		OutputPoint p = pg->generate(cfg.dimension);
+		RationalPoint p = pg->generate(cfg.dimension);
 		p.print(std::cout, cfg.ft);
 		std::cout << '\n';
 	}

@@ -2,16 +2,16 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
-void InputPoint::normalize() {
+void FloatPoint::normalize() {
 	c.normalize(coords.begin(), coords.end(), coords.begin());
 }
-void InputPoint::setPrecision(int precision) {
+void FloatPoint::setPrecision(int precision) {
 	//set the precision of our input variables
 	for(mpfr::mpreal & v : coords) {
 		v.setPrecision(precision, MPFR_RNDZ);
 	}
 }
-void InputPoint::assign(std::istream & is, Format fmt, int precision) {
+void FloatPoint::assign(std::istream & is, Format fmt, int precision) {
 	coords.clear();
 	if (fmt == FM_CARTESIAN_FLOAT) {
 		while (is.good() && is.peek() != '\n') {
@@ -55,10 +55,10 @@ void InputPoint::assign(std::istream & is, Format fmt, int precision) {
 		c.cartesianFromSpherical(theta, phi, coords[0], coords[1], coords[2]);
 	}
 	else {
-		throw std::runtime_error("ratss::InputPoint: unsupported format");
+		throw std::runtime_error("ratss::FloatPoint: unsupported format");
 	}
 }
-void InputPoint::print(std::ostream & out) const {
+void FloatPoint::print(std::ostream & out) const {
 	if (!coords.size()) {
 		return;
 	}
@@ -69,42 +69,42 @@ void InputPoint::print(std::ostream & out) const {
 	}
 }
 
-mpfr::mpreal InputPoint::epsUpperBound() const {
+mpfr::mpreal FloatPoint::epsUpperBound() const {
 	return (sqLen() - 1)/2;
 }
 
-mpfr::mpreal InputPoint::sqLen() const {
+mpfr::mpreal FloatPoint::sqLen() const {
 	return c.squaredLength(coords.cbegin(), coords.cend());
 }
 
-OutputPoint::OutputPoint() {}
+RationalPoint::RationalPoint() {}
 
-OutputPoint::OutputPoint(int dimension) : coords(dimension) {}
+RationalPoint::RationalPoint(int dimension) : coords(dimension) {}
 
-OutputPoint::OutputPoint(const OutputPoint & other) : coords(other.coords) {}
+RationalPoint::RationalPoint(const RationalPoint & other) : coords(other.coords) {}
 
-OutputPoint::OutputPoint(OutputPoint && other) : coords(std::move(other.coords)) {}
+RationalPoint::RationalPoint(RationalPoint && other) : coords(std::move(other.coords)) {}
 
-OutputPoint & OutputPoint::operator=(const OutputPoint & other) {
+RationalPoint & RationalPoint::operator=(const RationalPoint & other) {
 	coords = other.coords;
 	return *this;
 }
 
-OutputPoint & OutputPoint::operator=(OutputPoint && other) {
+RationalPoint & RationalPoint::operator=(RationalPoint && other) {
 	coords = std::move(other.coords);
 	return *this;
 }
 
-void OutputPoint::clear() {
+void RationalPoint::clear() {
 	coords.clear();
 }
 
-void OutputPoint::resize(std::size_t _n) {
+void RationalPoint::resize(std::size_t _n) {
 	coords.resize(_n);
 }
 
 
-void OutputPoint::assign(std::istream & is, Format fmt, int precision) {
+void RationalPoint::assign(std::istream & is, Format fmt, int precision) {
 	coords.clear();
 	if (fmt == FM_CARTESIAN_RATIONAL) {
 		
@@ -123,11 +123,11 @@ void OutputPoint::assign(std::istream & is, Format fmt, int precision) {
 		}
 	}
 	else {
-		throw std::runtime_error("ratss::OutputPoint: unsupported format");
+		throw std::runtime_error("ratss::RationalPoint: unsupported format");
 	}
 }
 
-void OutputPoint::print(std::ostream & out, Format fmt) const {
+void RationalPoint::print(std::ostream & out, Format fmt) const {
 	if (!coords.size()) {
 		return;
 	}
@@ -164,7 +164,7 @@ void OutputPoint::print(std::ostream & out, Format fmt) const {
 	}
 	else if (fmt == FM_GEO) {
 		if (coords.size() != 3) {
-			throw std::runtime_error("ratss::OutputPoint::print: requesting FM_GEO which only makes sense with 3 coordinates");
+			throw std::runtime_error("ratss::RationalPoint::print: requesting FM_GEO which only makes sense with 3 coordinates");
 		}
 		std::streamsize prec = out.precision();
 		out.precision(std::numeric_limits<double>::digits10+1);
@@ -178,7 +178,7 @@ void OutputPoint::print(std::ostream & out, Format fmt) const {
 	}
 	else if (fmt == FM_SPHERICAL) {
 		if (coords.size() != 3) {
-			throw std::runtime_error("ratss::OutputPoint::print: requesting FM_SPHERICAL which only makes sense with 3 coordinates");
+			throw std::runtime_error("ratss::RationalPoint::print: requesting FM_SPHERICAL which only makes sense with 3 coordinates");
 		}
 		std::streamsize prec = out.precision();
 		out.precision(std::numeric_limits<double>::digits10+1);
@@ -192,7 +192,7 @@ void OutputPoint::print(std::ostream & out, Format fmt) const {
 	}
 }
 
-bool OutputPoint::valid() const {
+bool RationalPoint::valid() const {
 	mpq_class tmp(0);
 	for(const mpq_class & c : coords) {
 		tmp += c*c;

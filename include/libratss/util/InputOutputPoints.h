@@ -7,7 +7,7 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
-struct InputOutputPointBase {
+struct PointBase {
 	typedef enum {
 		FM_INVALID=0,
 		FM_GEO=0x1, FM_SPHERICAL=0x2,
@@ -19,7 +19,7 @@ struct InputOutputPointBase {
 	} Format;
 };
 
-struct InputPoint: InputOutputPointBase {
+struct FloatPoint: PointBase {
 	GeoCalc c;
 	std::vector<mpfr::mpreal> coords;
 	void normalize();
@@ -38,19 +38,19 @@ struct InputPoint: InputOutputPointBase {
 	mpfr::mpreal sqLen() const;
 };
 
-struct OutputPoint: InputOutputPointBase {
+struct RationalPoint: PointBase {
 	GeoCalc c;
 	std::vector<mpq_class> coords;
-	OutputPoint();
+	RationalPoint();
 	template<typename T_ITERATOR>
-	OutputPoint(const T_ITERATOR & begin, const T_ITERATOR & end) : coords(begin, end) {}
+	RationalPoint(const T_ITERATOR & begin, const T_ITERATOR & end) : coords(begin, end) {}
 	template<typename T_VALUE>
-	OutputPoint(const std::initializer_list<T_VALUE> & il) : coords(il.begin(), il.end()) {}
-	OutputPoint(int dimension);
-	OutputPoint(const OutputPoint & other);
-	OutputPoint(OutputPoint && other);
-	OutputPoint & operator=(const OutputPoint & other);
-	OutputPoint & operator=(OutputPoint && other);
+	RationalPoint(const std::initializer_list<T_VALUE> & il) : coords(il.begin(), il.end()) {}
+	RationalPoint(int dimension);
+	RationalPoint(const RationalPoint & other);
+	RationalPoint(RationalPoint && other);
+	RationalPoint & operator=(const RationalPoint & other);
+	RationalPoint & operator=(RationalPoint && other);
 	void clear();
 	void resize(std::size_t _n);
 	void assign(std::istream & is, Format fmt, int precision);

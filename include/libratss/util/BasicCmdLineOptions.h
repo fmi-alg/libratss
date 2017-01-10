@@ -36,8 +36,8 @@ public:
 	bool verbose;
 	bool progress;
 	bool rationalPassThrough;
-	InputPoint::Format inFormat;
-	OutputPoint::Format outFormat;
+	FloatPoint::Format inFormat;
+	RationalPoint::Format outFormat;
 public:
 	BasicCmdLineOptions();
 	virtual ~BasicCmdLineOptions();

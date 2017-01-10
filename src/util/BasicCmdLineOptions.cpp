@@ -11,8 +11,8 @@ normalize(false),
 verbose(false),
 progress(false),
 rationalPassThrough(false),
-inFormat(InputPoint::FM_CARTESIAN_FLOAT),
-outFormat(OutputPoint::FM_RATIONAL)
+inFormat(FloatPoint::FM_CARTESIAN_FLOAT),
+outFormat(RationalPoint::FM_RATIONAL)
 {}
 
 BasicCmdLineOptions::~BasicCmdLineOptions() {}
@@ -108,19 +108,19 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 			if (i+1 < argc) {
 				std::string stStr(argv[i+1]);
 				if (stStr == "geo" || stStr == "g") {
-					inFormat = InputPoint::FM_GEO;
+					inFormat = FloatPoint::FM_GEO;
 				}
 				else if (stStr == "spherical" || stStr == "sl") {
-					inFormat = InputPoint::FM_SPHERICAL;
+					inFormat = FloatPoint::FM_SPHERICAL;
 				}
 				else if (stStr == "cartesian" || stStr == "c" || stStr == "float" || stStr == "f" || stStr == "float128" || stStr == "f128") {
-					inFormat = InputPoint::FM_CARTESIAN_FLOAT;
+					inFormat = FloatPoint::FM_CARTESIAN_FLOAT;
 				}
 				else if (stStr == "rational" || stStr == "r") {
-					inFormat = InputPoint::FM_CARTESIAN_RATIONAL;
+					inFormat = FloatPoint::FM_CARTESIAN_RATIONAL;
 				}
 				else if (stStr == "split" || stStr == "sr") {
-					inFormat = InputPoint::FM_CARTESIAN_SPLIT_RATIONAL;
+					inFormat = FloatPoint::FM_CARTESIAN_SPLIT_RATIONAL;
 				}
 				else {
 					std::cerr << "Unrecognized input format: " << stStr << std::endl;
@@ -135,22 +135,22 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 			if (i+1 < argc) {
 				std::string stStr(argv[i+1]);
 				if (stStr == "rational" || stStr == "rat" || stStr == "r") {
-					outFormat = OutputPoint::FM_RATIONAL;
+					outFormat = RationalPoint::FM_RATIONAL;
 				}
 				else if (stStr == "split" || stStr == "sr") {
-					outFormat = OutputPoint::FM_SPLIT_RATIONAL;
+					outFormat = RationalPoint::FM_SPLIT_RATIONAL;
 				}
 				else if (stStr == "float" || stStr == "double" || stStr == "d" || stStr == "f") {
-					outFormat = OutputPoint::FM_FLOAT;
+					outFormat = RationalPoint::FM_FLOAT;
 				}
 				else if (stStr == "float128" || stStr == "f128") {
-					outFormat = OutputPoint::FM_FLOAT128;
+					outFormat = RationalPoint::FM_FLOAT128;
 				}
 				else if (stStr == "geo" || stStr == "g") {
-					outFormat = OutputPoint::FM_GEO;
+					outFormat = RationalPoint::FM_GEO;
 				}
 				else if (stStr == "spherical" || stStr == "sl") {
-					outFormat = OutputPoint::FM_SPHERICAL;
+					outFormat = RationalPoint::FM_SPHERICAL;
 				}
 				else {
 					std::cerr << "Unrecognized output format: " << stStr << std::endl;
@@ -248,22 +248,22 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	out << "Float conversion location: " << (snapType & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
 	out << "Normalize: " << (normalize ? "yes" : "no") << '\n';
 	out << "Input format: ";
-	if (inFormat == InputPoint::FM_GEO) {
+	if (inFormat == FloatPoint::FM_GEO) {
 		out << "geo";
 	}
-	else if (inFormat == InputPoint::FM_SPHERICAL) {
+	else if (inFormat == FloatPoint::FM_SPHERICAL) {
 		out << "spherical";
 	}
-	else if (inFormat == InputPoint::FM_CARTESIAN_FLOAT) {
+	else if (inFormat == FloatPoint::FM_CARTESIAN_FLOAT) {
 		out << "cartesian floating point";
 	}
-	else if (inFormat == InputPoint::FM_CARTESIAN_RATIONAL) {
+	else if (inFormat == FloatPoint::FM_CARTESIAN_RATIONAL) {
 		out << "cartesian rational";
 		if (rationalPassThrough) {
 			out << " pass-through";
 		}
 	}
-	else if (inFormat == InputPoint::FM_CARTESIAN_SPLIT_RATIONAL) {
+	else if (inFormat == FloatPoint::FM_CARTESIAN_SPLIT_RATIONAL) {
 		out << "cartesian split rational";
 		if (rationalPassThrough) {
 			out << " pass-through";
@@ -271,13 +271,13 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	}
 	out << '\n';
 	out << "Output format: ";
-	if (outFormat == OutputPoint::FM_FLOAT) {
+	if (outFormat == RationalPoint::FM_FLOAT) {
 		out << "float";
 	}
-	else if (outFormat == OutputPoint::FM_RATIONAL) {
+	else if (outFormat == RationalPoint::FM_RATIONAL) {
 		out << "rational";
 	}
-	else if (outFormat == OutputPoint::FM_SPLIT_RATIONAL) {
+	else if (outFormat == RationalPoint::FM_SPLIT_RATIONAL) {
 		out << "rational split by space";
 	}
 	out << '\n';

@@ -3,7 +3,6 @@
 
 #include "TestBase.h"
 #include "../common/generators.h"
-#include "../common/points.h"
 
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
@@ -116,9 +115,9 @@ void NDProjectionTest::snapRandom(const std::vector<int> & snapMethod, const std
 						ss << "Snapped point with " << sig << "significands and snap-type " << ProjectSN::toString((ProjectSN::SnapType) snapType) << " is too far away: "
 							<< Conversion<mpq_class>::toMpreal(dist/eps, 53) << '=' << dist<< "eps !< " << projEps << '\n';
 						ss << "P(";
-						OutputPoint(inputRational.begin(), inputRational.end()).print(ss, OutputPoint::FM_FLOAT128);
+						RationalPoint(inputRational.begin(), inputRational.end()).print(ss, RationalPoint::FM_FLOAT128);
 						ss << ") -> ";
-						OutputPoint(output.begin(), output.end()).print(ss, OutputPoint::FM_FLOAT128);
+						RationalPoint(output.begin(), output.end()).print(ss, RationalPoint::FM_FLOAT128);
 						CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= projEps);
 					}
 				}

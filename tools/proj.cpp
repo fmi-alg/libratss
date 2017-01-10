@@ -10,7 +10,7 @@
 using namespace LIB_RATSS_NAMESPACE;
 using namespace LIB_RATSS_NAMESPACE::tools;
 
-std::ostream & operator<<(std::ostream & out, const InputPoint & ip) {
+std::ostream & operator<<(std::ostream & out, const FloatPoint & ip) {
 	ip.print(out);
 	return out;
 }
@@ -72,8 +72,8 @@ int main(int argc, char ** argv) {
 		cfg.print(io.info());
 	}
 	
-	InputPoint ip;
-	OutputPoint op;
+	FloatPoint ip;
+	RationalPoint op;
 	
 	if (cfg.progress) {
 		io.info() << std::endl;

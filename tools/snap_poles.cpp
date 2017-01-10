@@ -51,7 +51,7 @@ int main(int argc, char ** argv) {
 	io.setOutput(cfg.outFileName);
 	
 	ProjectSN proj;
-	InputPoint ip;
+	FloatPoint ip;
 	
 	std::map<PositionOnSphere, RGBA> colMap;
 	colMap[SP_DIM1_POSITIVE] = RGBA(255, 0, 0, 255);
