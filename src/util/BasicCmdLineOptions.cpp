@@ -10,6 +10,7 @@ snapType(ProjectSN::ST_NONE),
 normalize(false),
 verbose(false),
 progress(false),
+rationalPassThrough(false),
 inFormat(InputPoint::FM_CARTESIAN_FLOAT),
 outFormat(OutputPoint::FM_RATIONAL)
 {}
@@ -169,6 +170,9 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		else if (token == "--progress") {
 			progress = true;
 		}
+		else if (token == "--rational-pass-through") {
+			rationalPassThrough = true;
+		}
 		else if (token == "-h" || token == "--help") {
 			return 0;
 		}
@@ -213,6 +217,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 	out <<
 		"\t-v\tverbose\n"
 		"\t--progress\tprogress indicators\n"
+		"\t--rational-pass-through\t don't snap rational input coordinates\t"
 		"\t-p num\tset the precision of the input in bits\n"
 		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
@@ -254,9 +259,15 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	}
 	else if (inFormat == InputPoint::FM_CARTESIAN_RATIONAL) {
 		out << "cartesian rational";
+		if (rationalPassThrough) {
+			out << " pass-through";
+		}
 	}
 	else if (inFormat == InputPoint::FM_CARTESIAN_SPLIT_RATIONAL) {
 		out << "cartesian split rational";
+		if (rationalPassThrough) {
+			out << " pass-through";
+		}
 	}
 	out << '\n';
 	out << "Output format: ";

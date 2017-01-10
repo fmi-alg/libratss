@@ -35,6 +35,7 @@ public:
 	bool normalize;
 	bool verbose;
 	bool progress;
+	bool rationalPassThrough;
 	InputPoint::Format inFormat;
 	OutputPoint::Format outFormat;
 public:
