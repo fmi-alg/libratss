@@ -103,6 +103,30 @@ void OutputPoint::resize(std::size_t _n) {
 	coords.resize(_n);
 }
 
+
+void OutputPoint::assign(std::istream & is, Format fmt, int precision) {
+	coords.clear();
+	if (fmt == FM_CARTESIAN_RATIONAL) {
+		
+		while (is.good() && is.peek() != '\n') {
+			mpq_class tmp;
+			is >> tmp;
+			coords.emplace_back(std::move(tmp));
+		}
+	}
+	else if (fmt == FM_CARTESIAN_SPLIT_RATIONAL) {
+		mpz_class num, denom;
+		while (is.good() && is.peek() != '\n') {
+			is >> num >> denom;
+			mpq_class tmp = mpq_class(num, denom);
+			coords.emplace_back(std::move(tmp));
+		}
+	}
+	else {
+		throw std::runtime_error("ratss::OutputPoint: unsupported format");
+	}
+}
+
 void OutputPoint::print(std::ostream & out, Format fmt) const {
 	if (!coords.size()) {
 		return;
