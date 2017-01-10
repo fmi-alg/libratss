@@ -87,20 +87,38 @@ int main(int argc, char ** argv) {
 		if (!io.input().good()) {
 			break;
 		}
-		ip.assign(io.input(), cfg.inFormat, cfg.precision);
-		if (cfg.normalize) {
-			if (cfg.verbose) {
-				io.info() << "Normalizing (" << ip << ") to ";
-			}
-			ip.normalize();
-			if (cfg.verbose) {
-				io.info() << '(' << ip << ')' << '\n';
+		bool opFromIp = !cfg.rationalPassThrough;
+		if (cfg.rationalPassThrough) {
+			op.assign(io.input(), cfg.inFormat, cfg.precision);
+			if (!op.valid()) {
+				if (!cfg.normalize) {
+					std::cerr << "Input point read that is not on sphere but no normalization was requested" << std::endl;
+				}
+				else {
+					ip.assign(op.coords.begin(), op.coords.end(), cfg.precision);
+					opFromIp = true;
+				}
 			}
 		}
-		ip.setPrecision(cfg.precision);
-		op.clear();
-		op.resize(ip.coords.size());
-		proj.snap(ip.coords.begin(), ip.coords.end(), op.coords.begin(), cfg.snapType, cfg.significands);
+		else {
+			ip.assign(io.input(), cfg.inFormat, cfg.precision);
+		}
+		
+		if (opFromIp) {
+			if (cfg.normalize) {
+				if (cfg.verbose) {
+					io.info() << "Normalizing (" << ip << ") to ";
+				}
+				ip.normalize();
+				if (cfg.verbose) {
+					io.info() << '(' << ip << ')' << '\n';
+				}
+			}
+			ip.setPrecision(cfg.precision);
+			op.clear();
+			op.resize(ip.coords.size());
+			proj.snap(ip.coords.begin(), ip.coords.end(), op.coords.begin(), cfg.snapType, cfg.significands);
+		}
 		if (cfg.stats) {
 			bc.update(op.coords.begin(), op.coords.end());
 		}
