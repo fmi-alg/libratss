@@ -68,7 +68,7 @@ public:
 			typename std::decay<
 				typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
 			>::type,
-			mpfr::mpreal
+			mpq_class
 		>::value,
 		void
 	>::type
@@ -76,7 +76,7 @@ public:
 	
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	typename std::enable_if<
-		std::is_same<
+		!std::is_same<
 			typename std::decay<
 				typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
 			>::type,
@@ -135,23 +135,24 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 typename std::enable_if<
-	std::is_same<
+	!std::is_same<
 		typename std::decay<
 			typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
 		>::type,
-		mpfr::mpreal
+		mpq_class
 	>::value,
 	void
 >::type
 Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands) const {
+	using input_ft = typename std::iterator_traits<T_INPUT_ITERATOR>::value_type;
 	if (snapType & ST_JP) {
 		using std::distance;
 		if (distance(begin, end) != 2) {
 			throw std::domain_error("Calc::toRational: Snapping with jacobiPerron only supports dimension 2");
 		}
-		mpq_class input1( Conversion<mpfr::mpreal>::toMpq(*begin) );
+		mpq_class input1( Conversion<input_ft>::toMpq(*begin) );
 		++begin;
-		mpq_class input2( Conversion<mpfr::mpreal>::toMpq(*begin) );
+		mpq_class input2( Conversion<input_ft>::toMpq(*begin) );
 		mpq_class output1, output2;
 		jacobiPerron2D(input1, input2, output1, output2, significands);
 		*out = output1;
@@ -164,7 +165,7 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 			begin,
 			end,
 			out,
-			[this, snapType, significands](const mpfr::mpreal & v) {
+			[this, snapType, significands](const input_ft & v) {
 				return snap(v, snapType, significands);
 			}
 		);
