@@ -187,7 +187,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		pos = sphere2Plane(coords_sphere_pq.begin(), coords_sphere_pq.end(), coords_plane_pq.begin());
 	}
 	else if (snapType & ST_PLANE) {
-		std::vector<mpfr::mpreal> coords_plane(dims);
+		std::vector<input_ft> coords_plane(dims);
 		pos = sphere2Plane(begin, end, coords_plane.begin());
 		//this fixes the eps guarantee at the cost of 2 more bits. This is independent of the number of bits
 		//The question remains: why?
@@ -196,7 +196,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		}
 		if (snapType & ST_JP) {
 			int skipDim = std::abs(pos);
-			using SkipInputIterator = internal::SkipIterator<std::vector<mpfr::mpreal>::const_iterator>;
+			using SkipInputIterator = internal::SkipIterator<typename std::vector<input_ft>::const_iterator>;
 			using SkipOutputIterator = internal::SkipIterator<std::vector<mpq_class>::iterator>;
 			calc().toRational(
 				SkipInputIterator(coords_plane.cbegin(), skipDim),
