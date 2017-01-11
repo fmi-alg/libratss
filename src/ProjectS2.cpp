@@ -2,7 +2,7 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
-void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const mpfr::mpreal &flzs, mpq_class &xs, mpq_class &ys, mpq_class &zs, int significands) const {
+void ProjectS2::snap(const mpfr::mpreal& flxs, const mpfr::mpreal& flys, const mpfr::mpreal& flzs, mpq_class& xs, mpq_class& ys, mpq_class& zs, int significands, int snapType) const {
 	using ConstRefWrap = internal::ReferenceWrapper<const mpfr::mpreal>;
 	using RefWrap = internal::ReferenceWrapper<mpq_class>;
 	using ConstRefWrapIt = internal::ReferenceWrapperIterator<ConstRefWrap * >;
@@ -14,7 +14,7 @@ void ProjectS2::snap(const mpfr::mpreal &flxs, const mpfr::mpreal &flys, const m
 	ConstRefWrapIt inputEnd(input+3);
 	RefWrapIt outputBegin(output);
 	
-	ProjectSN::snap<ConstRefWrapIt, RefWrapIt>(inputBegin, inputEnd, outputBegin, ST_FX | ST_PLANE | ST_NORMALIZE, significands);
+	ProjectSN::snap<ConstRefWrapIt, RefWrapIt>(inputBegin, inputEnd, outputBegin, snapType, significands);
 
 	assert(xs*xs + ys*ys + zs*zs == 1);
 }

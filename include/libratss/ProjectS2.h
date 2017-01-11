@@ -23,7 +23,7 @@ public:
 	void plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const;
 public:
 	using ProjectSN::snap;
-	void snap(const mpfr::mpreal& flxs, const mpfr::mpreal& flys, const mpfr::mpreal& flzs, mpq_class& xs, mpq_class& ys, mpq_class& zs, int significands) const;
+	void snap(const mpfr::mpreal& flxs, const mpfr::mpreal& flys, const mpfr::mpreal& flzs, mpq_class& xs, mpq_class& ys, mpq_class& zs, int significands, int snapType = ST_FX | ST_PLANE | ST_NORMALIZE) const;
 public:
 	///lat and lon are in DEGREE!
 	///This function projects coordinates that are given in spherical coordinates on to the sphere
