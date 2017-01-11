@@ -216,15 +216,15 @@ bool BasicCmdLineOptions::parse(const std::string & currentToken,int & i, int ar
 void BasicCmdLineOptions::options_help(std::ostream& out) const {
 	out <<
 		"\t-v\tverbose\n"
-		"\t--progress\tprogress indicators\n"
-		"\t--rational-pass-through\t don't snap rational input coordinates\t"
+		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
 		"\t-p num\tset the precision of the input in bits\n"
 		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-n\tnormalize input to length 1\n"
+		"\t--progress\tprogress indicators\n"
+		"\t--rational-pass-through\t don't snap rational input coordinates\n"
 		"\t-if format\tset input format: [spherical, geo, cartesian=[rational, split, float, float128]]\n"
 		"\t-of format\tset output format: [spherical, geo, rational, split, float, float128]\n"
-		"\t-e k\tset manual epsilon to be 2^-k\n"
 		"\t-i\tpath to input\n"
 		"\t-o\tpath to output";
 }
