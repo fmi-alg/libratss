@@ -34,7 +34,6 @@ This library snapps points that are ε-close to the sphere to rational points th
 2. make sure to add the appropriate compile definitions to your project. If you're using CMake and you're adding libratss as a subdirectory then these are exported. See the CMakeLists.txt for a list of exported variables.
 3. add <libratss/ProjectSN.h> or <libratss/ProjectS2.h> as include
 
-
 # License
-libratss is licensed under LGPL v2.1
-Since libdts2 links with mpfr, gmp and possibly cgal the resulting binaries are usually governed by the GPL v2
+libratss is licensed under LGPL v2.1.
+Since libratss links with mpfr, mpfr C++, gmp, gmpxx and cgal the resulting binaries are usually governed by the GPL v3
