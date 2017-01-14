@@ -22,6 +22,22 @@ public:
 		ST_JP=0x20, // jacobi perron
 		ST_NORMALIZE=0x40
 	} SnapType;
+	class SnapConfig {
+	public:
+		SnapConfig();
+		SnapConfig(int st, int precision, int significands);
+		SnapConfig(int st, int significands);
+		SnapConfig(const SnapConfig & other);
+		SnapConfig & operator=(const SnapConfig & other);
+	public:
+		int snapType() const;
+		int precision(int dimensions) const;
+		int significands(int dimensions) const;
+	private:
+		int m_st;
+		int m_precision;
+		int m_significands;
+	};
 public:
 	static std::string toString(SnapType st);
 public:
@@ -39,6 +55,11 @@ public:
 	///@param out an iterator accepting mpq_class
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands = -1) const;
+	
+	///@param out an iterator accepting mpq_class
+	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+	void snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const SnapConfig & sc) const;
+	
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:
@@ -165,7 +186,6 @@ void ProjectSN::plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATO
 	}
 }
 
-
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands) const {
 	using input_ft = typename std::iterator_traits<T_INPUT_ITERATOR>::value_type;
@@ -212,6 +232,12 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		throw std::runtime_error("ratss::ProjectSN::snap: Unsupported snap type");
 	}
 	plane2Sphere(coords_plane_pq.begin(), coords_plane_pq.end(), pos, out);
+}
+
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const SnapConfig & sc) const {
+	using std::distance;
+	snap(begin, end, out, sc.snapType(), sc.significands(distance(begin, end)));
 }
 
 } //end namespace LIB_RATSS_NAMESPACE

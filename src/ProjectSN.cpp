@@ -2,6 +2,63 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
+
+ProjectSN::SnapConfig::SnapConfig() :
+SnapConfig(ST_FX | ST_NORMALIZE | ST_PLANE, 53)
+{}
+
+ProjectSN::SnapConfig::SnapConfig(int st, int precision, int significands) :
+m_st(st),
+m_precision(precision),
+m_significands(significands)
+{}
+
+ProjectSN::SnapConfig::SnapConfig(int st, int significands) :
+m_st(st),
+m_precision(-1),
+m_significands(significands)
+{
+	if (significands < 1) {
+		throw std::underflow_error("ratss::ProjectSN::SnapConfig: significands < 1");
+	}
+}
+
+ProjectSN::SnapConfig::SnapConfig(const SnapConfig & other) :
+m_st(other.m_st),
+m_precision(other.m_precision),
+m_significands(other.m_significands)
+{}
+
+ProjectSN::SnapConfig &
+ProjectSN::SnapConfig::operator=(const SnapConfig & other) {
+	m_st = other.m_st;
+	m_precision = other.m_precision;
+	m_significands = other.m_significands;
+}
+
+int ProjectSN::SnapConfig::snapType() const {
+	return m_st;
+}
+
+int ProjectSN::SnapConfig::precision(int dimensions) const {
+	if (m_precision < 0) {
+		//computation precision depends on:
+		//-number of dimensions
+		//-specific computation
+		//-significands
+		//BUG: figure this out
+		assert(false);
+		return m_significands*dimensions;
+	}
+	else {
+		return m_precision;
+	}
+}
+
+int ProjectSN::SnapConfig::significands(int dimensions) const {
+	return m_significands;
+}
+
 std::string ProjectSN::toString(ProjectSN::SnapType st) {
 	std::string result;
 	#define PRINT_FIELD_NAME(__NAME) if (st & __NAME) { result += #__NAME "|"; }
