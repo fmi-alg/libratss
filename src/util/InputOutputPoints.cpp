@@ -11,10 +11,10 @@ void FloatPoint::setPrecision(int precision) {
 		v.setPrecision(precision, MPFR_RNDZ);
 	}
 }
-void FloatPoint::assign(std::istream & is, Format fmt, int precision) {
+void FloatPoint::assign(std::istream & is, Format fmt, int precision, int dimension) {
 	coords.clear();
 	if (fmt == FM_CARTESIAN_FLOAT) {
-		while (is.good() && is.peek() != '\n') {
+		while (is.good() && is.peek() != '\n' && (int) coords.size() != dimension) {
 			mpfr::mpreal tmp;
 			is >> tmp;
 			coords.emplace_back( std::move(tmp) );
@@ -22,7 +22,7 @@ void FloatPoint::assign(std::istream & is, Format fmt, int precision) {
 	}
 	else if (fmt == FM_CARTESIAN_RATIONAL) {
 		mpq_class tmp;
-		while (is.good() && is.peek() != '\n') {
+		while (is.good() && is.peek() != '\n' && (int) coords.size() != dimension) {
 			is >> tmp;
 			coords.emplace_back( Conversion<mpq_class>::toMpreal(tmp, precision) );
 		}
@@ -30,7 +30,7 @@ void FloatPoint::assign(std::istream & is, Format fmt, int precision) {
 	else if (fmt == FM_CARTESIAN_SPLIT_RATIONAL) {
 		mpz_class num, denom;
 		mpq_class tmp;
-		while (is.good() && is.peek() != '\n') {
+		while (is.good() && is.peek() != '\n' && (int) coords.size() != dimension) {
 			is >> num >> denom;
 			tmp = mpq_class(num, denom);
 			coords.emplace_back( Conversion<mpq_class>::toMpreal(tmp, precision) );
@@ -104,17 +104,17 @@ void RationalPoint::resize(std::size_t _n) {
 }
 
 
-void RationalPoint::assign(std::istream & is, Format fmt, int precision) {
+void RationalPoint::assign(std::istream & is, Format fmt, int precision, int dimension) {
 	coords.clear();
 	if (fmt == FM_CARTESIAN_RATIONAL) {
 		
-		while (is.good() && is.peek() != '\n') {
+		while (is.good() && is.peek() != '\n' && (int) coords.size() != dimension) {
 			mpq_class tmp;
 			is >> tmp;
 			coords.emplace_back(std::move(tmp));
 		}
 	}
-	else if (fmt == FM_CARTESIAN_SPLIT_RATIONAL) {
+	else if (fmt == FM_CARTESIAN_SPLIT_RATIONAL && (int) coords.size() != dimension) {
 		mpz_class num, denom;
 		while (is.good() && is.peek() != '\n') {
 			is >> num >> denom;

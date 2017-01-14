@@ -24,7 +24,7 @@ struct FloatPoint: PointBase {
 	std::vector<mpfr::mpreal> coords;
 	void normalize();
 	void setPrecision(int precision);
-	void assign(std::istream & is, Format fmt, int precision);
+	void assign(std::istream& is, ratss::PointBase::Format fmt, int precision, int dimension = -1);
 	template<typename T_ITERATOR>
 	void assign(const T_ITERATOR & begin, const T_ITERATOR & end, int precision) {
 		coords.clear();
@@ -53,7 +53,7 @@ struct RationalPoint: PointBase {
 	RationalPoint & operator=(RationalPoint && other);
 	void clear();
 	void resize(std::size_t _n);
-	void assign(std::istream & is, Format fmt, int precision);
+	void assign(std::istream & is, Format fmt, int precision, int dimension = -1);
 	void print(std::ostream & out, Format fmt) const;
 	bool valid() const;
 };
