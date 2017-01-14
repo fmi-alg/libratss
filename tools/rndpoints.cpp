@@ -16,6 +16,7 @@ using namespace LIB_RATSS_NAMESPACE;
 typedef enum {GT_NPLANE, GT_NSPHERE, GT_CGAL, GT_GEO, GT_GEOGRID } GeneratorType;
 
 struct PointGenerator {
+	virtual ~PointGenerator() {}
 	virtual RationalPoint generate(int dimension) = 0;
 	virtual bool supports(int dimension) const = 0;
 };
@@ -30,6 +31,7 @@ struct CGALPointGenerator: PointGenerator {
 	ProjectS2 proj;
 	
 	CGALPointGenerator() : rnd(1.0) {}
+	virtual ~CGALPointGenerator() {}
 	
 	virtual RationalPoint generate(int dimension) override {
 		K::Point_3 p = *rnd;
@@ -47,6 +49,7 @@ struct CGALPointGenerator: PointGenerator {
 };
 #else
 	struct CGALPointGenerator: PointGenerator {
+		virtual ~CGALPointGenerator() {}
 		virtual RationalPoint generate(int dimension) override {
 			return RationalPoint();
 		}
@@ -69,6 +72,7 @@ struct GeoPointGenerator: PointGenerator {
 		urdLon(-180, 180),
 		gen(std::chrono::system_clock::now().time_since_epoch().count())
 	{}
+	virtual ~GeoPointGenerator() {}
 	
 	virtual RationalPoint generate(int dimension) override {
 		RationalPoint ret(3);
@@ -83,7 +87,9 @@ struct GeoPointGenerator: PointGenerator {
 
 struct GeoGridGenerator: PointGenerator {
 	ProjectS2 proj;
-
+	
+	virtual ~GeoGridGenerator() {}
+	
 	virtual RationalPoint generate(int dimension) override {
 		return RationalPoint();
 	}
@@ -133,6 +139,7 @@ struct NPlanePointGenerator: PointGenerator {
 	ProjectSN proj;
 	
 	NPlanePointGenerator() : circleRnd(-1.0, 1.0), boolRnd(0, 1) {}
+	virtual ~NPlanePointGenerator() {}
 	
 	void gen_plane_point(std::size_t count, FloatPoint & ip) {
 		ip.coords.resize(count);
@@ -171,6 +178,7 @@ struct NSpherePointGenerator: PointGenerator {
 	ProjectSN proj;
 	
 	NSpherePointGenerator() : circleRnd(0.0, 1.0) {}
+	virtual ~NSpherePointGenerator() {}
 	
 	virtual RationalPoint generate(int dimension) override {
 		std::vector<mpfr::mpreal> vec; 
@@ -351,5 +359,6 @@ int main(int argc, char ** argv) {
 		p.print(std::cout, cfg.ft);
 		std::cout << '\n';
 	}
+	delete pg;
 	return 0;
 }
