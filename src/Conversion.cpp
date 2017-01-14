@@ -38,7 +38,12 @@ Conversion<mpfr::mpreal>::toMpq(const type & v) {
 	::mpq_init(tmpq);
 	::mpq_set_f(tmpq, tmpf);
 	
-	return mpq_class(tmpq);
+	mpq_class result(tmpq);
+	
+	::mpf_clear(tmpf);
+	::mpq_clear(tmpq);
+
+	return result;
 }
 
 const mpfr::mpreal &
