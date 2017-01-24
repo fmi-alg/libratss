@@ -153,15 +153,6 @@ int main(int argc, char ** argv) {
 			break;
 		}
 		ip.assign(io.input(), cfg.inFormat, cfg.precision);
-		if (cfg.normalize) {
-			if (cfg.verbose) {
-				io.info() << "Normalizing (" << ip << ") to ";
-			}
-			ip.normalize();
-			if (cfg.verbose) {
-				io.info() << '(' << ip << ')' << '\n';
-			}
-		}
 		ip.setPrecision(cfg.precision);
 		pse.assign(ip, op, proj);
 		
