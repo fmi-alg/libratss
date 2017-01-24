@@ -38,6 +38,8 @@ struct FloatPoint: PointBase {
 	mpfr::mpreal sqLen() const;
 };
 
+std::ostream & operator<<(std::ostream & out, const FloatPoint & src);
+
 struct RationalPoint: PointBase {
 	GeoCalc c;
 	std::vector<mpq_class> coords;
@@ -57,7 +59,6 @@ struct RationalPoint: PointBase {
 	void print(std::ostream & out, Format fmt) const;
 	bool valid() const;
 };
-
 
 }//end namespace LIB_RATSS_NAMESPACE
 

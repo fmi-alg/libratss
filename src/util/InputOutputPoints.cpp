@@ -77,6 +77,11 @@ mpfr::mpreal FloatPoint::sqLen() const {
 	return c.squaredLength(coords.cbegin(), coords.cend());
 }
 
+std::ostream & operator<<(std::ostream & out, const FloatPoint & src) {
+	src.print(out);
+	return out;
+}
+
 RationalPoint::RationalPoint() {}
 
 RationalPoint::RationalPoint(int dimension) : coords(dimension) {}

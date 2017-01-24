@@ -10,11 +10,6 @@
 using namespace LIB_RATSS_NAMESPACE;
 using namespace LIB_RATSS_NAMESPACE::tools;
 
-std::ostream & operator<<(std::ostream & out, const FloatPoint & ip) {
-	ip.print(out);
-	return out;
-}
-
 class Config: public BasicCmdLineOptions {
 public:
 	bool stats;
