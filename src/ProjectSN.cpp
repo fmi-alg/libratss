@@ -34,6 +34,7 @@ ProjectSN::SnapConfig::operator=(const SnapConfig & other) {
 	m_st = other.m_st;
 	m_precision = other.m_precision;
 	m_significands = other.m_significands;
+	return *this;
 }
 
 int ProjectSN::SnapConfig::snapType() const {
