@@ -21,3 +21,4 @@ MACRO(ADD_BENCH_TARGET _name _sourcefiles)
 ENDMACRO(ADD_BENCH_TARGET)
 
 ADD_BENCH_TARGET(bitsize bitsize.cpp)
+ADD_BENCH_TARGET(paper paper.cpp)
