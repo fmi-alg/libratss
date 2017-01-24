@@ -389,17 +389,11 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	
 	std::cout << '\n';
 	while(alpha != 0) {
-		std::cout << "alpha_" << counter << ": " << alpha << '\n';
-		std::cout << "beta_" << counter << ": " << beta << '\n';
-	
 		tmp1 = 1 / alpha;
 		an = tmp1.get_num() / tmp1.get_den();
 		
 		tmp2 = beta / alpha;
 		bn = tmp2.get_num() / tmp2.get_den();
-		
-		std::cout << "a_" << counter << ": " << an << '\n';
-		std::cout << "b_" << counter << ": " << bn << '\n';
 		
 		alpha = tmp2 - bn;
 		beta = tmp1 - an;
@@ -414,22 +408,9 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		output1 = mpq_class( result(1, 0), result(0, 0) );
 		output2 = mpq_class( result(2, 0), result(0, 0) );
 		
-		std::cout << "output1_" << counter << ": " << output1 << '\n';
-		std::cout << "output2_" << counter << ": " << output2 << '\n';
-		std::cout << "result(0,0)_" << counter << ": " << result(0,0) << '\n';
-		std::cout << "result(1,0)_" << counter << ": " << result(1,0) << '\n';
-		std::cout << "result(2,0)_" << counter << ": " << result(2,0) << '\n';
-		
 		const mpq_class diff1 = abs(output1-input1);
 		const mpq_class diff2 = abs(output2-input2);
 		
-		
-		std::cout << "eps=" << eps << '\n';
-		std::cout << "output1=" << output1 << '\n';
-		std::cout << "output2=" << output2 << '\n';
-		std::cout << "abs(output1-input1)=" << Conversion<mpq_class>::toMpreal(diff1, 128) << '\n';
-		std::cout << "abs(output2-input2)=" << Conversion<mpq_class>::toMpreal(diff2, 128) << '\n';
-		std::cout << std::endl;
 		if ( diff1 <= eps && diff2 <= eps) {
 			break;
 		}
