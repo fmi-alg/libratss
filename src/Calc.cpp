@@ -319,6 +319,9 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	using Matrix = internal::Matrix<mpz_class>;
 	using std::abs;
 	
+	if (significands < 2) {
+		throw std::underflow_error("ratss::Calc::jacobiPerron2D: significands is too small.");
+	}
 	
 	if (input1 < 0) {
 		jacobiPerron2D(-input1, input2, output1, output2, significands);
