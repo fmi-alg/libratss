@@ -10,7 +10,7 @@ namespace LIB_RATSS_NAMESPACE {
 class Calc {
 public:
 	///Values are compatible with the ones defined in ProjectSN::SnapType
-	typedef enum { ST_CF=0x4, ST_FX=0x8, ST_FL=0x10, ST_JP=0x20 } SnapType;
+	typedef enum { ST_NONE=0x0, ST_CF=0x4, ST_FX=0x8, ST_FL=0x10, ST_JP=0x20 } SnapType;
 public:
 	template<typename T_FT>
 	inline T_FT add(const T_FT & a, const T_FT & b) const { return a+b; }
