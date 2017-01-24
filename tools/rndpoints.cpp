@@ -33,6 +33,7 @@ struct PointGenerator {
 		else {
 			proj.snap(begin, end, rp.coords.begin(), snapType);
 		}
+		return rp;
 	}
 };
 

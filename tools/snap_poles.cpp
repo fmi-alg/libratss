@@ -20,6 +20,7 @@ struct RGBA {
 
 std::ostream & operator<<(std::ostream & out, const RGBA & c) {
 	out << (int) c.r << ' ' << (int) c.g << ' ' << (int) c.b << ' ' << (int) c.a;
+	return out;
 }
 
 class Config: public BasicCmdLineOptions {

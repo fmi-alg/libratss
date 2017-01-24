@@ -59,6 +59,7 @@ int main(int argc, char ** argv) {
 			MyIt & operator++() { return *this; }
 			MyIt & operator=(const GeoCoord & c) {
 				points.emplace_back(c);
+				return *this;
 			}
 		};
 		readPoints(inFile, MyIt(points));

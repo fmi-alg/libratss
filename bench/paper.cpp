@@ -70,8 +70,8 @@ struct PointStatEntry {
 	PointStatEntry() {}
 	PointStatEntry(const PointStatEntry & other) : data(other.data) {}
 	PointStatEntry(PointStatEntry && other) : data(std::move(other.data)) {}
-	PointStatEntry & operator=(const PointStatEntry & other) { data = other.data; }
-	PointStatEntry & operator=(PointStatEntry && other) { data = std::move(other.data); }
+	PointStatEntry & operator=(const PointStatEntry & other) { data = other.data; return *this; }
+	PointStatEntry & operator=(PointStatEntry && other) { data = std::move(other.data); return *this; }
 	PointStatEntry(const FloatPoint & src, RationalPoint & tmp, ProjectSN & proj) { assign(src, tmp, proj); }
 	void assign(const FloatPoint & src, RationalPoint & tmp, ProjectSN & proj);
 	void print(std::ostream & out) const;
