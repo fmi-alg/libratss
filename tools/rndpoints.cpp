@@ -16,9 +16,24 @@ using namespace LIB_RATSS_NAMESPACE;
 typedef enum {GT_NPLANE, GT_NSPHERE, GT_CGAL, GT_GEO, GT_GEOGRID } GeneratorType;
 
 struct PointGenerator {
+	ProjectS2 proj;
+	GeoCalc gc;
+
 	virtual ~PointGenerator() {}
-	virtual RationalPoint generate(int dimension) = 0;
+	virtual RationalPoint generate(int dimension, bool snap) = 0;
 	virtual bool supports(int dimension) const = 0;
+	template<typename T_FLOAT_ITERATOR>
+	RationalPoint toRationalPoint(T_FLOAT_ITERATOR begin, const T_FLOAT_ITERATOR & end, int snapType) {
+		using std::distance;
+		int dim = distance(begin, end);
+		RationalPoint rp(dim);
+		if (snapType == ProjectSN::ST_NONE) {
+			gc.toRational(begin, end, rp.coords.begin(), ProjectSN::ST_FL, -1);
+		}
+		else {
+			proj.snap(begin, end, rp.coords.begin(), snapType);
+		}
+	}
 };
 
 #ifdef LIB_RATSS_WITH_CGAL
@@ -28,19 +43,20 @@ struct CGALPointGenerator: PointGenerator {
 	using Rand = CGAL::Random_points_on_sphere_3<K::Point_3>;
 	
 	Rand rnd;
-	ProjectS2 proj;
 	
 	CGALPointGenerator() : rnd(1.0) {}
 	virtual ~CGALPointGenerator() {}
 	
-	virtual RationalPoint generate(int dimension) override {
+	virtual RationalPoint generate(int dimension, bool snap) override {
 		K::Point_3 p = *rnd;
 		++rnd;
 		std::array<mpfr::mpreal, 3> vec = {p.x(), p.y(), p.z()};
-		RationalPoint ret(3);
-		
-		proj.snap(vec.begin(), vec.end(), ret.coords.begin(), ProjectSN::ST_CF | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
-		return ret;
+		if (snap) {
+			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_CF | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
+		}
+		else {
+			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_NONE);
+		}
 	}
 	
 	virtual bool supports(int dimension) const override {
@@ -50,10 +66,10 @@ struct CGALPointGenerator: PointGenerator {
 #else
 	struct CGALPointGenerator: PointGenerator {
 		virtual ~CGALPointGenerator() {}
-		virtual RationalPoint generate(int dimension) override {
+		virtual RationalPoint generate(int, bool) override {
 			return RationalPoint();
 		}
-		virtual bool supports(int dimension) const override {
+		virtual bool supports(int) const override {
 			return false;
 		}
 	};
@@ -65,8 +81,6 @@ struct GeoPointGenerator: PointGenerator {
 	std::uniform_real_distribution<double> urdLon;
 	std::default_random_engine gen;
 	
-	ProjectS2 proj;
-	
 	GeoPointGenerator() :
 		urdLat(-90, 90),
 		urdLon(-180, 180),
@@ -74,10 +88,20 @@ struct GeoPointGenerator: PointGenerator {
 	{}
 	virtual ~GeoPointGenerator() {}
 	
-	virtual RationalPoint generate(int dimension) override {
-		RationalPoint ret(3);
-		proj.projectFromGeo(urdLat(gen), urdLon(gen), ret.coords[0], ret.coords[1], ret.coords[2]);
-		return ret;
+	virtual RationalPoint generate(int dimension, bool snap) override {
+		double lat = urdLat(gen);
+		double lon = urdLon(gen);
+		
+		if (snap) {
+			RationalPoint ret(3);
+			proj.projectFromGeo(lat, lon, ret.coords[0], ret.coords[1], ret.coords[2]);
+			return ret;
+		}
+		else {
+			std::array<mpfr::mpreal, 3> c;
+			gc.cartesian(lat, lon, c[0], c[1], c[2]);
+			return toRationalPoint(c.begin(), c.end(), ProjectSN::ST_NONE);
+		}
 	}
 	
 	virtual bool supports(int dimension) const override {
@@ -90,7 +114,7 @@ struct GeoGridGenerator: PointGenerator {
 	
 	virtual ~GeoGridGenerator() {}
 	
-	virtual RationalPoint generate(int dimension) override {
+	virtual RationalPoint generate(int, bool) override {
 		return RationalPoint();
 	}
 	
@@ -148,7 +172,7 @@ struct NPlanePointGenerator: PointGenerator {
 		}
 	}
 	
-	virtual RationalPoint generate(int dimension) override {
+	virtual RationalPoint generate(int dimension, bool snap) override {
 		FloatPoint ip;
 		RationalPoint ret;
 		ret.resize(dimension); 
@@ -160,11 +184,18 @@ struct NPlanePointGenerator: PointGenerator {
 		}
 		ip.coords.emplace_back(0);
 		bool positiveSide = boolRnd(gen);
-		std::vector<mpq_class> snapVec(ip.coords.size());
-		proj.calc().toRational(ip.coords.begin(), ip.coords.end(), snapVec.begin(), Calc::ST_CF);
-		assert(snapVec.size() == dimension);
-		proj.plane2Sphere(snapVec.begin(), snapVec.end(), (PositionOnSphere)(positiveSide ? dimension : -dimension), ret.coords.begin());
-		return ret;
+		if (snap) {
+			std::vector<mpq_class> snapVec(ip.coords.size());
+			proj.calc().toRational(ip.coords.begin(), ip.coords.end(), snapVec.begin(), Calc::ST_CF);
+			assert(snapVec.size() == dimension);
+			proj.plane2Sphere(snapVec.begin(), snapVec.end(), (PositionOnSphere)(positiveSide ? dimension : -dimension), ret.coords.begin());
+			return ret;
+		}
+		else {
+			std::vector<mpfr::mpreal> onSphere(dimension);
+			proj.plane2Sphere(ip.coords.begin(), ip.coords.end(), (PositionOnSphere)(positiveSide ? dimension : -dimension), onSphere.begin());
+			return toRationalPoint(onSphere.begin(), onSphere.end(), ProjectSN::ST_NONE);
+		}
 	}
 	
 	virtual bool supports(int dimension) const override {
@@ -180,15 +211,17 @@ struct NSpherePointGenerator: PointGenerator {
 	NSpherePointGenerator() : circleRnd(0.0, 1.0) {}
 	virtual ~NSpherePointGenerator() {}
 	
-	virtual RationalPoint generate(int dimension) override {
+	virtual RationalPoint generate(int dimension, bool snap) override {
 		std::vector<mpfr::mpreal> vec; 
-		RationalPoint ret;
-		ret.resize(dimension); 
 		for(int i(0); i < dimension; ++i) {
 			vec.emplace_back( circleRnd(gen) );
 		}
-		proj.snap(vec.begin(), vec.end(), ret.coords.begin(), ProjectSN::ST_FX | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
-		return ret;
+		if (snap) {
+			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_FX | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
+		}
+		else {
+			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_NONE);
+		}
 	}
 	
 	virtual bool supports(int dimension) const override {
@@ -203,6 +236,7 @@ void help(std::ostream & out) {
 		"-f format\tformat = (rational|split|float|float128|geo|spherical)\n"
 		"-d dimensions\n"
 		"-n number\tnumber of points to create\n"
+		"--no-snap\tdon't snap points to the sphere"
 		<< std::endl;
 }
 
@@ -211,8 +245,9 @@ struct Config {
 	RationalPoint::Format ft;
 	int dimension;
 	uint32_t count;
+	bool snap;
 	
-	Config() : gt(GT_NPLANE), ft(RationalPoint::FM_RATIONAL), dimension(3), count(0) {}
+	Config() : gt(GT_NPLANE), ft(RationalPoint::FM_RATIONAL), dimension(3), count(0), snap(true) {}
 	
 	int parse(int argc, char ** argv) {
 		for(int i(1); i < argc; ++i) {
@@ -302,6 +337,9 @@ struct Config {
 				help(std::cout);
 				return 0;
 			}
+			else if (token == "--no-snap") {
+				snap = false;
+			}
 		}
 		
 		if (dimension != 3 && (ft == RationalPoint::FM_SPHERICAL || ft == RationalPoint::FM_GEO)) {
@@ -355,7 +393,7 @@ int main(int argc, char ** argv) {
 	}
 	
 	for(uint32_t i(0); i < cfg.count; ++i) {
-		RationalPoint p = pg->generate(cfg.dimension);
+		RationalPoint p = pg->generate(cfg.dimension, cfg.snap);
 		p.print(std::cout, cfg.ft);
 		std::cout << '\n';
 	}
