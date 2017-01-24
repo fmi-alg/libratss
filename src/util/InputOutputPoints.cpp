@@ -109,7 +109,7 @@ void RationalPoint::resize(std::size_t _n) {
 }
 
 
-void RationalPoint::assign(std::istream & is, Format fmt, int precision, int dimension) {
+void RationalPoint::assign(std::istream & is, Format fmt, int /*precision*/, int dimension) {
 	coords.clear();
 	if (fmt == FM_CARTESIAN_RATIONAL) {
 		

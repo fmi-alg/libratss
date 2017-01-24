@@ -56,7 +56,7 @@ int ProjectSN::SnapConfig::precision(int dimensions) const {
 	}
 }
 
-int ProjectSN::SnapConfig::significands(int dimensions) const {
+int ProjectSN::SnapConfig::significands(int) const {
 	return m_significands;
 }
 

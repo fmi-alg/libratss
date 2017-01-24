@@ -48,7 +48,7 @@ struct CGALPointGenerator: PointGenerator {
 	CGALPointGenerator() : rnd(1.0) {}
 	virtual ~CGALPointGenerator() {}
 	
-	virtual RationalPoint generate(int dimension, bool snap) override {
+	virtual RationalPoint generate(int /*dimension*/, bool snap) override {
 		K::Point_3 p = *rnd;
 		++rnd;
 		std::array<mpfr::mpreal, 3> vec = {p.x(), p.y(), p.z()};
@@ -89,7 +89,7 @@ struct GeoPointGenerator: PointGenerator {
 	{}
 	virtual ~GeoPointGenerator() {}
 	
-	virtual RationalPoint generate(int dimension, bool snap) override {
+	virtual RationalPoint generate(int /*dimension*/, bool snap) override {
 		double lat = urdLat(gen);
 		double lon = urdLon(gen);
 		
@@ -138,10 +138,10 @@ struct GeoGridGenerator: PointGenerator {
 		
 		const double angleInc = 90.0 / nofSlices;
 		
-		for( int sLat=1; sLat <2*nofSlices; ++sLat ){
+		for( uint32_t sLat=1; sLat <2*nofSlices; ++sLat ){
 			double lat = +90.0 - angleInc * sLat;
 			
-			for( int sLon=0; sLon < 4*nofSlices; ++sLon ){
+			for( uint32_t sLon=0; sLon < 4*nofSlices; ++sLon ){
 				RationalPoint ret(3);
 				double lon = angleInc * sLon;
 				proj.projectFromGeo( mpfr::mpreal(lat), mpfr::mpreal(lon), ret.coords[0], ret.coords[1], ret.coords[2]);
@@ -188,7 +188,7 @@ struct NPlanePointGenerator: PointGenerator {
 		if (snap) {
 			std::vector<mpq_class> snapVec(ip.coords.size());
 			proj.calc().toRational(ip.coords.begin(), ip.coords.end(), snapVec.begin(), Calc::ST_CF);
-			assert(snapVec.size() == dimension);
+			assert(snapVec.size() == (std::size_t) dimension);
 			proj.plane2Sphere(snapVec.begin(), snapVec.end(), (PositionOnSphere)(positiveSide ? dimension : -dimension), ret.coords.begin());
 			return ret;
 		}

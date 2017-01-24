@@ -209,7 +209,7 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 	return numParsedOpts;
 }
 
-bool BasicCmdLineOptions::parse(const std::string & currentToken,int & i, int argc, char ** argv) {
+bool BasicCmdLineOptions::parse(const std::string & /*currentToken*/,int & /*i*/, int /*argc*/, char ** /*argv*/) {
 	return false;
 }
 
