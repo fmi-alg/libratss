@@ -13,6 +13,12 @@ template<typename FT>
 class MinMaxMeanStats {
 public:
 	MinMaxMeanStats() : m_count(0), m_min(std::numeric_limits<FT>::max()), m_max(std::numeric_limits<FT>::min()), m_sum(0) {}
+	void reset() {
+		m_count = 0;
+		m_min = FT(std::numeric_limits<FT>::max());
+		m_max = FT(std::numeric_limits<FT>::min());
+		m_sum = 0;
+	}
 	void update(const FT & ft) {
 		using std::min;
 		using std::max;
