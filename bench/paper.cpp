@@ -51,19 +51,19 @@ std::string ec2Str(const EntryConfig & ec) {
 
 constexpr std::size_t num_entries = 9;
 
-std::array<EntryConfig, num_entries> entryConfigs = {
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 10),
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 30),
+std::array<EntryConfig, num_entries> entryConfigs{{
+	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 10),
+	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 20),
+	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 30),
 	
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 10),
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 30),
+	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 10),
+	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 20),
+	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 30),
 	
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 10),
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 30),
-};
+	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 10),
+	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 20),
+	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 30)
+}};
 
 struct PointStatEntry {
 	std::array<StatEntry, num_entries> data;

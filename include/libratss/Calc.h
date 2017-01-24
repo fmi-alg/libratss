@@ -122,7 +122,7 @@ typename std::enable_if<
 	>::value,
 	void
 >::type
-Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps) const {
+Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int /*snapType*/, int eps) const {
 	if (eps < 0) {
 		for( ;begin != end; ++begin, ++out) {
 			*out = *begin;
