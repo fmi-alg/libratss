@@ -196,15 +196,10 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 	mpz_class ldiv, udiv;
 	mpq_class ltmp(lower), utmp(upper);
 	while (true) {
-// 		std::cout << "lower=" << ltmp << std::endl;
-// 		std::cout << "upper=" << utmp << std::endl;
 	
 		ldiv = ltmp.get_num() / ltmp.get_den();
 		udiv = utmp.get_num() / utmp.get_den();
 		
-// 		std::cout << "ldiv=" << ldiv << std::endl;
-// 		std::cout << "udiv=" << udiv << std::endl;
-
 		//prepare for next iteration
 		ltmp -= mpq_class(ldiv);
 		utmp -= mpq_class(udiv);
@@ -213,32 +208,26 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 		
 		if (ltmp == 0 && utmp == 0) {
 			cf.push_back(ldiv);
-// 			std::cout << "push " << ldiv << " and break" << '\n';
 			break;
 		}
 		else if (ltmp == 0 || utmp == 0) {
 			using std::min;
 			if (ltmp == 0) {
 				cf.push_back(ldiv);
-// 				std::cout << "push " << ldiv << '\n';
 			}
 			else {
 				cf.push_back(udiv);
-// 				std::cout << "push " << udiv << '\n';
 			}
-// 			std::cout << "Break since ltmp/utmp == 0" << std::endl;
 			break;
 		}
 		
 		if ( ldiv != udiv ) {
 			using std::min;
 			cf.push_back( min(ldiv, udiv)+mpz_class(1) );
-// 			std::cout << "push " << min(ldiv, udiv)+mpz_class(1) << " and break" << '\n';
 			break;
 		}
 		else {
 			cf.push_back(ldiv);
-// 			std::cout << "push " << ldiv << '\n';
 		}
 		
 		ltmp = 1  / ltmp;
@@ -384,10 +373,6 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	
 	std::size_t counter = 0;
 	
-	std::cout.precision(std::numeric_limits<double>::digits10+1);
-	std::cout << std::scientific;
-	
-	std::cout << '\n';
 	while(alpha != 0) {
 		tmp1 = 1 / alpha;
 		an = tmp1.get_num() / tmp1.get_den();
