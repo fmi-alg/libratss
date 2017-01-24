@@ -80,6 +80,7 @@ public:
 		if (m_skip > 0) {
 			--m_skip;
 		}
+		return *this;
 	}
 	difference_type operator-(const SkipIteratorBase & other) const {
 		//we have multiple cases here: skip1 < skip2, skip2 < skip1, skip1 == skip2

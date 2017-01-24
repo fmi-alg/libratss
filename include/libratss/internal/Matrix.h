@@ -66,6 +66,7 @@ Matrix<TVALUE> &
 Matrix<TVALUE>::operator=(Matrix && other) {
 	m_dimension = other.m_dimension;
 	m_d = std::move(other.m_d);
+	return *this;
 }
 
 template<typename TVALUE>
