@@ -195,7 +195,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 	if (snapType & ST_NORMALIZE) {
 		std::vector<input_ft> normalized(dims);
 		calc().normalize(begin, end, normalized.begin());
-		snap(normalized.begin(), normalized.end(), out, snapType & ~ST_NORMALIZE);
+		snap(normalized.begin(), normalized.end(), out, snapType & ~ST_NORMALIZE, significands);
 		return;
 	}
 	
