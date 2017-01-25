@@ -29,7 +29,6 @@ struct StatEntry {
 	mpz_class denom;
 };
 
-
 using EntryConfig = std::pair<int, int>;
 
 std::string ec2Str(const EntryConfig & ec) {
@@ -52,17 +51,32 @@ std::string ec2Str(const EntryConfig & ec) {
 constexpr std::size_t num_entries = 9;
 
 std::array<EntryConfig, num_entries> entryConfigs{{
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 10),
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 20),
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 30),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 4),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 6),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 8),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 10),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 12),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 14),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 16),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 18),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 20),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 22),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 24),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 26),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 28),
+// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 30),
 	
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 10),
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 20),
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 30),
+	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 4),
+	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 12),
+	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 20),
 	
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 10),
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 20),
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE, 30)
+	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 4),
+	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 12),
+	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 20),
+// 	
+	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 4),
+	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 12),
+	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 20)
 }};
 
 struct PointStatEntry {
@@ -74,7 +88,7 @@ struct PointStatEntry {
 	PointStatEntry & operator=(PointStatEntry && other) { data = std::move(other.data); return *this; }
 	PointStatEntry(const FloatPoint & src, RationalPoint & tmp, ProjectSN & proj) { assign(src, tmp, proj); }
 	void assign(const FloatPoint & src, RationalPoint & tmp, ProjectSN & proj);
-	void print(std::ostream & out) const;
+	void print(std::ostream& out, PointBase::Format fmt) const;
 };
 
 void PointStatEntry::assign(const FloatPoint& ip, RationalPoint& op, ProjectSN& proj) {
@@ -106,10 +120,34 @@ void PointStatEntry::assign(const FloatPoint& ip, RationalPoint& op, ProjectSN& 
 	}
 }
 
-void PointStatEntry::print(std::ostream& out) const {
-	out << data[0].diff << ' ' << data[0].denom;
+void PointStatEntry::print(std::ostream& out, PointBase::Format fmt) const {
+	auto printDiff = [&out, fmt](const mpq_class & v) {
+		if (fmt == PointBase::FM_RATIONAL) {
+			out << v;
+		}
+		else if (fmt == PointBase::FM_SPLIT_RATIONAL) {
+			out << v.get_num() << ' ' << v.get_den();
+		}
+		else if (fmt == PointBase::FM_FLOAT) {
+			std::streamsize prec = out.precision();
+			out.precision(std::numeric_limits<double>::digits10+1);
+			out << Conversion<mpq_class>::toMpreal(v, 53).toDouble();
+			out.precision(prec);
+		}
+		else if (fmt == PointBase::FM_FLOAT128) {
+			std::streamsize prec = out.precision();
+			out.precision(128);
+			out << Conversion<mpq_class>::toMpreal(v, 128);
+			out.precision(prec);
+		}
+	};
+
+	printDiff(data[0].diff);
+	out << ' ' << data[0].denom;
 	for(std::size_t i(1); i < num_entries; ++i) {
-		out << ' ' << data[i].diff << ' ' << data[i].denom;
+		out << ' ';
+		printDiff(data[i].diff);
+		out << ' ' << data[i].denom;
 	}
 }
 
@@ -154,10 +192,10 @@ int main(int argc, char ** argv) {
 		}
 		ip.assign(io.input(), cfg.inFormat, cfg.precision);
 		ip.setPrecision(cfg.precision);
+		ip.normalize();
 		pse.assign(ip, op, proj);
 		
-		pse.print(io.output());
-		io.output() << '\n';
+		pse.print(io.output(), cfg.outFormat);
 
 		++counter;
 		if (cfg.progress && counter % 1000 == 0) {
