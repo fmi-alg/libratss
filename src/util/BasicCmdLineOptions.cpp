@@ -54,6 +54,9 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if ( stStr == "jp") {
 					snapType |= ProjectSN::ST_JP;
 				}
+				else if (stStr == "a" || stStr == "auto") {
+					snapType |= ProjectSN::ST_AUTO_ALL;
+				}
 				else {
 					std::cerr << "Unrecognized snap method: " << stStr << std::endl;
 					return -1;
@@ -222,7 +225,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-v\tverbose\n"
 		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
 		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron\n"
+		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, a=auto\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-n\tnormalize input to length 1\n"
 		"\t--progress\tprogress indicators\n"
