@@ -46,6 +46,9 @@ public:
 public:
 	//override this to parse extra options, return true if token was consumed
 	virtual bool parse(const std::string & currentToken,int & i, int argc, char ** argv);
+	
+	//override this to do stuff after parsing completed
+	virtual void parse_completed();
 public:
 	void options_help(std::ostream & out) const;
 public:

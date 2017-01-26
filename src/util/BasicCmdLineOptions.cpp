@@ -206,12 +206,16 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		snapType |= ProjectSN::ST_FX;
 	}
 	
+	parse_completed();
+	
 	return numParsedOpts;
 }
 
 bool BasicCmdLineOptions::parse(const std::string & /*currentToken*/,int & /*i*/, int /*argc*/, char ** /*argv*/) {
 	return false;
 }
+
+void BasicCmdLineOptions::parse_completed() {}
 
 void BasicCmdLineOptions::options_help(std::ostream& out) const {
 	out <<
