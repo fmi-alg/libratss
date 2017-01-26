@@ -20,7 +20,15 @@ public:
 		ST_FX=0x8, //snap by fix point
 		ST_FL=0x10, //snap by floating point
 		ST_JP=0x20, // jacobi perron
-		ST_NORMALIZE=0x40
+		ST_AUTO=0x800, //select snapping that produces the smallest denominators
+		ST_AUTO_CF=0x40|ST_AUTO, //add cf to auto snapping
+		ST_AUTO_FX=0x80|ST_AUTO, //add fx to auto snapping
+		ST_AUTO_FL=0x100|ST_AUTO, //add fl to auto snapping
+		ST_AUTO_JP=0x200|ST_AUTO, //add jp to auto snapping
+		ST_AUTO_ALL=ST_AUTO|ST_AUTO_CF|ST_AUTO_FX|ST_AUTO_FL|ST_AUTO_JP, //try all snappings and use the best one
+		ST_NORMALIZE=0x1000,
+		//Do not use the values below!
+		ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES=4 //this effecivly defines the shift to get from ST_* to ST_AUTO_*
 	} SnapType;
 	class SnapConfig {
 	public:
@@ -62,6 +70,11 @@ public:
 	
 public:
 	inline const Calc & calc() const { return m_calc; }
+private:
+	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+	void snapNormalized(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands, std::size_t dims) const;
+	template<typename T_ITERATOR>
+	std::size_t summedDenomSize(T_ITERATOR begin, const T_ITERATOR& end) const;
 private:
 	template<typename T_FT>
 	inline T_FT add(const T_FT & a, const T_FT & b) const { return calc().add(a,b); }
@@ -198,7 +211,39 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		snap(normalized.begin(), normalized.end(), out, snapType & ~ST_NORMALIZE, significands);
 		return;
 	}
-	
+	if (snapType & ST_AUTO) {
+		std::vector<mpq_class> tmp(dims);
+		std::size_t minDenomSize = std::numeric_limits<std::size_t>::max();
+		int bestType = ST_NONE;
+		constexpr std::array<int, ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES> snappingType = {{ST_FL, ST_FX, ST_CF, ST_JP}};
+		for(int st : snappingType) {
+			if ((st << ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES) & snapType) {
+				snapNormalized(begin, end, tmp.begin(), (snapType & ~ST_AUTO_ALL) | st, significands, dims);
+				std::size_t mySummedDenomSize = summedDenomSize(tmp.cbegin(), tmp.cend());
+				if (minDenomSize > mySummedDenomSize) {
+					minDenomSize = mySummedDenomSize;
+					bestType = st;
+				}
+			}
+		}
+		snapNormalized(begin, end, out, (snapType & ~ST_AUTO_ALL) | bestType, significands, dims);
+	}
+	else {
+		snapNormalized(begin, end, out, snapType, significands, dims);
+	}
+}
+
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const SnapConfig & sc) const {
+	using std::distance;
+	snap(begin, end, out, sc.snapType(), sc.significands(distance(begin, end)));
+}
+
+//private implementations
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void ProjectSN::snapNormalized(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands, std::size_t dims) const {
+	using input_ft = typename std::iterator_traits<T_INPUT_ITERATOR>::value_type;
+
 	std::vector<mpq_class> coords_plane_pq(dims);
 	PositionOnSphere pos;
 	if (snapType & ST_SPHERE) {
@@ -234,11 +279,15 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 	plane2Sphere(coords_plane_pq.begin(), coords_plane_pq.end(), pos, out);
 }
 
-template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const SnapConfig & sc) const {
-	using std::distance;
-	snap(begin, end, out, sc.snapType(), sc.significands(distance(begin, end)));
+template<typename T_ITERATOR>
+std::size_t ProjectSN::summedDenomSize(T_ITERATOR begin, const T_ITERATOR & end) const {
+	std::size_t result = 0;
+	for(; begin != end; ++begin) {
+		result += mpz_sizeinbase(begin->get_den().get_mpz_t(), 2);
+	}
+	return result;
 }
+
 
 } //end namespace LIB_RATSS_NAMESPACE
 
