@@ -33,7 +33,10 @@ using EntryConfig = std::pair<int, int>;
 
 std::string ec2Str(const EntryConfig & ec) {
 	std::string ret;
-	if (ec.first & ProjectSN::ST_FX) {
+	if (ec.first & ProjectSN::ST_AUTO_ALL) {
+		ret = "auto";
+	}
+	else if (ec.first & ProjectSN::ST_FX) {
 		ret = "fx";
 	}
 	else if (ec.first & ProjectSN::ST_CF) {
@@ -48,7 +51,7 @@ std::string ec2Str(const EntryConfig & ec) {
 	return ret + ":" + std::to_string(ec.second);
 }
 
-constexpr std::size_t num_entries = 9;
+constexpr std::size_t num_entries = 16;
 
 std::array<EntryConfig, num_entries> entryConfigs{{
 // 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 4),
@@ -69,14 +72,22 @@ std::array<EntryConfig, num_entries> entryConfigs{{
 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 4),
 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 12),
 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 20),
+	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 30),
 	
 	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 4),
 	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 12),
 	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 20),
+	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 30),
 // 	
 	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 4),
 	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 12),
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 20)
+	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 20),
+	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 30),
+	
+	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_PLANE, 4),
+	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_PLANE, 12),
+	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_PLANE, 20),
+	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_PLANE, 30)
 }};
 
 struct PointStatEntry {
