@@ -63,6 +63,12 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if (stStr == "msd" || stStr == "minsumdenom") {
 					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM;
 				}
+				else if (stStr == "md2" || stStr == "minsqdist") {
+					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE;
+				}
+				else if (stStr == "mmn" || stStr == "minmaxnorm") {
+					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM;
+				}
 				else {
 					std::cerr << "Unrecognized snap method: " << stStr << std::endl;
 					return -1;
@@ -231,7 +237,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-v\tverbose\n"
 		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
 		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, ml=minlimb, md=mindenom, msd=minsumdenom\n"
+		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-n\tnormalize input to length 1\n"
 		"\t--progress\tprogress indicators\n"
@@ -265,6 +271,15 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	}
 	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
 		out << "minimize total number of limbs";
+	}
+	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
+		out << "minimize squared distance to input point";
+	}
+	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM) {
+		out << "minimize maximum norm";
+	}
+	else {
+		out << "invalid";
 	}
 	out << '\n';
 	out << "Float conversion location: " << (snapType & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
