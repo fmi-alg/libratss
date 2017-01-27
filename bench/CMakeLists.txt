@@ -22,3 +22,4 @@ ENDMACRO(ADD_BENCH_TARGET)
 
 ADD_BENCH_TARGET(bitsize bitsize.cpp)
 ADD_BENCH_TARGET(paper paper.cpp)
+ADD_BENCH_TARGET(paper_table paper_table.cpp)

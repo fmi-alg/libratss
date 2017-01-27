@@ -84,10 +84,10 @@ std::array<EntryConfig, num_entries> entryConfigs{{
 	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 20),
 	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 30),
 	
-	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_PLANE, 4),
-	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_PLANE, 12),
-	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_PLANE, 30)
+	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 4),
+	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 12),
+	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 20),
+	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 30)
 }};
 
 struct PointStatEntry {
