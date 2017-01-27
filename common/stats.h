@@ -17,7 +17,7 @@ public:
 		m_count = 0;
 		m_min = FT(std::numeric_limits<FT>::max());
 		m_max = FT(std::numeric_limits<FT>::min());
-		m_sum = 0;
+		m_sum = FT(0);
 	}
 	void update(const FT & ft) {
 		using std::min;
@@ -27,9 +27,10 @@ public:
 		m_max = max(m_max, ft);
 		m_sum += ft;
 	}
+	std::size_t count() const { return m_count; }
 	FT min() const { return m_min; }
 	FT max() const { return m_max; }
-	double mean() const { return (m_count ? m_sum/(double)m_count : FT(0)); }
+	double mean() const { return double(m_count ? (m_sum/(double)m_count) : FT(0)); }
 	FT sum() const { return m_sum; }
 	void print(std::ostream & out, const std::string & prefix) const {
 		out << prefix << "min: " << min() << '\n';
