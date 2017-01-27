@@ -54,8 +54,14 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if ( stStr == "jp") {
 					snapType |= ProjectSN::ST_JP;
 				}
-				else if (stStr == "a" || stStr == "auto") {
-					snapType |= ProjectSN::ST_AUTO_ALL;
+				else if (stStr == "ml" || stStr == "minlimb") {
+					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS;
+				}
+				else if (stStr == "md" || stStr == "mindenom") {
+					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM;
+				}
+				else if (stStr == "msd" || stStr == "minsumdenom") {
+					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM;
 				}
 				else {
 					std::cerr << "Unrecognized snap method: " << stStr << std::endl;
@@ -225,7 +231,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-v\tverbose\n"
 		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
 		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, a=auto\n"
+		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, ml=minlimb, md=mindenom, msd=minsumdenom\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-n\tnormalize input to length 1\n"
 		"\t--progress\tprogress indicators\n"
@@ -250,6 +256,15 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	}
 	else if (snapType & ratss::ProjectSN::ST_FL) {
 		out << "floating point";
+	}
+	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM) {
+		out << "minimize maximum denominator";
+	}
+	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM) {
+		out << "minimize summed denominators";
+	}
+	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
+		out << "minimize total number of limbs";
 	}
 	out << '\n';
 	out << "Float conversion location: " << (snapType & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
