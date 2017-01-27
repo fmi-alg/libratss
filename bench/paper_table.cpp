@@ -102,14 +102,20 @@ public:
 
 std::string ec2Str(int significand, int st) {
 	std::string ret;
-	if (st & (ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM)) {
+	if (st & ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM) {
 		ret = "md";
 	}
-	else if (st & (ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM)) {
+	else if (st & ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM) {
 		ret = "msd";
 	}
-	else if (st & (ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS)) {
+	else if (st & ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
 		ret = "ml";
+	}
+	else if (st & ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
+		ret = "md2";
+	}
+	else if (st & ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM) {
+		ret = "mmn";
 	}
 	else if (st & ProjectSN::ST_FX) {
 		ret = "fx";
@@ -219,7 +225,9 @@ int main(int argc, char ** argv) {
 		ProjectSN::ST_JP,
 		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM,
 		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS,
-		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM
+		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM,
+		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE,
+		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM
 	};
 
 	for(int significand : significands) {
