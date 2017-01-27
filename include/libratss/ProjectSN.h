@@ -83,6 +83,19 @@ public:
 public:
 	inline const Calc & calc() const { return m_calc; }
 private:
+	template<typename GRADE_TYPE, int POLICY>
+	struct StOptimizer {
+		const ProjectSN * parent;
+		int snapType;
+		int significands;
+		std::size_t dims;
+		StOptimizer(const ProjectSN * parent, int snapType, int significands, std::size_t dims);
+		template<typename T_ITERATOR>
+		int best(const T_ITERATOR & begin, const T_ITERATOR & end) const;
+		template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
+		GRADE_TYPE grade(const T_ITERATOR_INPUT & input_begin, const T_ITERATOR_INPUT & input_end, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const;
+	};
+private:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void snapNormalized(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands, std::size_t dims) const;
 	template<typename T_ITERATOR>
@@ -232,39 +245,29 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		return;
 	}
 	if (snapType & ST_AUTO) {
-		std::vector<mpq_class> tmp(dims);
-		std::size_t bestGrade = std::numeric_limits<std::size_t>::max();
-		int bestType = ST_NONE;
-		constexpr std::array<int, ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES> snappingType = {{ST_FL, ST_FX, ST_CF, ST_JP}};
-		for(int st : snappingType) {
-			if ((st << ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES) & snapType) {
-				snapNormalized(begin, end, tmp.begin(), (snapType & ~ST__INTERNAL_AUTO_ALL_WITH_POLICY) | st, significands, dims);
-				std::size_t myGrade = std::numeric_limits<std::size_t>::max();
-				if (snapType & ST_AUTO_POLICY_MIN_SUM_DENOM) {
-					myGrade = summedDenomSize(tmp.cbegin(), tmp.cend());
-				}
-				else if (snapType & ST_AUTO_POLICY_MIN_MAX_DENOM) {
-					myGrade = maxDenom(tmp.cbegin(), tmp.cend());
-				}
-				else if (snapType & ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
-					mpq_class sqDistance = squaredDistance(begin, tmp.cbegin(), end);
-					myGrade = (Conversion<mpq_class>::toMpreal(sqDistance, 64) << 60).toULong();
-				}
-				else if (snapType & ST_AUTO_POLICY_MIN_MAX_NORM) {
-					mpq_class sqDistance = maxNorm(begin, tmp.cbegin(), end);
-					myGrade = (Conversion<mpq_class>::toMpreal(sqDistance, 64) << 60).toULong();
-				}
-				else { //default to ST_AUTO_POLICY_MIN_TOTAL_LIMBS
-					myGrade = limbCount(tmp.cbegin(), tmp.cend());
-				}
-				if (bestGrade > myGrade) {
-					bestGrade = myGrade;
-					bestType = st;
-				}
-			}
+		int bestType = ST_FX;
+		if (snapType & ST_AUTO_POLICY_MIN_MAX_DENOM) {
+			StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_MAX_DENOM> optimizer(this, snapType, significands, dims);
+			bestType = optimizer.best(begin, end);
 		}
-		if (bestType == ST_NONE) {
-			bestType = ST_FX;
+		else if (snapType & ST_AUTO_POLICY_MIN_SUM_DENOM) {
+			StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_SUM_DENOM> optimizer(this, snapType, significands, dims);
+			bestType = optimizer.best(begin, end);
+		}
+		else if (snapType & ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
+			StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_TOTAL_LIMBS> optimizer(this, snapType, significands, dims);
+			bestType = optimizer.best(begin, end);
+		}
+		else if (snapType & ST_AUTO_POLICY_MIN_MAX_NORM) {
+			StOptimizer<mpq_class, ST_AUTO_POLICY_MIN_MAX_NORM> optimizer(this, snapType, significands, dims);
+			bestType = optimizer.best(begin, end);
+		}
+		else if (snapType & ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
+			StOptimizer<mpq_class, ST_AUTO_POLICY_MIN_SQUARED_DISTANCE> optimizer(this, snapType, significands, dims);
+			bestType = optimizer.best(begin, end);
+		}
+		else {
+			throw std::runtime_error("ratss::ProjectSN::snap: auto snapping requested, but no policy was set");
 		}
 		snapNormalized(begin, end, out, (snapType & ~ST__INTERNAL_AUTO_ALL_WITH_POLICY) | bestType, significands, dims);
 	}
@@ -317,6 +320,76 @@ void ProjectSN::snapNormalized(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_O
 		throw std::runtime_error("ratss::ProjectSN::snap: Unsupported snap type");
 	}
 	plane2Sphere(coords_plane_pq.begin(), coords_plane_pq.end(), pos, out);
+}
+
+
+template<typename GRADE_TYPE, int POLICY>
+ProjectSN::StOptimizer<GRADE_TYPE, POLICY>::StOptimizer(const ProjectSN * parent, int snapType, int significands, std::size_t dims) :
+parent(parent),
+snapType(snapType),
+significands(significands),
+dims(dims)
+{}
+
+template<typename GRADE_TYPE, int POLICY>
+template<typename T_ITERATOR>
+int
+ProjectSN::StOptimizer<GRADE_TYPE, POLICY>::best(const T_ITERATOR & begin, const T_ITERATOR & end) const {
+	constexpr std::array<int, ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES> snappingType = {{ST_FL, ST_FX, ST_CF, ST_JP}};
+	std::vector<mpq_class> tmp(dims);
+	GRADE_TYPE bestGrade = GRADE_TYPE(std::numeric_limits<std::size_t>::max());
+	int bestType = ST_FX;
+	for(int st : snappingType) {
+		if ((st << ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES) & snapType) {
+			parent->snapNormalized(begin, end, tmp.begin(), (snapType & ~ST__INTERNAL_AUTO_ALL_WITH_POLICY) | st, significands, dims);
+			GRADE_TYPE myGrade = grade(begin, end, tmp.begin(), tmp.end());
+			if (bestGrade > myGrade) {
+				bestGrade = myGrade;
+				bestType = st;
+			}
+		}
+	}
+	return bestType;
+}
+
+template<>
+template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
+std::size_t
+ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM>::
+grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
+	return parent->summedDenomSize(output_begin, output_end);
+}
+
+template<>
+template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
+std::size_t
+ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS>::
+grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
+	return parent->limbCount(output_begin, output_end);
+}
+
+template<>
+template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
+std::size_t
+ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM>::
+grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
+	return parent->maxDenom(output_begin, output_end);
+}
+
+template<>
+template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
+mpq_class
+ProjectSN::StOptimizer<mpq_class, ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE>::
+grade(const T_ITERATOR_INPUT & input_begin, const T_ITERATOR_INPUT & input_end, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & /*output_end*/) const {
+	return parent->squaredDistance(input_begin, output_begin, input_end);
+}
+
+template<>
+template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
+mpq_class
+ProjectSN::StOptimizer<mpq_class, ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM>::
+grade(const T_ITERATOR_INPUT & input_begin, const T_ITERATOR_INPUT & input_end, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & /*output_end*/) const {
+	return parent->maxNorm(input_begin, output_begin, input_end);
 }
 
 template<typename T_ITERATOR>
