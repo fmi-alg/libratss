@@ -51,7 +51,7 @@ struct CGALPointGenerator: PointGenerator {
 	virtual RationalPoint generate(int /*dimension*/, bool snap) override {
 		K::Point_3 p = *rnd;
 		++rnd;
-		std::array<mpfr::mpreal, 3> vec = {p.x(), p.y(), p.z()};
+		std::array<mpfr::mpreal, 3> vec = {{p.x(), p.y(), p.z()}};
 		if (snap) {
 			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_CF | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
 		}
