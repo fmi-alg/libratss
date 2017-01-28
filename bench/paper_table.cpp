@@ -214,16 +214,31 @@ int main(int argc, char ** argv) {
 
 	//now do the calculations
 	std::vector<int> significands = {{23, 31, 53, 113}};
-	std::vector<int> snappingTypes{
-		ProjectSN::ST_FX,
-		ProjectSN::ST_CF,
-		ProjectSN::ST_JP,
-		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM,
-		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS,
-		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM,
-		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE,
-		ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM
-	};
+	std::vector<int> snappingTypes;
+	
+	if (maxDimension == 3) {
+		snappingTypes = {{
+			ProjectSN::ST_FX,
+			ProjectSN::ST_CF,
+			ProjectSN::ST_JP,
+			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM,
+			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS,
+			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM,
+			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE,
+			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM
+		}};
+	}
+	else {
+		snappingTypes = {{
+			ProjectSN::ST_FX,
+			ProjectSN::ST_CF,
+// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM) - ProjectSN::ST_AUTO_JP,
+// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) - ProjectSN::ST_AUTO_JP,
+// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM) - ProjectSN::ST_AUTO_JP,
+// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) - ProjectSN::ST_AUTO_JP,
+// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM) - ProjectSN::ST_AUTO_JP
+		}};
+	}
 
 	for(int significand : significands) {
 		for(int st : snappingTypes) {
