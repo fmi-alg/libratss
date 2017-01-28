@@ -146,15 +146,10 @@ struct Stats {
 		tm.end();
 	}
 	void update(const std::vector<mpfr::mpreal> & ip, const RationalPoint & sp) {
-		using std::abs;
 		assert(ip.size() == sp.coords.size());
-		for(std::size_t i(0), s(ip.size()); i < s; ++i) {
-			const mpfr::mpreal & ipc = ip[i];
-			const mpq_class & spc = sp.coords[i];
-			
-			denom.update(mpz_sizeinbase(spc.get_den().get_mpz_t(), 2) );
-			diff.update( abs(c.sub(Conversion<mpq_class>::toMpreal(spc, 1024), ipc ))  );
-		}
+
+		denom.update( c.maxDenom(sp.coords.begin(), sp.coords.end()) );
+		diff.update( Conversion<mpq_class>::toMpreal(c.maxNorm(ip.begin(), ip.end(), sp.coords.begin()), 256));
 	}
 };
 
