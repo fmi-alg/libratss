@@ -171,9 +171,6 @@ int main(int argc, char ** argv) {
 	io.setInput(cfg.inFileName);
 	io.setOutput(cfg.outFileName);
 
-	//print the header
-	io.output() << "#snaptype:bits mean-error mean-denom[2^] max-denom[2^] time[us]" << std::endl;
-	
 	
 	std::vector< std::vector<mpfr::mpreal> > points;
 	
@@ -239,6 +236,11 @@ int main(int argc, char ** argv) {
 // 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM) - ProjectSN::ST_AUTO_JP
 		}};
 	}
+
+	//print the header
+	io.output() << "#snaptype:bits mean-error mean-denom[2^] max-denom[2^] time[us]" << std::endl;
+	io.output() << points.size() << std::endl;
+	
 
 	for(int significand : significands) {
 		for(int st : snappingTypes) {
