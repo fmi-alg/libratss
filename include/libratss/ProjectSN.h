@@ -98,16 +98,6 @@ private:
 private:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void snapNormalized(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands, std::size_t dims) const;
-	template<typename T_ITERATOR>
-	std::size_t summedDenomSize(T_ITERATOR begin, const T_ITERATOR& end) const;
-	template<typename T_ITERATOR>
-	std::size_t maxDenom(T_ITERATOR begin, const T_ITERATOR& end) const;
-	template<typename T_ITERATOR>
-	std::size_t limbCount(T_ITERATOR begin, const T_ITERATOR& end) const;
-	template<typename T_ITERATOR_1, typename T_ITERATOR_2>
-	mpq_class squaredDistance(T_ITERATOR_1 begin1, T_ITERATOR_2 begin2, const T_ITERATOR_1 & end1) const;
-	template<typename T_ITERATOR_1, typename T_ITERATOR_2>
-	mpq_class maxNorm(T_ITERATOR_1 begin1, T_ITERATOR_2 begin2, const T_ITERATOR_1 & end1) const;
 private:
 	template<typename T_FT>
 	inline T_FT add(const T_FT & a, const T_FT & b) const { return calc().add(a,b); }
@@ -357,7 +347,7 @@ template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 std::size_t
 ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM>::
 grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
-	return parent->summedDenomSize(output_begin, output_end);
+	return parent->calc().summedDenomSize(output_begin, output_end);
 }
 
 template<>
@@ -365,7 +355,7 @@ template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 std::size_t
 ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS>::
 grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
-	return parent->limbCount(output_begin, output_end);
+	return parent->calc().limbCount(output_begin, output_end);
 }
 
 template<>
@@ -373,7 +363,7 @@ template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 std::size_t
 ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM>::
 grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
-	return parent->maxDenom(output_begin, output_end);
+	return parent->calc().maxDenom(output_begin, output_end);
 }
 
 template<>
@@ -381,7 +371,7 @@ template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 mpq_class
 ProjectSN::StOptimizer<mpq_class, ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE>::
 grade(const T_ITERATOR_INPUT & input_begin, const T_ITERATOR_INPUT & input_end, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & /*output_end*/) const {
-	return parent->squaredDistance(input_begin, output_begin, input_end);
+	return parent->calc().squaredDistance(input_begin, input_end, output_begin);
 }
 
 template<>
@@ -389,70 +379,8 @@ template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 mpq_class
 ProjectSN::StOptimizer<mpq_class, ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM>::
 grade(const T_ITERATOR_INPUT & input_begin, const T_ITERATOR_INPUT & input_end, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & /*output_end*/) const {
-	return parent->maxNorm(input_begin, output_begin, input_end);
+	return parent->calc().maxNorm(input_begin, input_end, output_begin);
 }
-
-template<typename T_ITERATOR>
-std::size_t ProjectSN::summedDenomSize(T_ITERATOR begin, const T_ITERATOR & end) const {
-	std::size_t result = 0;
-	for(; begin != end; ++begin) {
-		result += mpz_sizeinbase(begin->get_den().get_mpz_t(), 2);
-	}
-	return result;
-}
-
-template<typename T_ITERATOR>
-std::size_t ProjectSN::maxDenom(T_ITERATOR begin, const T_ITERATOR & end) const {
-	std::size_t result = 0;
-	for(; begin != end; ++begin) {
-		result = std::max<std::size_t>(result, mpz_sizeinbase(begin->get_den().get_mpz_t(), 2));
-	}
-	return result;
-}
-
-template<typename T_ITERATOR>
-std::size_t ProjectSN::limbCount(T_ITERATOR begin, const T_ITERATOR & end) const {
-	std::size_t result = 0;
-	for(; begin != end; ++begin) {
-		result += __GMPXX_BITS_TO_LIMBS(mpz_sizeinbase(begin->get_num().get_mpz_t(), 2));
-		result += __GMPXX_BITS_TO_LIMBS(mpz_sizeinbase(begin->get_den().get_mpz_t(), 2));
-	}
-	return result;
-}
-
-
-template<typename T_ITERATOR_1, typename T_ITERATOR_2>
-mpq_class ProjectSN::squaredDistance(T_ITERATOR_1 begin1, T_ITERATOR_2 begin2, const T_ITERATOR_1 & end1) const {
-	using value_type1 = typename std::iterator_traits<T_ITERATOR_1>::value_type;
-	using value_type2 = typename std::iterator_traits<T_ITERATOR_2>::value_type;
-	mpq_class sq = 0;
-	for(; begin1 != end1; ++begin1, ++begin2) {
-		mpq_class tmp = Conversion<value_type1>::toMpq(*begin1) - Conversion<value_type2>::toMpq(*begin2);
-		sq += tmp*tmp;
-	}
-	return sq;
-}
-
-template<typename T_ITERATOR_1, typename T_ITERATOR_2>
-mpq_class ProjectSN::maxNorm(T_ITERATOR_1 begin1, T_ITERATOR_2 begin2, const T_ITERATOR_1 & end1) const {
-	using value_type1 = typename std::iterator_traits<T_ITERATOR_1>::value_type;
-	using value_type2 = typename std::iterator_traits<T_ITERATOR_2>::value_type;
-	using std::abs;
-	using std::max;
-	using std::distance;
-	
-	if (distance(begin1, end1) == 0) {
-		return mpq_class(0);
-	}
-	
-	mpq_class result = abs(Conversion<value_type1>::toMpq(*begin1) - Conversion<value_type2>::toMpq(*begin2));
-	for(++begin1, ++begin2; begin1 != end1; ++begin1, ++begin2) {
-		mpq_class tmp = abs(Conversion<value_type1>::toMpq(*begin1) - Conversion<value_type2>::toMpq(*begin2));
-		result = max(result, tmp);
-	}
-	return result;
-}
-
 
 } //end namespace LIB_RATSS_NAMESPACE
 
