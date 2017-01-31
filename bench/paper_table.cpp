@@ -238,7 +238,7 @@ int main(int argc, char ** argv) {
 	}
 
 	//print the header
-	io.output() << "#snaptype:bits mean-error mean-denom[2^] max-denom[2^] time[us]" << std::endl;
+	io.output() << "#snaptype:bits mean-error min-error max-error mean-denom[2^] max-denom[2^] time[us]" << std::endl;
 	io.output() << points.size() << std::endl;
 	
 
