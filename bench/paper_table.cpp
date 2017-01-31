@@ -154,7 +154,7 @@ struct Stats {
 };
 
 std::ostream & operator<<(std::ostream & out, const Stats & s) {
-	out << s.diff.sum()/s.diff.count() << " " <<  s.denom.mean() << " " << s.denom.max() << " " << (double) s.tm.elapsedUseconds()/s.diff.count();
+	out << s.diff.sum()/s.diff.count() << " " << s.diff.min() << " " << s.diff.max() << " " <<  s.denom.mean() << " " << s.denom.max() << " " << (double) s.tm.elapsedUseconds()/s.diff.count();
 	return out;
 }
 
