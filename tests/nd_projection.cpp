@@ -1,5 +1,6 @@
 #include <libratss/constants.h>
 #include <libratss/ProjectSN.h>
+#include <libratss/util/InputOutputPoints.h>
 
 #include "TestBase.h"
 #include "../common/generators.h"
