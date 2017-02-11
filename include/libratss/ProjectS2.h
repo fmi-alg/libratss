@@ -32,14 +32,14 @@ public:
 	///You can give the precision of these calculation, all other precisions are then derived from it
 	///lat and lon are in DEGREE! -90 <= lat <= 90 && (0 <= lon <= 360 || -180 <= lon <= 180)
 	template<typename T_FT>
-	void projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT &xs, T_FT &ys, T_FT &zs, int precision = -1) const;
+	void projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT &xs, T_FT &ys, T_FT &zs, int precision = -1, int snapType = ST_FX | ST_PLANE | ST_NORMALIZE) const;
 
 	///the same as projectFromGeo except that one can set the desired maximum distance
 	template<typename T_FT>
 	double projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT &xs, T_FT &ys, T_FT &zs, double maxDist, int maxPrecision) const;
 	
 	template<typename T_FT>
-	void projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT &xs, T_FT &ys, T_FT &zs, int precision = -1) const;
+	void projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT &xs, T_FT &ys, T_FT &zs, int precision = -1, int snapType = ST_FX | ST_PLANE | ST_NORMALIZE) const;
 
 	///the same as projectFromGeo except that one can set the desired maximum distance
 	template<typename T_FT>
@@ -93,7 +93,7 @@ PositionOnSphere ProjectS2::sphere2Plane(const T_FT & xs, const T_FT & ys, const
 }
 
 template<typename T_FT>
-void ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT & xs, T_FT & ys, T_FT & zs, int precision) const {
+void ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT& xs, T_FT& ys, T_FT& zs, int precision, int snapType) const {
 	if (precision < 0) {
 		precision = std::max<int>(lat.getPrecision(), lon.getPrecision());
 	}
@@ -107,7 +107,7 @@ void ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT & xs, T_
 
 	//clip to 3D and snap to sphere
 	m_calc.cartesian(lat, lon, flxs, flys, flzs);
-	snap(flxs, flys, flzs, xpq, ypq, zpq, precision);
+	snap(flxs, flys, flzs, xpq, ypq, zpq, precision, snapType);
 	
 	assert(!(lat > 0) || zs >= 0);
 	xs = Conversion<T_FT>::moveFrom( std::move(xpq) );
@@ -190,7 +190,7 @@ double ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT &xs, T
 }
 
 template<typename T_FT>
-void ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT & xs, T_FT & ys, T_FT & zs, int precision) const {
+void ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT& xs, T_FT& ys, T_FT& zs, int precision, int snapType) const {
 	if (precision < 0) {
 		precision = std::max<int>(theta.getPrecision(), phi.getPrecision());
 	}
@@ -204,7 +204,7 @@ void ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT 
 	
 	//clip to 3D and snap to sphere
 	m_calc.cartesianFromSpherical(theta, phi, flxs, flys, flzs);
-	snap(flxs, flys, flzs, xpq, ypq, zpq, precision);
+	snap(flxs, flys, flzs, xpq, ypq, zpq, precision, snapType);
 	
 	xs = Conversion<T_FT>::moveFrom( std::move(xpq) );
 	ys = Conversion<T_FT>::moveFrom( std::move(ypq) );
