@@ -314,11 +314,11 @@ void ProjectSN::snapNormalized(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_O
 
 
 template<typename GRADE_TYPE, int POLICY>
-ProjectSN::StOptimizer<GRADE_TYPE, POLICY>::StOptimizer(const ProjectSN * parent, int snapType, int significands, std::size_t dims) :
-parent(parent),
-snapType(snapType),
-significands(significands),
-dims(dims)
+ProjectSN::StOptimizer<GRADE_TYPE, POLICY>::StOptimizer(const ProjectSN * _parent, int _snapType, int _significands, std::size_t _dims) :
+parent(_parent),
+snapType(_snapType),
+significands(_significands),
+dims(_dims)
 {}
 
 template<typename GRADE_TYPE, int POLICY>
