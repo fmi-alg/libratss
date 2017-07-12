@@ -28,398 +28,271 @@
 //End of original header
 
 
-#ifndef LIBRATSS_INT64_PQ_H
-#define LIBRATSS_INT64_PQ_H
+#ifndef LIBRATSS_CGAL_EXTENDED_INT_64_PQ_H
+#define LIBRATSS_CGAL_EXTENDED_INT_64_PQ_H
 
 #include <CGAL/Gmpq.h>
 
 #include <libratss/constants.h>
-#include <libratss/ExtendedInt64.h>
+#include <libratss/CGAL/ExtendedInt64z.h>
 
 namespace CGAL {
 
-class Int64Pq:
-    boost::totally_ordered1< Int64Pq
-  , boost::ordered_field_operators2< Int64Pq, int
-  , boost::ordered_field_operators2< Int64Pq, long
-  , boost::ordered_field_operators2< Int64Pq, long long
-  , boost::ordered_field_operators2< Int64Pq, double
-  , boost::ordered_field_operators2< Int64Pq, Gmpq
-  , boost::ordered_field_operators2< Int64Pq, Gmpz
-  , boost::ordered_field_operators2< Int64Pq, Gmpfr
-  , boost::ordered_field_operators2< Int64Pq, ExtendedInt
-    > > > > > > > > >
+class ExtendedInt64Pq:
+	boost::totally_ordered1< ExtendedInt64Pq
+	, boost::ordered_field_operators2< ExtendedInt64Pq, int
+	, boost::ordered_field_operators2< ExtendedInt64Pq, long
+	, boost::ordered_field_operators2< ExtendedInt64Pq, long long
+	, boost::ordered_field_operators2< ExtendedInt64Pq, double
+	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpq
+	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpz
+	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpfr
+	, boost::ordered_field_operators2< ExtendedInt64Pq, ExtendedInt64
+		> > > > > > > > >
 {
 public:
-  typedef Tag_false  Has_gcd;
-  typedef Tag_true   Has_division;
-  typedef Tag_false  Has_sqrt;
+	typedef Tag_false  Has_gcd;
+	typedef Tag_true   Has_division;
+	typedef Tag_false  Has_sqrt;
 
-  typedef Tag_true   Has_exact_ring_operations;
-  typedef Tag_true   Has_exact_division;
-  typedef Tag_false  Has_exact_sqrt;
-  typedef CGAL::Gmpq extension_type;
-  typedef CGAL::ExtendedInt::base_type base_type;
+	typedef Tag_true   Has_exact_ring_operations;
+	typedef Tag_true   Has_exact_division;
+	typedef Tag_false  Has_exact_sqrt;
 public:
-  Int64Pq() {}
-  Int64Pq(const Int64Pq & other);
-  Int64Pq(const Int64Pq && other);
-  
-  Int64Pq(const CGAL::Gmpq & q);
-  
-  Int64Pq(int n);
-  Int64Pq(unsigned int n);
-  Int64Pq(long n);
-  Int64Pq(unsigned long n);
-  Int64Pq(unsigned long long n);
-  Int64Pq(long long n);
-  Int64Pq(const Gmpz& n);
-  Int64Pq(const ExtendedInt & n);
-  Int64Pq(const Gmpfr &f);
-  
-  Int64Pq(int n, int d);
-  Int64Pq(signed long n, unsigned long d);
-  Int64Pq(unsigned long n, unsigned long d);
-  Int64Pq(const Gmpz& n, const Gmpz& d);
-  Int64Pq(double d);
+	typedef CGAL::ExtendedInt64z::base_type base_type;
+	typedef CGAL::Gmpq extension_type;
+public:
+	ExtendedInt64Pq() {}
+	ExtendedInt64Pq(const ExtendedInt64Pq & other);
+	ExtendedInt64Pq(const ExtendedInt64Pq && other);
 
-  Int64Pq(const std::string& str, int base = 10);
-  
-   ~Int64Pq();
+	ExtendedInt64Pq(const CGAL::Gmpq & q);
 
-  // Gives the memory size in bytes. (not documented yet)
-  std::size_t size() const;
+	ExtendedInt64Pq(int n);
+	ExtendedInt64Pq(unsigned int n);
+	ExtendedInt64Pq(long n);
+	ExtendedInt64Pq(unsigned long n);
+	ExtendedInt64Pq(unsigned long long n);
+	ExtendedInt64Pq(long long n);
+	ExtendedInt64Pq(const Gmpz& n);
+	ExtendedInt64Pq(const ExtendedInt64z & n);
+	ExtendedInt64Pq(const Gmpfr &f);
 
-  ExtendedInt numerator() const;
-  ExtendedInt denominator() const;
+	ExtendedInt64Pq(int n, int d);
+	ExtendedInt64Pq(signed long n, unsigned long d);
+	ExtendedInt64Pq(unsigned long n, unsigned long d);
+	ExtendedInt64Pq(const ExtendedInt64z& n, const ExtendedInt64z& d);
+	ExtendedInt64Pq(const Gmpz& n, const Gmpz& d);
+	ExtendedInt64Pq(double d);
 
-  Int64Pq operator+() const;
-  Int64Pq operator-() const;
+	ExtendedInt64Pq(const std::string& str, int base = 10);
 
-  Int64Pq& operator+=(const Int64Pq &q);
-  Int64Pq& operator-=(const Int64Pq &q);
-  Int64Pq& operator*=(const Int64Pq &q);
-  Int64Pq& operator/=(const Int64Pq &q);
+	~ExtendedInt64Pq();
 
-  bool operator==(const Int64Pq &q) const;
-  bool operator< (const Int64Pq &q) const;
+	// Gives the memory size in bytes. (not documented yet)
+	std::size_t size() const;
+	
+	void canonicalize();
 
-  double to_double() const;
-  Sign sign() const;
+	ExtendedInt64z numerator() const;
+	ExtendedInt64z denominator() const;
 
-  const extension_type & getExtended() const;
-  extension_type & getExtended();
+	ExtendedInt64Pq operator+() const;
+	ExtendedInt64Pq operator-() const;
 
-  // Interoperability with int
-  inline Int64Pq& operator+=(int z) { return (*this) += Int64Pq(z); }
-  inline Int64Pq& operator-=(int z) { return (*this) -= Int64Pq(z); }
-  inline Int64Pq& operator*=(int z) { return (*this) *= Int64Pq(z); }
-  inline Int64Pq& operator/=(int z) { return (*this) /= Int64Pq(z); }
-  inline bool operator==(int z) const {return *this == Int64Pq(z); }
-  inline bool operator< (int z) const {return *this < Int64Pq(z); }
-  inline bool operator> (int z) const {return *this > Int64Pq(z); }
+	ExtendedInt64Pq& operator+=(const ExtendedInt64Pq &q);
+	ExtendedInt64Pq& operator-=(const ExtendedInt64Pq &q);
+	ExtendedInt64Pq& operator*=(const ExtendedInt64Pq &q);
+	ExtendedInt64Pq& operator/=(const ExtendedInt64Pq &q);
 
-  // Interoperability with long
-  inline Int64Pq& operator+=(long z) { return (*this) += Int64Pq(z); }
-  inline Int64Pq& operator-=(long z) { return (*this) -= Int64Pq(z); }
-  inline Int64Pq& operator*=(long z) { return (*this) *= Int64Pq(z); }
-  inline Int64Pq& operator/=(long z) { return (*this) /= Int64Pq(z); }
-  inline bool operator==(long z) const { return *this == Int64Pq(z); }
-  inline bool operator< (long z) const { return *this < Int64Pq(z); }
-  inline bool operator> (long z) const { return *this > Int64Pq(z); }
+	bool operator==(const ExtendedInt64Pq &q) const;
+	bool operator< (const ExtendedInt64Pq &q) const;
 
-  // Interoperability with long long
-  inline Int64Pq& operator+=(long long z) { return (*this) += Int64Pq(z); }
-  inline Int64Pq& operator-=(long long z) { return (*this) -= Int64Pq(z); }
-  inline Int64Pq& operator*=(long long z) { return (*this) *= Int64Pq(z); }
-  inline Int64Pq& operator/=(long long z) { return (*this) /= Int64Pq(z); }
-  inline bool operator==(long long z) const { return (*this) == Int64Pq(z); }
-  inline bool operator< (long long z) const { return (*this) < Int64Pq(z); }
-  inline bool operator> (long long z) const { return (*this) > Int64Pq(z); }
+	double to_double() const;
+	Sign sign() const;
 
-  // Interoperability with double
-  inline Int64Pq& operator+=(double d) { return (*this) += Int64Pq(d); }
-  inline Int64Pq& operator-=(double d) { return (*this) -= Int64Pq(d); }
-  inline Int64Pq& operator*=(double d) { return (*this) *= Int64Pq(d); }
-  inline Int64Pq& operator/=(double d) { return (*this) /= Int64Pq(d); }
-  inline bool operator==(double d) const { return (*this) == Int64Pq(d); }
-  inline bool operator< (double d) const { return (*this) < Int64Pq(d); }
-  inline bool operator> (double d) const { return (*this) > Int64Pq(d); }
 
-  // Interoperability with Gmpq
-  inline Int64Pq& operator+=(Gmpq d) { return (*this) += Int64Pq(d); }
-  inline Int64Pq& operator-=(Gmpq d) { return (*this) -= Int64Pq(d); }
-  inline Int64Pq& operator*=(Gmpq d) { return (*this) *= Int64Pq(d); }
-  inline Int64Pq& operator/=(Gmpq d) { return (*this) /= Int64Pq(d); }
-  inline bool operator==(Gmpq d) const { return (*this) == Int64Pq(d); }
-  inline bool operator< (Gmpq d) const { return (*this) < Int64Pq(d); }
-  inline bool operator> (Gmpq d) const { return (*this) > Int64Pq(d); }
-  
-  // Interoperability with Gmpz
-  inline Int64Pq& operator+=(Gmpz d) { return (*this) += Int64Pq(d); }
-  inline Int64Pq& operator-=(Gmpz d) { return (*this) -= Int64Pq(d); }
-  inline Int64Pq& operator*=(Gmpz d) { return (*this) *= Int64Pq(d); }
-  inline Int64Pq& operator/=(Gmpz d) { return (*this) /= Int64Pq(d); }
-  inline bool operator==(Gmpz d) const { return (*this) == Int64Pq(d); }
-  inline bool operator< (Gmpz d) const { return (*this) < Int64Pq(d); }
-  inline bool operator> (Gmpz d) const { return (*this) > Int64Pq(d); }
+	bool isExtended() const;
+	const extension_type & getExtended() const;
+	extension_type & getExtended();
+	extension_type asExtended() const;
 
-  // Interoperability with Gmpfr
-  inline Int64Pq& operator+=(Gmpfr d) { return (*this) += Int64Pq(d); }
-  inline Int64Pq& operator-=(Gmpfr d) { return (*this) -= Int64Pq(d); }
-  inline Int64Pq& operator*=(Gmpfr d) { return (*this) *= Int64Pq(d); }
-  inline Int64Pq& operator/=(Gmpfr d) { return (*this) /= Int64Pq(d); }
-  inline bool operator==(Gmpfr d) const { return (*this) == Int64Pq(d); }
-  inline bool operator< (Gmpfr d) const { return (*this) < Int64Pq(d); }
-  inline bool operator> (Gmpfr d) const { return (*this) > Int64Pq(d); }
-  
-  // Interoperability with ExtendedInt
-  inline Int64Pq& operator+=(ExtendedInt d) { return (*this) += Int64Pq(d); }
-  inline Int64Pq& operator-=(ExtendedInt d) { return (*this) -= Int64Pq(d); }
-  inline Int64Pq& operator*=(ExtendedInt d) { return (*this) *= Int64Pq(d); }
-  inline Int64Pq& operator/=(ExtendedInt d) { return (*this) /= Int64Pq(d); }
-  inline bool operator==(ExtendedInt d) const { return (*this) == Int64Pq(d); }
-  inline bool operator< (ExtendedInt d) const { return (*this) < Int64Pq(d); }
-  inline bool operator> (ExtendedInt d) const { return (*this) > Int64Pq(d); }
+	// Interoperability with int
+	inline ExtendedInt64Pq& operator+=(int z) { return (*this) += ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator-=(int z) { return (*this) -= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator*=(int z) { return (*this) *= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator/=(int z) { return (*this) /= ExtendedInt64Pq(z); }
+	inline bool operator==(int z) const {return *this == ExtendedInt64Pq(z); }
+	inline bool operator< (int z) const {return *this < ExtendedInt64Pq(z); }
+	inline bool operator> (int z) const {return *this > ExtendedInt64Pq(z); }
+
+	// Interoperability with long
+	inline ExtendedInt64Pq& operator+=(long z) { return (*this) += ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator-=(long z) { return (*this) -= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator*=(long z) { return (*this) *= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator/=(long z) { return (*this) /= ExtendedInt64Pq(z); }
+	inline bool operator==(long z) const { return *this == ExtendedInt64Pq(z); }
+	inline bool operator< (long z) const { return *this < ExtendedInt64Pq(z); }
+	inline bool operator> (long z) const { return *this > ExtendedInt64Pq(z); }
+
+	// Interoperability with long long
+	inline ExtendedInt64Pq& operator+=(long long z) { return (*this) += ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator-=(long long z) { return (*this) -= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator*=(long long z) { return (*this) *= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator/=(long long z) { return (*this) /= ExtendedInt64Pq(z); }
+	inline bool operator==(long long z) const { return (*this) == ExtendedInt64Pq(z); }
+	inline bool operator< (long long z) const { return (*this) < ExtendedInt64Pq(z); }
+	inline bool operator> (long long z) const { return (*this) > ExtendedInt64Pq(z); }
+
+	// Interoperability with double
+	inline ExtendedInt64Pq& operator+=(double d) { return (*this) += ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator-=(double d) { return (*this) -= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator*=(double d) { return (*this) *= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator/=(double d) { return (*this) /= ExtendedInt64Pq(d); }
+	inline bool operator==(double d) const { return (*this) == ExtendedInt64Pq(d); }
+	inline bool operator< (double d) const { return (*this) < ExtendedInt64Pq(d); }
+	inline bool operator> (double d) const { return (*this) > ExtendedInt64Pq(d); }
+
+	// Interoperability with Gmpq
+	inline ExtendedInt64Pq& operator+=(Gmpq d) { return (*this) += ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator-=(Gmpq d) { return (*this) -= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator*=(Gmpq d) { return (*this) *= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator/=(Gmpq d) { return (*this) /= ExtendedInt64Pq(d); }
+	inline bool operator==(Gmpq d) const { return (*this) == ExtendedInt64Pq(d); }
+	inline bool operator< (Gmpq d) const { return (*this) < ExtendedInt64Pq(d); }
+	inline bool operator> (Gmpq d) const { return (*this) > ExtendedInt64Pq(d); }
+
+	// Interoperability with Gmpz
+	inline ExtendedInt64Pq& operator+=(Gmpz d) { return (*this) += ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator-=(Gmpz d) { return (*this) -= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator*=(Gmpz d) { return (*this) *= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator/=(Gmpz d) { return (*this) /= ExtendedInt64Pq(d); }
+	inline bool operator==(Gmpz d) const { return (*this) == ExtendedInt64Pq(d); }
+	inline bool operator< (Gmpz d) const { return (*this) < ExtendedInt64Pq(d); }
+	inline bool operator> (Gmpz d) const { return (*this) > ExtendedInt64Pq(d); }
+
+	// Interoperability with Gmpfr
+	inline ExtendedInt64Pq& operator+=(Gmpfr d) { return (*this) += ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator-=(Gmpfr d) { return (*this) -= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator*=(Gmpfr d) { return (*this) *= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator/=(Gmpfr d) { return (*this) /= ExtendedInt64Pq(d); }
+	inline bool operator==(Gmpfr d) const { return (*this) == ExtendedInt64Pq(d); }
+	inline bool operator< (Gmpfr d) const { return (*this) < ExtendedInt64Pq(d); }
+	inline bool operator> (Gmpfr d) const { return (*this) > ExtendedInt64Pq(d); }
+
+	// Interoperability with ExtendedInt
+	inline ExtendedInt64Pq& operator+=(ExtendedInt64z d) { return (*this) += ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator-=(ExtendedInt64z d) { return (*this) -= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator*=(ExtendedInt64z d) { return (*this) *= ExtendedInt64Pq(d); }
+	inline ExtendedInt64Pq& operator/=(ExtendedInt64z d) { return (*this) /= ExtendedInt64Pq(d); }
+	inline bool operator==(ExtendedInt64z d) const { return (*this) == ExtendedInt64Pq(d); }
+	inline bool operator< (ExtendedInt64z d) const { return (*this) < ExtendedInt64Pq(d); }
+inline bool operator> (ExtendedInt64z d) const { return (*this) > ExtendedInt64Pq(d); }
 private:
-	bool isExtended() {
-		return m_isExtended;
-	}
-	void set(uint64_t num, uint64_t den) {
-		if (isExtended()) {
-			delete m_v.ptr;
-			m_isExtended = false;
-		}
-		m_v.pq.num = num;
-		m_v.pq.den = den;
-	}
-	void set(const extension_type & v) {
-		if (isExtended()) {
-			getExtended() = v;
-		}
-		else {
-			m_v.ptr = new extension_type(v);
-			m_isExtended = true;
-		}
-	}
+	static constexpr base_type btmin = std::numeric_limits<base_type>::min();
+	static constexpr base_type btmax = std::numeric_limits<base_type>::max();
+	struct PQ {
+		base_type num;
+		base_type den;
+	};
+private:
+	const PQ & get() const;
+	PQ & get() const;
+	void set(base_type num, base_type den);
+	void set(const extension_type & v);
 private:
 	union {
-		struct PQ {
-			uint64_t num;
-			uint64_t den;
-		} pq;
+		PQ pq;
 		extension_type * ptr;
 	} m_v;
 	bool m_isExtended;
 };
 
+// AST for ExtendedInt64Pq
+template<>
+class Algebraic_structure_traits<ExtendedInt64Pq> : public Algebraic_structure_traits_base< ExtendedInt64Pq, Field_tag >  {
+public:
+	typedef Tag_true            Is_exact;
+	typedef Tag_false            Is_numerical_sensitive;
+	
+	class Is_square: public Algebraic_structure_traits<ExtendedInt64Pq::extension_type>::Is_square {
+	public:
+		inline bool operator()( const Algebraic_structure_traits<ExtendedInt64Pq>::Type& x_, Algebraic_structure_traits<ExtendedInt64Pq>::Type& y ) const {
+			return (*this)(x_.asExtended(), y.asExtended());
+		}
+		inline bool operator()( const Algebraic_structure_traits<ExtendedInt64Pq>::Type& x) const {
+			return (*this)(x.asExtended());
+		}
+	};
 
-inline
-Gmpq
-Gmpq::operator-() const
-{
-    Gmpq Res;
-    mpq_neg(Res.mpq(), mpq());
-    return Res;
-}
+	class Simplify: public std::unary_function< Type&, void > {
+	public:
+		inline void operator()(Type& x) const {
+			x.canonicalize();
+		}
+	};
 
-inline
-Gmpq
-Gmpq::operator+() const
-{
-  return Gmpq(mpq());
-}
+};
 
-inline
-Gmpq
-operator+(const Gmpq &x, const Gmpq &y)
-{
-    Gmpq Res;
-    mpq_add(Res.mpq(), x.mpq(), y.mpq());
-    return Res;
-}
+// RET for ExtendedInt64Pq
 
-inline
-Gmpq&
-Gmpq::operator+=(const Gmpq &z)
-{
-    (*this + z).swap(*this);
-    return *this;
-}
+template<>
+class Real_embeddable_traits< ExtendedInt64Pq >: public INTERN_RET::Real_embeddable_traits_base<ExtendedInt64Pq , CGAL::Tag_true > {
+public:
 
-inline
-Gmpq
-operator-(const Gmpq &x, const Gmpq &y)
-{
-    Gmpq Res;
-    mpq_sub(Res.mpq(), x.mpq(), y.mpq());
-    return Res;
-}
+	class Sgn: public std::unary_function< Type, ::CGAL::Sign > {
+	public:
+		::CGAL::Sign operator()( const Type& x ) const {
+			return x.sign();
+		}
+	};
 
-inline
-Gmpq&
-Gmpq::operator-=(const Gmpq &z)
-{
-    (*this - z).swap(*this);
-    return *this;
-}
+	class To_double: public std::unary_function< Type, double > {
+	public:
+		double operator()( const Type& x ) const {
+			return x.to_double();
+		}
+	};
 
-inline
-Gmpq
-operator*(const Gmpq &x, const Gmpq &y)
-{
-    Gmpq Res;
-    mpq_mul(Res.mpq(), x.mpq(), y.mpq());
-    return Res;
-}
+	class To_interval: public Real_embeddable_traits<Gmpq>::To_interval {
+	public:
+		std::pair<double, double> operator()(const Real_embeddable_traits< ExtendedInt64Pq >::Type & x ) const {
+			return (*this)(x.asExtended());
+		}
+	};
+};
 
-inline
-Gmpq&
-Gmpq::operator*=(const Gmpq &z)
-{
-    (*this * z).swap(*this);
-    return *this;
-}
-
-inline
-Gmpq
-operator/(const Gmpq &x, const Gmpq &y)
-{
-    CGAL_precondition(y != 0);
-    Gmpq Res;
-    mpq_div(Res.mpq(), x.mpq(), y.mpq());
-    return Res;
-}
-
-inline
-Gmpq&
-Gmpq::operator/=(const Gmpq &z)
-{
-    (*this / z).swap(*this);
-    return *this;
-}
-
-inline
-Gmpq& Gmpq::operator+=(const Gmpz &z){
-  if(unique()){
-    mpz_addmul(mpq_numref(mpq()),mpq_denref(mpq()),z.mpz());
-  }else{
-    Gmpq result;
-    mpz_mul(mpq_numref(result.mpq()),
-            mpq_denref(mpq()),
-            z.mpz());
-    mpz_add(mpq_numref(result.mpq()),
-            mpq_numref(mpq()),
-            mpq_numref(result.mpq()));
-    mpz_set(mpq_denref(result.mpq()),mpq_denref(mpq()));
-    swap(result);
-  }
-  return *this;
-}
-
-inline
-Gmpq& Gmpq::operator-=(const Gmpz &z){
-  if(unique()){
-    mpz_submul(mpq_numref(mpq()),mpq_denref(mpq()),z.mpz());
-  }else{
-    Gmpq result;
-    mpz_mul(mpq_numref(result.mpq()),
-            mpq_denref(mpq()),
-            z.mpz());
-    mpz_sub(mpq_numref(result.mpq()),
-            mpq_numref(mpq()),
-            mpq_numref(result.mpq()));
-    mpz_set(mpq_denref(result.mpq()),mpq_denref(mpq()));
-    swap(result);
-  }
-  return *this;
-}
-
-inline
-Gmpq& Gmpq::operator*=(const Gmpz &z){
-  if(unique()){
-    mpz_mul(mpq_numref(mpq()),mpq_numref(mpq()),z.mpz());
-    mpq_canonicalize(mpq());
-  }else{
-    Gmpq result;
-    mpz_mul(mpq_numref(result.mpq()),mpq_numref(mpq()),z.mpz());
-    mpz_set(mpq_denref(result.mpq()),mpq_denref(mpq()));
-    mpq_canonicalize(result.mpq());
-    swap(result);
-  }
-  return *this;
-}
-
-inline
-Gmpq& Gmpq::operator/=(const Gmpz &z){
-  if(unique()){
-    mpz_mul(mpq_denref(mpq()),mpq_denref(mpq()),z.mpz());
-    mpq_canonicalize(mpq());
-  }else{
-    Gmpq result;
-    mpz_mul(mpq_denref(result.mpq()),mpq_denref(mpq()),z.mpz());
-    mpz_set(mpq_numref(result.mpq()),mpq_numref(mpq()));
-    mpq_canonicalize(result.mpq());
-    swap(result);
-  }
-  return *this;
-}
-
-inline
-double
-Gmpq::to_double() const
-{ return mpq_get_d(mpq()); }
-
-inline
-Sign
-Gmpq::sign() const
-{ return static_cast<Sign>(mpq_sgn(mpq())); }
-
-inline
-std::ostream&
-operator<<(std::ostream& os, const Gmpq &z)
-{
-  os << z.numerator() << "/" << z.denominator();
-  return os;
-}
-
-// inline
-// std::istream&
-// operator>>(std::istream& is, Gmpq &z)
-// {
-//   char c;
-//   Gmpz n, d;
-//   is >> n;
-//   is >> c;
-//   //CGAL_assertion(!is || c == '/');
-//   if (c != '/'){
-//     is.setstate(std::ios_base::failbit);
-//     return is;
-//   }
-//   is >> d;
-//   if (!is.fail()) {
-//     z = Gmpq(n,d);
-//   }
-//   return is;
-// }
-
-
-
-inline
-std::istream&
-operator>>(std::istream& is, Gmpq &z)
-{
-  internal::read_float_or_quotient<Gmpz,Gmpq>(is, z);
-  return is;
-}
-
-
-inline Gmpq min BOOST_PREVENT_MACRO_SUBSTITUTION(const Gmpq& x,const Gmpq& y){
-  return (x<=y)?x:y;
-}
-inline Gmpq max BOOST_PREVENT_MACRO_SUBSTITUTION(const Gmpq& x,const Gmpq& y){
-  return (x>=y)?x:y;
-}
+/*! \ingroup NiX_Fraction_traits_spec
+ *  \brief Specialization of Fraction_traits for ExtendedInt64Pq
+ */
+template <>
+class Fraction_traits< ExtendedInt64Pq > {
+public:
+	typedef ExtendedInt64Pq Type;
+	typedef ::CGAL::Tag_true Is_fraction;
+	typedef ExtendedInt64z Numerator_type;
+	typedef ExtendedInt64z Denominator_type;
+	typedef Algebraic_structure_traits<ExtendedInt64z>::Gcd Common_factor;
+	class Decompose {
+	public:
+		typedef ExtendedInt64Pq first_argument_type;
+		typedef ExtendedInt64z& second_argument_type;
+		typedef ExtendedInt64z& third_argument_type;
+		void operator () (const ExtendedInt64Pq& rat, ExtendedInt64z& num,ExtendedInt64z& den) {
+			num = rat.numerator();
+			den = rat.denominator();
+		}
+	};
+	class Compose {
+	public:
+		typedef ExtendedInt64z first_argument_type;
+		typedef ExtendedInt64z second_argument_type;
+		typedef ExtendedInt64Pq result_type;
+		ExtendedInt64Pq operator () (const ExtendedInt64z& num,const ExtendedInt64z& den) {
+			return ExtendedInt64Pq(num, den);
+		}
+	};
+};
 
 } //namespace CGAL
 
@@ -427,4 +300,4 @@ inline Gmpq max BOOST_PREVENT_MACRO_SUBSTITUTION(const Gmpq& x,const Gmpq& y){
 #  pragma warning(pop)
 #endif
 
-#endif // CGAL_GMPQ_TYPE_H
+#endif
