@@ -103,6 +103,8 @@ if (CGAL_FOUND)
 	set(LIB_SOURCES_CPP
 		${LIB_SOURCES_CPP}
 		src/CGAL/Conversion.cpp
+		src/CGAL/ExtendedInt64z.cpp
+# 		src/CGAL/ExtendedInt64Pq.cpp
 	)
 endif(CGAL_FOUND)
 

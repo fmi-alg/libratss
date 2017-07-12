@@ -3,11 +3,36 @@
 
 namespace CGAL {
 
-ExtendedInt64Pq::ExtendedInt64Pq() {}
-ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq & other);
-ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq && other);
+ExtendedInt64Pq::ExtendedInt64Pq() : m_isExtended(false) {
+	m_v.pq.num = 0;
+	m_v.pq.den = 1;
+}
 
-ExtendedInt64Pq::ExtendedInt64Pq(const CGAL::Gmpq & q);
+ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq & other) : m_isExtended(false) {
+	if (other.isExtended()) {
+		set(other.getExtended());
+	}
+	else {
+		set(other.get().num, other.get().den);
+	}
+}
+
+ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq && other) : m_isExtended(false) {
+	if (other.isExtended()) {
+		m_isExtended = true;
+		m_v.ptr = other.m_v.ptr;
+		
+		other.m_isExtended = false;
+		other.m_v.ptr = 0;
+	}
+	else {
+		m_v.pq = other.m_v.pq;
+	}
+}
+
+ExtendedInt64Pq::ExtendedInt64Pq(const CGAL::Gmpq & q) : m_isExtended(false) {
+	set(q);
+}
 
 ExtendedInt64Pq::ExtendedInt64Pq(int n) :
 ExtendedInt64Pq(base_type(n))
