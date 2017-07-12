@@ -47,7 +47,7 @@ class ExtendedInt64Pq:
 	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpq
 	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpz
 	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpfr
-	, boost::ordered_field_operators2< ExtendedInt64Pq, ExtendedInt64
+	, boost::ordered_field_operators2< ExtendedInt64Pq, ExtendedInt64z
 		> > > > > > > > >
 {
 public:
@@ -62,33 +62,35 @@ public:
 	typedef CGAL::ExtendedInt64z::base_type base_type;
 	typedef CGAL::Gmpq extension_type;
 public:
-	ExtendedInt64Pq() {}
+	ExtendedInt64Pq();
 	ExtendedInt64Pq(const ExtendedInt64Pq & other);
-	ExtendedInt64Pq(const ExtendedInt64Pq && other);
+	ExtendedInt64Pq(ExtendedInt64Pq&& other);
 
 	ExtendedInt64Pq(const CGAL::Gmpq & q);
 
-	ExtendedInt64Pq(int n);
-	ExtendedInt64Pq(unsigned int n);
-	ExtendedInt64Pq(long n);
-	ExtendedInt64Pq(unsigned long n);
-	ExtendedInt64Pq(unsigned long long n);
-	ExtendedInt64Pq(long long n);
+	ExtendedInt64Pq(int32_t n);
+	ExtendedInt64Pq(uint32_t n);
+	ExtendedInt64Pq(base_type n);
+	ExtendedInt64Pq(uint64_t n);
 	ExtendedInt64Pq(const Gmpz& n);
 	ExtendedInt64Pq(const ExtendedInt64z & n);
 	ExtendedInt64Pq(const Gmpfr &f);
 
-	ExtendedInt64Pq(int n, int d);
-	ExtendedInt64Pq(signed long n, unsigned long d);
-	ExtendedInt64Pq(unsigned long n, unsigned long d);
+	ExtendedInt64Pq(int32_t n, int32_t d);
+	ExtendedInt64Pq(base_type n, base_type d);
+	ExtendedInt64Pq(base_type n, uint64_t d);
+	ExtendedInt64Pq(uint64_t n, uint64_t d);
 	ExtendedInt64Pq(const ExtendedInt64z& n, const ExtendedInt64z& d);
 	ExtendedInt64Pq(const Gmpz& n, const Gmpz& d);
 	ExtendedInt64Pq(double d);
-
+	
 	ExtendedInt64Pq(const std::string& str, int base = 10);
-
+	
 	~ExtendedInt64Pq();
-
+	
+	ExtendedInt64Pq& operator=(const ExtendedInt64Pq & other);
+	ExtendedInt64Pq& operator=(ExtendedInt64Pq && other);
+public:
 	// Gives the memory size in bytes. (not documented yet)
 	std::size_t size() const;
 	
@@ -117,32 +119,32 @@ public:
 	extension_type & getExtended();
 	extension_type asExtended() const;
 
-	// Interoperability with int
-	inline ExtendedInt64Pq& operator+=(int z) { return (*this) += ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator-=(int z) { return (*this) -= ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator*=(int z) { return (*this) *= ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator/=(int z) { return (*this) /= ExtendedInt64Pq(z); }
-	inline bool operator==(int z) const {return *this == ExtendedInt64Pq(z); }
-	inline bool operator< (int z) const {return *this < ExtendedInt64Pq(z); }
-	inline bool operator> (int z) const {return *this > ExtendedInt64Pq(z); }
+	// Interoperability with int32_t
+	inline ExtendedInt64Pq& operator+=(int32_t z) { return (*this) += ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator-=(int32_t z) { return (*this) -= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator*=(int32_t z) { return (*this) *= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator/=(int32_t z) { return (*this) /= ExtendedInt64Pq(z); }
+	inline bool operator==(int32_t z) const {return *this == ExtendedInt64Pq(z); }
+	inline bool operator< (int32_t z) const {return *this < ExtendedInt64Pq(z); }
+	inline bool operator> (int32_t z) const {return *this > ExtendedInt64Pq(z); }
 
-	// Interoperability with long
-	inline ExtendedInt64Pq& operator+=(long z) { return (*this) += ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator-=(long z) { return (*this) -= ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator*=(long z) { return (*this) *= ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator/=(long z) { return (*this) /= ExtendedInt64Pq(z); }
-	inline bool operator==(long z) const { return *this == ExtendedInt64Pq(z); }
-	inline bool operator< (long z) const { return *this < ExtendedInt64Pq(z); }
-	inline bool operator> (long z) const { return *this > ExtendedInt64Pq(z); }
+	// Interoperability with int64_t
+	inline ExtendedInt64Pq& operator+=(int64_t z) { return (*this) += ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator-=(int64_t z) { return (*this) -= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator*=(int64_t z) { return (*this) *= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator/=(int64_t z) { return (*this) /= ExtendedInt64Pq(z); }
+	inline bool operator==(int64_t z) const { return *this == ExtendedInt64Pq(z); }
+	inline bool operator< (int64_t z) const { return *this < ExtendedInt64Pq(z); }
+	inline bool operator> (int64_t z) const { return *this > ExtendedInt64Pq(z); }
 
-	// Interoperability with long long
-	inline ExtendedInt64Pq& operator+=(long long z) { return (*this) += ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator-=(long long z) { return (*this) -= ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator*=(long long z) { return (*this) *= ExtendedInt64Pq(z); }
-	inline ExtendedInt64Pq& operator/=(long long z) { return (*this) /= ExtendedInt64Pq(z); }
-	inline bool operator==(long long z) const { return (*this) == ExtendedInt64Pq(z); }
-	inline bool operator< (long long z) const { return (*this) < ExtendedInt64Pq(z); }
-	inline bool operator> (long long z) const { return (*this) > ExtendedInt64Pq(z); }
+	// Interoperability with uint64_t
+	inline ExtendedInt64Pq& operator+=(uint64_t z) { return (*this) += ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator-=(uint64_t z) { return (*this) -= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator*=(uint64_t z) { return (*this) *= ExtendedInt64Pq(z); }
+	inline ExtendedInt64Pq& operator/=(uint64_t z) { return (*this) /= ExtendedInt64Pq(z); }
+	inline bool operator==(uint64_t z) const { return (*this) == ExtendedInt64Pq(z); }
+	inline bool operator< (uint64_t z) const { return (*this) < ExtendedInt64Pq(z); }
+	inline bool operator> (uint64_t z) const { return (*this) > ExtendedInt64Pq(z); }
 
 	// Interoperability with double
 	inline ExtendedInt64Pq& operator+=(double d) { return (*this) += ExtendedInt64Pq(d); }
@@ -187,7 +189,8 @@ public:
 	inline ExtendedInt64Pq& operator/=(ExtendedInt64z d) { return (*this) /= ExtendedInt64Pq(d); }
 	inline bool operator==(ExtendedInt64z d) const { return (*this) == ExtendedInt64Pq(d); }
 	inline bool operator< (ExtendedInt64z d) const { return (*this) < ExtendedInt64Pq(d); }
-inline bool operator> (ExtendedInt64z d) const { return (*this) > ExtendedInt64Pq(d); }
+	inline bool operator> (ExtendedInt64z d) const { return (*this) > ExtendedInt64Pq(d); }
+	
 private:
 	static constexpr base_type btmin = std::numeric_limits<base_type>::min();
 	static constexpr base_type btmax = std::numeric_limits<base_type>::max();
@@ -197,7 +200,8 @@ private:
 	};
 private:
 	const PQ & get() const;
-	PQ & get() const;
+	PQ & get();
+	void set(const PQ & pq);
 	void set(base_type num, base_type den);
 	void set(const extension_type & v);
 private:
@@ -218,10 +222,13 @@ public:
 	class Is_square: public Algebraic_structure_traits<ExtendedInt64Pq::extension_type>::Is_square {
 	public:
 		inline bool operator()( const Algebraic_structure_traits<ExtendedInt64Pq>::Type& x_, Algebraic_structure_traits<ExtendedInt64Pq>::Type& y ) const {
-			return (*this)(x_.asExtended(), y.asExtended());
+			auto ye = y.asExtended();
+			bool ret = Algebraic_structure_traits<ExtendedInt64Pq::extension_type>::Is_square::operator()(x_.asExtended(), ye);
+			y = Algebraic_structure_traits<ExtendedInt64Pq>::Type(ye);
+			return ret;
 		}
 		inline bool operator()( const Algebraic_structure_traits<ExtendedInt64Pq>::Type& x) const {
-			return (*this)(x.asExtended());
+			return Algebraic_structure_traits<ExtendedInt64Pq::extension_type>::Is_square::operator()(x.asExtended());
 		}
 	};
 
@@ -257,7 +264,7 @@ public:
 	class To_interval: public Real_embeddable_traits<Gmpq>::To_interval {
 	public:
 		std::pair<double, double> operator()(const Real_embeddable_traits< ExtendedInt64Pq >::Type & x ) const {
-			return (*this)(x.asExtended());
+			return Real_embeddable_traits<Gmpq>::To_interval::operator()(x.asExtended());
 		}
 	};
 };
