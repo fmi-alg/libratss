@@ -174,6 +174,114 @@ inline ExtendedInt64z max BOOST_PREVENT_MACRO_SUBSTITUTION(const ExtendedInt64z&
   return (x>=y)?x:y;
 }
 
+// Algebraic structure traits
+template<>
+class Algebraic_structure_traits<ExtendedInt64z> : public Algebraic_structure_traits_base<ExtendedInt64z, Euclidean_ring_tag >  {
+private:
+	typedef Algebraic_structure_traits<ExtendedInt64z::extension_type> AstExt;
+	typedef Algebraic_structure_traits<ExtendedInt64z> AstBase;
+public:
+	typedef Tag_true            Is_exact;
+	typedef Tag_false           Is_numerical_sensitive;
+
+	typedef INTERN_AST::Is_square_per_sqrt< Type > Is_square;
+	
+	class Integral_division: private std::binary_function<Type, Type, Type> {
+	public:
+		Type operator()(const Type& x, const Type& y) const {
+			return Type(m_p( x.asExtended(), y.asExtended() ) );
+		}
+	private:
+		AstExt::Integral_division m_p;
+	};
+
+	class Gcd: private std::binary_function<Type, Type, Type> {
+	public:
+		Type operator()( const Type& x, const Type& y ) const {
+			return Type( m_p(x.asExtended(), y.asExtended()) );
+		}
+
+		Type operator()(const Type& x, const int& y ) const {
+			return Type( m_p(x.asExtended(), y) );
+		}
+
+		Type operator()(const int& x, const Type& y ) const {
+			return Type( m_p(x, y.asExtended()) );
+		}
+	private:
+		AstExt::Gcd m_p;
+	};
+
+	typedef INTERN_AST::Div_per_operator< Type > Div;
+	typedef INTERN_AST::Mod_per_operator< Type > Mod;
+
+	class Sqrt: public std::unary_function< Type, Type > {
+	public:
+		Type operator()(const Type& x ) const {
+			return Type( m_p(x.asExtended()) );
+		}
+	private:
+		AstExt::Sqrt m_p;
+	};
+};
+
+template<>
+class Real_embeddable_traits<ExtendedInt64z>: public INTERN_RET::Real_embeddable_traits_base<ExtendedInt64z , CGAL::Tag_true> {
+private:
+	typedef Real_embeddable_traits<ExtendedInt64z> RetBase;
+	typedef Real_embeddable_traits<ExtendedInt64z::extension_type> RetExt;
+public:
+	class Sgn: public std::unary_function< Type, ::CGAL::Sign > {
+	public:
+		::CGAL::Sign operator()( const Type& x ) const {
+			return x.sign();
+		}
+	};
+
+	class To_double: public std::unary_function<Type, double> {
+	public:
+		double operator()( const Type& x ) const {
+			return x.to_double();
+		}
+	};
+
+	class To_interval: public std::unary_function< Type, std::pair< double, double > > {
+	public:
+		std::pair<double, double> operator()( const Type& x ) const {
+			return m_p( x.asExtended() );
+		}
+	private:
+		RetExt::To_interval m_p;
+	};
+};
+
+template<>
+class Algebraic_structure_traits< Quotient<ExtendedInt64z> >: public INTERN_QUOTIENT::Algebraic_structure_traits_quotient_base<Quotient<ExtendedInt64z> >{
+private:
+	typedef Algebraic_structure_traits< Quotient<ExtendedInt64z::extension_type> > AstExt;
+	typedef Algebraic_structure_traits< Quotient<ExtendedInt64z> > AstBase;
+public:
+	typedef Quotient<ExtendedInt64z> Type;
+
+	class To_double: public std::unary_function<Quotient<ExtendedInt64z>, double> {
+	public:
+		double operator()(const Quotient<ExtendedInt64z>& quot){
+			return m_p(Quotient<ExtendedInt64z::extension_type>(quot.num.asExtended(), quot.den.asExtended()));
+		}
+	private:
+		AstExt::To_double m_p;
+	};
+};
+
+template <>
+class Needs_parens_as_product<ExtendedInt64z> {
+public:
+	bool operator()(const ExtendedInt64z& x) {
+		return m_p( x.asExtended() );
+	}
+private:
+	Needs_parens_as_product<Gmpz> m_p;
+};
 
 } //namespace CGAL
 

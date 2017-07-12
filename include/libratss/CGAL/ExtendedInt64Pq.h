@@ -215,21 +215,26 @@ private:
 // AST for ExtendedInt64Pq
 template<>
 class Algebraic_structure_traits<ExtendedInt64Pq> : public Algebraic_structure_traits_base< ExtendedInt64Pq, Field_tag >  {
+private:
+	typedef Algebraic_structure_traits<ExtendedInt64Pq::extension_type> AstExt;
+	typedef Algebraic_structure_traits<ExtendedInt64Pq> AstBase;
 public:
 	typedef Tag_true            Is_exact;
 	typedef Tag_false            Is_numerical_sensitive;
 	
-	class Is_square: public Algebraic_structure_traits<ExtendedInt64Pq::extension_type>::Is_square {
+	class Is_square: public std::binary_function<Type, Type&, bool >  {
 	public:
-		inline bool operator()( const Algebraic_structure_traits<ExtendedInt64Pq>::Type& x_, Algebraic_structure_traits<ExtendedInt64Pq>::Type& y ) const {
+		inline bool operator()( const Type& x_, Type& y ) const {
 			auto ye = y.asExtended();
-			bool ret = Algebraic_structure_traits<ExtendedInt64Pq::extension_type>::Is_square::operator()(x_.asExtended(), ye);
-			y = Algebraic_structure_traits<ExtendedInt64Pq>::Type(ye);
+			bool ret = m_p(x_.asExtended(), ye);
+			y = Type(ye);
 			return ret;
 		}
-		inline bool operator()( const Algebraic_structure_traits<ExtendedInt64Pq>::Type& x) const {
-			return Algebraic_structure_traits<ExtendedInt64Pq::extension_type>::Is_square::operator()(x.asExtended());
+		inline bool operator()( const Type& x) const {
+			return m_p(x.asExtended());
 		}
+	private:
+		AstExt::Is_square m_p;
 	};
 
 	class Simplify: public std::unary_function< Type&, void > {
@@ -245,6 +250,9 @@ public:
 
 template<>
 class Real_embeddable_traits< ExtendedInt64Pq >: public INTERN_RET::Real_embeddable_traits_base<ExtendedInt64Pq , CGAL::Tag_true > {
+private:
+	typedef Real_embeddable_traits< ExtendedInt64Pq::extension_type > RetExt;
+	typedef Real_embeddable_traits< ExtendedInt64Pq > RetBase;
 public:
 
 	class Sgn: public std::unary_function< Type, ::CGAL::Sign > {
@@ -261,11 +269,13 @@ public:
 		}
 	};
 
-	class To_interval: public Real_embeddable_traits<Gmpq>::To_interval {
+	class To_interval: public std::unary_function< Type, std::pair< double, double > > {
 	public:
-		std::pair<double, double> operator()(const Real_embeddable_traits< ExtendedInt64Pq >::Type & x ) const {
-			return Real_embeddable_traits<Gmpq>::To_interval::operator()(x.asExtended());
+		std::pair<double, double> operator()(const Type & x ) const {
+			return m_p( x.asExtended() );
 		}
+	private:
+		RetExt::To_interval m_p;
 	};
 };
 
