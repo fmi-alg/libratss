@@ -15,7 +15,7 @@ m_isExtended(false)
 		set(other.getExtended());
 	}
 	else {
-		m_v.i = other.get();
+		set(other.get());
 	}
 }
 
@@ -30,7 +30,7 @@ m_isExtended(false)
 		other.m_isExtended = false;
 	}
 	else {
-		m_v.i = other.m_v.i;
+		set(other.get());
 	}
 }
 
@@ -75,7 +75,7 @@ m_isExtended(false)
 ExtendedInt64z::ExtendedInt64z(const std::string& str, int base) :
 m_isExtended(false)
 {
-	set(extension_type(str, base));
+	set( extension_type(str, base) );
 }
 
 
@@ -94,6 +94,13 @@ ExtendedInt64z& ExtendedInt64z::operator=(ExtendedInt64z && other) {
 		using std::swap;
 		swap(m_v.ptr, other.m_v.ptr);
 	}
+	else if (other.isExtended()) {
+		m_v.ptr = other.m_v.ptr;
+		m_isExtended = true;
+		
+		other.m_v.ptr = 0;
+		other.m_isExtended = false;
+	}
 	else {
 		set(other.get());
 	}
@@ -105,7 +112,12 @@ size_t ExtendedInt64z::size() const {
 }
 
 double ExtendedInt64z::to_double() const {
-	return asExtended().to_double();
+	if (isExtended()) {
+		return getExtended().to_double();
+	}
+	else {
+		return get();
+	}
 }
 
 Sign ExtendedInt64z::sign() const {
@@ -127,7 +139,7 @@ ExtendedInt64z & ExtendedInt64z::operator+=(const ExtendedInt64z & other) {
 	else if (other.isExtended()) {
 		set(asExtended() + other.getExtended());
 	}
-	else {
+	else {//TODO: fast imp
 		set(asExtended() + other.asExtended());
 	}
 	return *this;
@@ -143,7 +155,7 @@ ExtendedInt64z & ExtendedInt64z::operator-=(const ExtendedInt64z & other) {
 	else if (other.isExtended()) {
 		set(asExtended() - other.getExtended());
 	}
-	else {
+	else {//TODO: fast imp
 		set(asExtended() - other.asExtended());
 	}
 	return *this;
@@ -159,7 +171,7 @@ ExtendedInt64z & ExtendedInt64z::operator*=(const ExtendedInt64z & other) {
 	else if (other.isExtended()) {
 		set(asExtended() * other.getExtended());
 	}
-	else {
+	else {//TODO: fast imp
 		set(asExtended() * other.asExtended());
 	}
 	return *this;
@@ -262,16 +274,16 @@ bool ExtendedInt64z::operator<(const ExtendedInt64z & other) const {
 
 bool ExtendedInt64z::operator==(const ExtendedInt64z & other) const {
 	if (isExtended() && other.isExtended()) {
-		return getExtended() < other.getExtended();
+		return getExtended() == other.getExtended();
 	}
 	else if (isExtended()) {
-		return getExtended() < other.get();
+		return getExtended() == other.get();
 	}
 	else if (other.isExtended()) {
-		return get() < other.getExtended();
+		return get() == other.getExtended();
 	}
 	else {
-		return get() < other.get();
+		return get() == other.get();
 	}
 }
 
@@ -309,10 +321,10 @@ ExtendedInt64z& ExtendedInt64z::operator>>= (const unsigned long& i) {
 	}
 	else {
 		if (false) { //TODO: do correct overflow check here
-			get() <<= i;
+			get() >>= i;
 		}
 		else {
-			set( asExtended() << i );
+			set( asExtended() >> i );
 		}
 	}
 	return *this;
@@ -327,7 +339,7 @@ ExtendedInt64z& ExtendedInt64z::operator++() {
 			++get();
 		}
 		else {
-			set( ++asExtended());
+			set( ++asExtended() );
 		}
 	}
 	return *this;
@@ -342,7 +354,7 @@ ExtendedInt64z& ExtendedInt64z::operator--() {
 			--get();
 		}
 		else {
-			set( --asExtended());
+			set( --asExtended() );
 		}
 	}
 	return *this;
@@ -390,12 +402,17 @@ void ExtendedInt64z::set(base_type v) {
 }
 
 void ExtendedInt64z::set(const extension_type & v) {
-	if (isExtended()) {
-		*m_v.ptr = v;
+	if (::mpz_fits_slong_p(v.mpz())) {
+		set( ::mpz_get_si(v.mpz()) );
 	}
 	else {
-		m_v.ptr = new extension_type(v);
-		m_isExtended = true;
+		if (isExtended()) {
+			getExtended() = v;
+		}
+		else {
+			m_v.ptr = new extension_type(v);
+			m_isExtended = true;
+		}
 	}
 }
 
