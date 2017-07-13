@@ -1,6 +1,47 @@
 #include <libratss/Conversion.h>
+#include <libratss/CGAL/Conversion.h>
 
 namespace LIB_RATSS_NAMESPACE {
+
+//BEGIN CGAL::ExtendedInt64Pq specilizations
+
+Conversion<CGAL::ExtendedInt64Pq>::type
+Conversion<CGAL::ExtendedInt64Pq>::moveFrom(const mpq_class & v) {
+	return CGAL::ExtendedInt64Pq( Conversion<CGAL::ExtendedInt64Pq::extension_type>::moveFrom(v) );
+}
+
+mpq_class
+Conversion<CGAL::ExtendedInt64Pq>::toMpq(const type & v) {
+	if (v.isExtended()) {
+		return Conversion<CGAL::ExtendedInt64Pq::extension_type>::toMpq( v.getExtended() );
+	}
+	else {
+		return mpq_class(v.numerator().get(), v.denominator().get());
+	}
+}
+
+mpfr::mpreal
+Conversion<CGAL::ExtendedInt64Pq>::toMpreal(const type & v, int precision) {
+	return Conversion<CGAL::ExtendedInt64Pq::extension_type>::toMpreal(v.asExtended(), precision);
+}
+
+Conversion< CGAL::Lazy_exact_nt<CGAL::ExtendedInt64Pq> >::type
+Conversion< CGAL::Lazy_exact_nt<CGAL::ExtendedInt64Pq> >::moveFrom(const mpq_class & v) {
+	return type( Conversion<CGAL::ExtendedInt64Pq>::moveFrom(v) );
+}
+
+mpq_class
+Conversion< CGAL::Lazy_exact_nt<CGAL::ExtendedInt64Pq> >::toMpq(const type & v) {
+	return Conversion<CGAL::ExtendedInt64Pq>::toMpq(v.exact());
+}
+
+mpfr::mpreal
+Conversion< CGAL::Lazy_exact_nt<CGAL::ExtendedInt64Pq> >::toMpreal(const type & v, int precision) {
+	return Conversion<CGAL::ExtendedInt64Pq>::toMpreal(v.exact(), precision);
+}
+
+//END CGAL::ExtendedInt64Pq specilizations
+//BEGIN CGAL::Gmpq specilizations
 
 Conversion<CGAL::Gmpq>::type
 Conversion<CGAL::Gmpq>::moveFrom(const mpq_class & v) {
@@ -31,6 +72,8 @@ mpfr::mpreal
 Conversion< CGAL::Lazy_exact_nt<CGAL::Gmpq> >::toMpreal(const type & v, int precision) {
 	return Conversion<CGAL::Gmpq>::toMpreal(v.exact(), precision);
 }
+
+//END CGAL::Gmpq specilizations
 
 Conversion<CORE::Expr>::type
 Conversion<CORE::Expr>::moveFrom(const mpq_class & v) {
