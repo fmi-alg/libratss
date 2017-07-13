@@ -91,7 +91,7 @@ class Epeceik
 
 #endif // no CGAL_DONT_USE_LAZY_KERNEL
 
-typedef Epeceik Exact_predicates_exact_constructions_extened_integer_kernel;
+typedef Epeceik Exact_predicates_exact_constructions_extended_integer_kernel;
 
 template <>
 struct Triangulation_structural_filtering_traits<Epeceik> {
