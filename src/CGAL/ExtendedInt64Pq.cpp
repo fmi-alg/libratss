@@ -3,21 +3,26 @@
 
 namespace CGAL {
 
-ExtendedInt64Pq::ExtendedInt64Pq() : m_isExtended(false) {
-	m_v.pq.num = 0;
-	m_v.pq.den = 1;
+ExtendedInt64Pq::ExtendedInt64Pq() :
+m_isExtended(false)
+{
+	set(base_type(0), base_type(1));
 }
 
-ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq & other) : m_isExtended(false) {
+ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq & other) :
+m_isExtended(false)
+{
 	if (other.isExtended()) {
 		set(other.getExtended());
 	}
 	else {
-		set(other.get().num, other.get().den);
+		set(other.get());
 	}
 }
 
-ExtendedInt64Pq::ExtendedInt64Pq(ExtendedInt64Pq && other) : m_isExtended(false) {
+ExtendedInt64Pq::ExtendedInt64Pq(ExtendedInt64Pq && other) :
+m_isExtended(false)
+{
 	if (other.isExtended()) {
 		m_isExtended = true;
 		m_v.ptr = other.m_v.ptr;
@@ -26,11 +31,13 @@ ExtendedInt64Pq::ExtendedInt64Pq(ExtendedInt64Pq && other) : m_isExtended(false)
 		other.m_v.ptr = 0;
 	}
 	else {
-		m_v.pq = other.m_v.pq;
+		set(other.get());
 	}
 }
 
-ExtendedInt64Pq::ExtendedInt64Pq(const CGAL::Gmpq & q) : m_isExtended(false) {
+ExtendedInt64Pq::ExtendedInt64Pq(const CGAL::Gmpq & q) :
+m_isExtended(false)
+{
 	set(q);
 }
 
@@ -48,7 +55,9 @@ m_isExtended(false)
 	set(n, base_type(1));
 }
 
-ExtendedInt64Pq::ExtendedInt64Pq(uint64_t n) : ExtendedInt64Pq() {
+ExtendedInt64Pq::ExtendedInt64Pq(uint64_t n) :
+m_isExtended(false)
+{
 	if (n < (uint64_t) btmax) {
 		set(base_type(n), base_type(1));
 	}
@@ -61,9 +70,11 @@ ExtendedInt64Pq::ExtendedInt64Pq(const Gmpz& n) :
 ExtendedInt64Pq(extension_type(n))
 {}
 
-ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64z & n) : ExtendedInt64Pq() {
+ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64z & n) :
+m_isExtended(false)
+{
 	if (n.isExtended()) {
-		set(extension_type(n.getExtended()));
+		set( extension_type(n.getExtended()) );
 	}
 	else {
 		set(n.get(), base_type(1));
@@ -95,7 +106,9 @@ m_isExtended(false)
 	}
 }
 
-ExtendedInt64Pq::ExtendedInt64Pq(uint64_t n, uint64_t d) : ExtendedInt64Pq() {
+ExtendedInt64Pq::ExtendedInt64Pq(uint64_t n, uint64_t d) :
+m_isExtended(false)
+{
 	if (n < uint64_t(btmax) && d < uint64_t(btmax) ) {
 		set(base_type(n), base_type(d));
 	}
@@ -104,7 +117,9 @@ ExtendedInt64Pq::ExtendedInt64Pq(uint64_t n, uint64_t d) : ExtendedInt64Pq() {
 	}
 }
 
-ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64z& n, const ExtendedInt64z& d) : ExtendedInt64Pq() {
+ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64z& n, const ExtendedInt64z& d) :
+m_isExtended(false)
+{
 	if (n.isExtended() && d.isExtended()) {
 		set( extension_type( n.getExtended(), d.getExtended()) );
 	}
@@ -115,7 +130,6 @@ ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64z& n, const ExtendedInt64z& 
 		set( extension_type( n.asExtended(), d.getExtended()) );
 	}
 	else {
-		using std::abs;
 		set(n.get(), d.get());
 	}
 }
@@ -124,7 +138,9 @@ ExtendedInt64Pq::ExtendedInt64Pq(const Gmpz& n, const Gmpz& d) :
 ExtendedInt64Pq(extension_type(n, d))
 {}
 
-ExtendedInt64Pq::ExtendedInt64Pq(double d) : ExtendedInt64Pq() {
+ExtendedInt64Pq::ExtendedInt64Pq(double d) :
+m_isExtended(false)
+{
 	if (double(base_type(d)) == d) {
 		set(base_type(d), base_type(1));
 	}
@@ -162,6 +178,13 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator=(ExtendedInt64Pq && other) {
 			using std::swap;
 			swap(m_v.ptr, other.m_v.ptr);
 		}
+		else {
+			m_isExtended = true;
+			m_v.ptr = other.m_v.ptr;
+			
+			other.m_isExtended = false;
+			m_v.ptr = 0;
+		}
 	}
 	else {
 		set(other.get());
@@ -179,7 +202,7 @@ void ExtendedInt64Pq::canonicalize() {
 	}
 	else {
 		auto tmp = asExtended();
-		::mpq_canonicalize(getExtended().mpq());
+		::mpq_canonicalize(tmp.mpq());
 		set(tmp);
 	}
 }
@@ -189,7 +212,7 @@ ExtendedInt64z ExtendedInt64Pq::numerator() const {
 		return ExtendedInt64z( getExtended().numerator() );
 	}
 	else {
-		return ExtendedInt64z( m_v.pq.num );
+		return ExtendedInt64z( get().num );
 	}
 }
 
@@ -198,7 +221,7 @@ ExtendedInt64z ExtendedInt64Pq::denominator() const {
 		return ExtendedInt64z( getExtended().denominator() );
 	}
 	else {
-		return ExtendedInt64z( m_v.pq.den );
+		return ExtendedInt64z( get().den );
 	}
 }
 
@@ -216,13 +239,11 @@ ExtendedInt64Pq ExtendedInt64Pq::operator-() const {
 }
 
 ExtendedInt64Pq& ExtendedInt64Pq::operator+=(const ExtendedInt64Pq &q) {
-	if (isExtended()) {
-		if (q.isExtended()) {
-			getExtended() += q.getExtended();
-		}
-		else {
-			getExtended() += q.asExtended();
-		}
+	if (isExtended() && q.isExtended()) {
+		getExtended() += q.getExtended();
+	}
+	else if (isExtended()) {
+		getExtended() += q.asExtended();
 	}
 	else if (q.isExtended()) {
 		set( asExtended() + q.getExtended() );
@@ -234,13 +255,11 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator+=(const ExtendedInt64Pq &q) {
 }
 
 ExtendedInt64Pq& ExtendedInt64Pq::operator-=(const ExtendedInt64Pq &q) {
-	if (isExtended()) {
-		if (q.isExtended()) {
-			getExtended() -= q.getExtended();
-		}
-		else {
-			getExtended() -= q.asExtended();
-		}
+	if (isExtended() && q.isExtended()) {
+		getExtended() -= q.getExtended();
+	}
+	else if (isExtended()) {
+		getExtended() -= q.asExtended();
 	}
 	else if (q.isExtended()) {
 		set( asExtended() - q.getExtended() );
@@ -252,13 +271,11 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator-=(const ExtendedInt64Pq &q) {
 }
 
 ExtendedInt64Pq& ExtendedInt64Pq::operator*=(const ExtendedInt64Pq &q) {
-	if (isExtended()) {
-		if (q.isExtended()) {
-			getExtended() *= q.getExtended();
-		}
-		else {
-			getExtended() *= q.asExtended();
-		}
+	if (isExtended() && q.isExtended()) {
+		getExtended() *= q.getExtended();
+	}
+	else if (isExtended()) {
+		getExtended() *= q.asExtended();
 	}
 	else if (q.isExtended()) {
 		set( asExtended() * q.getExtended() );
@@ -270,13 +287,11 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator*=(const ExtendedInt64Pq &q) {
 }
 
 ExtendedInt64Pq& ExtendedInt64Pq::operator/=(const ExtendedInt64Pq &q) {
-	if (isExtended()) {
-		if (q.isExtended()) {
-			getExtended() /= q.getExtended();
-		}
-		else {
-			getExtended() /= q.asExtended();
-		}
+	if (isExtended() && q.isExtended()) {
+		getExtended() /= q.getExtended();
+	}
+	else if (isExtended()) {
+		getExtended() /= q.asExtended();
 	}
 	else if (q.isExtended()) {
 		set( asExtended() / q.getExtended() );
