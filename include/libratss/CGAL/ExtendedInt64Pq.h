@@ -106,6 +106,11 @@ public:
 	ExtendedInt64Pq& operator-=(const ExtendedInt64Pq &q);
 	ExtendedInt64Pq& operator*=(const ExtendedInt64Pq &q);
 	ExtendedInt64Pq& operator/=(const ExtendedInt64Pq &q);
+	
+	ExtendedInt64Pq operator+(const ExtendedInt64Pq & q) const;
+	ExtendedInt64Pq operator-(const ExtendedInt64Pq & q) const;
+	ExtendedInt64Pq operator*(const ExtendedInt64Pq & q) const;
+	ExtendedInt64Pq operator/(const ExtendedInt64Pq & q) const;
 
 	bool operator==(const ExtendedInt64Pq &q) const;
 	bool operator< (const ExtendedInt64Pq &q) const;

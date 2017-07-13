@@ -287,6 +287,30 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator/=(const ExtendedInt64Pq &q) {
 	return *this;
 }
 
+ExtendedInt64Pq ExtendedInt64Pq::operator+(const ExtendedInt64Pq & q) const {
+	ExtendedInt64Pq tmp(*this);
+	tmp += q;
+	return tmp;
+}
+
+ExtendedInt64Pq ExtendedInt64Pq::operator-(const ExtendedInt64Pq & q) const {
+	ExtendedInt64Pq tmp(*this);
+	tmp -= q;
+	return tmp;
+}
+
+ExtendedInt64Pq ExtendedInt64Pq::operator*(const ExtendedInt64Pq & q) const {
+	ExtendedInt64Pq tmp(*this);
+	tmp *= q;
+	return tmp;
+}
+
+ExtendedInt64Pq ExtendedInt64Pq::operator/(const ExtendedInt64Pq & q) const {
+	ExtendedInt64Pq tmp(*this);
+	tmp /= q;
+	return tmp;
+}
+
 bool ExtendedInt64Pq::operator==(const ExtendedInt64Pq &q) const {
 	return asExtended() == q.asExtended();
 }
