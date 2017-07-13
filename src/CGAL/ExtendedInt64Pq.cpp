@@ -173,18 +173,22 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator=(const ExtendedInt64Pq & other) {
 }
 
 ExtendedInt64Pq& ExtendedInt64Pq::operator=(ExtendedInt64Pq && other) {
-	if (other.isExtended()) {
-		if (isExtended()) {
-			using std::swap;
-			swap(m_v.ptr, other.m_v.ptr);
-		}
-		else {
-			m_isExtended = true;
-			m_v.ptr = other.m_v.ptr;
-			
-			other.m_isExtended = false;
-			m_v.ptr = 0;
-		}
+	if (isExtended() && other.isExtended()) {
+		delete m_v.ptr;
+		m_v.ptr = other.m_v.ptr;
+		
+		other.m_isExtended = false;
+		other.m_v.ptr = 0;
+	}
+	else if (isExtended()) {
+		set(other.get());
+	}
+	else if (other.isExtended()) {
+		m_v.ptr = other.m_v.ptr;
+		m_isExtended = true;
+		
+		other.m_isExtended = false;
+		other.m_v.ptr = 0;
 	}
 	else {
 		set(other.get());
