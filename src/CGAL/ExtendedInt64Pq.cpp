@@ -309,24 +309,28 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator/=(const ExtendedInt64Pq &q) {
 ExtendedInt64Pq ExtendedInt64Pq::operator+(const ExtendedInt64Pq & q) const {
 	ExtendedInt64Pq tmp(*this);
 	tmp += q;
+	assert(asExtended() + q.asExtended() == tmp.asExtended());
 	return tmp;
 }
 
 ExtendedInt64Pq ExtendedInt64Pq::operator-(const ExtendedInt64Pq & q) const {
 	ExtendedInt64Pq tmp(*this);
 	tmp -= q;
+	assert(asExtended() - q.asExtended() == tmp.asExtended());
 	return tmp;
 }
 
 ExtendedInt64Pq ExtendedInt64Pq::operator*(const ExtendedInt64Pq & q) const {
 	ExtendedInt64Pq tmp(*this);
 	tmp *= q;
+	assert(asExtended() * q.asExtended() == tmp.asExtended());
 	return tmp;
 }
 
 ExtendedInt64Pq ExtendedInt64Pq::operator/(const ExtendedInt64Pq & q) const {
 	ExtendedInt64Pq tmp(*this);
 	tmp /= q;
+	assert(asExtended() / q.asExtended() == tmp.asExtended());
 	return tmp;
 }
 
@@ -352,12 +356,12 @@ Sign ExtendedInt64Pq::sign() const {
 }
 
 const ExtendedInt64Pq::extension_type & ExtendedInt64Pq::getExtended() const {
-	assert(isExtended());
+	assert(isExtended() && m_v.ptr);
 	return *m_v.ptr;
 }
 
 ExtendedInt64Pq::extension_type & ExtendedInt64Pq::getExtended() {
-	assert(isExtended());
+	assert(isExtended() && m_v.ptr);
 	return *m_v.ptr;
 }
 
@@ -390,7 +394,9 @@ void ExtendedInt64Pq::set(const ExtendedInt64Pq::PQ& pq) {
 
 void ExtendedInt64Pq::set(base_type num, base_type den) {
 	if (isExtended()) {
+		assert(m_v.ptr);
 		delete m_v.ptr;
+		m_v.ptr = 0;
 		m_isExtended = false;
 	}
 	if (den < 0) {
@@ -402,6 +408,7 @@ void ExtendedInt64Pq::set(base_type num, base_type den) {
 	}
 	m_v.pq.num = num;
 	m_v.pq.den = den;
+	assert(!isExtended());
 }
 
 void ExtendedInt64Pq::set(const extension_type & v) {
@@ -411,6 +418,8 @@ void ExtendedInt64Pq::set(const extension_type & v) {
 	
 	if (::mpz_fits_slong_p(num.mpz()) && ::mpz_fits_slong_p(den.mpz())) {
 		set(::mpz_get_si(num.mpz()), ::mpz_get_si(den.mpz()));
+		assert(asExtended() == v);
+		assert(num == get().num && den == get().den);
 	}
 	else {
 		if (isExtended()) {
@@ -420,6 +429,7 @@ void ExtendedInt64Pq::set(const extension_type & v) {
 			m_v.ptr = new extension_type(v);
 			m_isExtended = true;
 		}
+		assert(isExtended());
 	}
 }
 
