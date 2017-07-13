@@ -210,7 +210,11 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 	}
 	
 	if (precision < 0) {
-		precision = 32;
+		precision = 53;
+	}
+	
+	if (significands < 0) {
+		significands = 31;
 	}
 	
 	if (! (snapType & (ProjectSN::ST_PLANE|ProjectSN::ST_SPHERE))) {
