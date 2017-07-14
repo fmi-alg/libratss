@@ -218,8 +218,8 @@ private:
 	};
 	static_assert(sizeof(extension_type*) <= sizeof(base_type), "extension_type* needs to be smaller of equal than base_type");
 private:
-	const PQ & get() const;
-	PQ & get();
+	const PQ & getPq() const;
+	PQ & getPq();
 	extension_type * ptr() const;
 	void set(const PQ & pq);
 	void set(base_type num, base_type den);

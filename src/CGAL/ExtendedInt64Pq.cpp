@@ -14,7 +14,7 @@ ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq & other)
 		set(other.getExtended());
 	}
 	else {
-		set(other.get());
+		set(other.getPq());
 	}
 }
 
@@ -25,7 +25,7 @@ ExtendedInt64Pq::ExtendedInt64Pq(ExtendedInt64Pq && other)
 		set((extension_type*)0);
 	}
 	else {
-		set(other.get());
+		set(other.getPq());
 	}
 }
 
@@ -151,7 +151,7 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator=(const ExtendedInt64Pq & other) {
 		set(other.getExtended());
 	}
 	else {
-		set(other.get());
+		set(other.getPq());
 	}
 	return *this;
 }
@@ -163,14 +163,14 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator=(ExtendedInt64Pq && other) {
 		other.set((extension_type*)0);
 	}
 	else if (isExtended()) {
-		set(other.get());
+		set(other.getPq());
 	}
 	else if (other.isExtended()) {
 		set(other.ptr());
 		other.set((extension_type*)0);
 	}
 	else {
-		set(other.get());
+		set(other.getPq());
 	}
 	return *this;
 }
@@ -195,7 +195,7 @@ ExtendedInt64z ExtendedInt64Pq::numerator() const {
 		return ExtendedInt64z( getExtended().numerator() );
 	}
 	else {
-		return ExtendedInt64z( get().num );
+		return ExtendedInt64z( getPq().num );
 	}
 }
 
@@ -204,7 +204,7 @@ ExtendedInt64z ExtendedInt64Pq::denominator() const {
 		return ExtendedInt64z( getExtended().denominator() );
 	}
 	else {
-		return ExtendedInt64z( get().den );
+		return ExtendedInt64z( getPq().den );
 	}
 }
 
@@ -217,7 +217,7 @@ ExtendedInt64Pq ExtendedInt64Pq::operator-() const {
 		return ExtendedInt64Pq( -getExtended() );
 	}
 	else {
-		return ExtendedInt64Pq( -get().num, get().den );
+		return ExtendedInt64Pq( -getPq().num, getPq().den );
 	}
 }
 
@@ -330,7 +330,7 @@ Sign ExtendedInt64Pq::sign() const {
 		return getExtended().sign();
 	}
 	else {
-		return CGAL::sign(get().num);
+		return CGAL::sign(getPq().num);
 	}
 }
 
@@ -349,12 +349,12 @@ ExtendedInt64Pq::extension_type* ExtendedInt64Pq::ptr() const {
 	return m_v.ext.ptr;
 }
 
-ExtendedInt64Pq::PQ& ExtendedInt64Pq::get() {
+ExtendedInt64Pq::PQ& ExtendedInt64Pq::getPq() {
 	assert(!isExtended());
 	return m_v.pq;
 }
 
-const ExtendedInt64Pq::PQ& ExtendedInt64Pq::get() const {
+const ExtendedInt64Pq::PQ& ExtendedInt64Pq::getPq() const {
 	assert(!isExtended());
 	return m_v.pq;
 }
@@ -364,12 +364,12 @@ ExtendedInt64Pq::extension_type ExtendedInt64Pq::asExtended() const {
 		return getExtended();
 	}
 	else {
-		return extension_type(get().num, get().den);
+		return extension_type(getPq().num, getPq().den);
 	}
 }
 
 bool ExtendedInt64Pq::isExtended() const {
-	return !get().den;
+	return !getPq().den;
 }
 
 void ExtendedInt64Pq::set(const ExtendedInt64Pq::PQ& pq) {
@@ -389,8 +389,8 @@ void ExtendedInt64Pq::set(base_type num, base_type den) {
 	if (!den) {
 		throw std::domain_error("Denominator is not allowed to be zero");
 	}
-	get().num = num;
-	get().den = den;
+	getPq().num = num;
+	getPq().den = den;
 	assert(!isExtended());
 }
 
@@ -402,7 +402,7 @@ void ExtendedInt64Pq::set(const extension_type & v) {
 	if (::mpz_fits_slong_p(num.mpz()) && ::mpz_fits_slong_p(den.mpz())) {
 		set(::mpz_get_si(num.mpz()), ::mpz_get_si(den.mpz()));
 		assert(asExtended() == v);
-		assert(num == get().num && den == get().den);
+		assert(num == getPq().num && den == getPq().den);
 	}
 	else {
 		if (isExtended()) {
@@ -417,12 +417,12 @@ void ExtendedInt64Pq::set(const extension_type & v) {
 
 void ExtendedInt64Pq::set(ExtendedInt64Pq::extension_type* v) {
 	if (v) {
-		get().den = 0;
+		getPq().den = 0;
 		m_v.ext.ptr = v;
 	}
 	else {
-		get().num = 0;
-		get().den = 1;
+		getPq().num = 0;
+		getPq().den = 1;
 	}
 }
 
