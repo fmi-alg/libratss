@@ -3,13 +3,24 @@
 
 namespace CGAL {
 
+uint64_t ExtendedInt64Pq::number_of_extended_allocations = 0;
+uint64_t ExtendedInt64Pq::number_of_allocations = 0;
+
+#define EI64_INC_NUM_E_ALLOC {++number_of_extended_allocations;}
+#define EI64_DEC_NUM_E_ALLOC {--number_of_extended_allocations;}
+
+#define EI64_INC_NUM_ALLOC {++number_of_allocations;}
+#define EI64_DEC_NUM_ALLOC {--number_of_allocations;}
+
 ExtendedInt64Pq::ExtendedInt64Pq()
 {
+	EI64_INC_NUM_ALLOC
 	set(base_type(0), base_type(1));
 }
 
 ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq & other)
 {
+	EI64_INC_NUM_ALLOC
 	if (other.isExtended()) {
 		set(other.getExtended());
 	}
@@ -20,6 +31,7 @@ ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64Pq & other)
 
 ExtendedInt64Pq::ExtendedInt64Pq(ExtendedInt64Pq && other)
 {
+	EI64_INC_NUM_ALLOC
 	if (other.isExtended()) {
 		set(other.ptr());
 		set((extension_type*)0);
@@ -31,6 +43,7 @@ ExtendedInt64Pq::ExtendedInt64Pq(ExtendedInt64Pq && other)
 
 ExtendedInt64Pq::ExtendedInt64Pq(const CGAL::Gmpq & q)
 {
+	EI64_INC_NUM_ALLOC
 	set(q);
 }
 
@@ -44,11 +57,13 @@ ExtendedInt64Pq(base_type(n))
 
 ExtendedInt64Pq::ExtendedInt64Pq(base_type n)
 {
+	EI64_INC_NUM_ALLOC
 	set(n, base_type(1));
 }
 
 ExtendedInt64Pq::ExtendedInt64Pq(uint64_t n)
 {
+	EI64_INC_NUM_ALLOC
 	if (n < (uint64_t) btmax) {
 		set(base_type(n), base_type(1));
 	}
@@ -63,6 +78,7 @@ ExtendedInt64Pq(extension_type(n))
 
 ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64z & n)
 {
+	EI64_INC_NUM_ALLOC
 	if (n.isExtended()) {
 		set( extension_type(n.getExtended()) );
 	}
@@ -81,11 +97,13 @@ ExtendedInt64Pq(base_type(n), base_type(d))
 
 ExtendedInt64Pq::ExtendedInt64Pq(base_type n, base_type d)
 {
+	EI64_INC_NUM_ALLOC
 	set(n, d);
 }
 
 ExtendedInt64Pq::ExtendedInt64Pq(base_type n, uint64_t d)
 {
+	EI64_INC_NUM_ALLOC
 	if (d < uint64_t(btmax) ) {
 		set(base_type(n), base_type(d));
 	}
@@ -96,6 +114,7 @@ ExtendedInt64Pq::ExtendedInt64Pq(base_type n, uint64_t d)
 
 ExtendedInt64Pq::ExtendedInt64Pq(uint64_t n, uint64_t d)
 {
+	EI64_INC_NUM_ALLOC
 	if (n < uint64_t(btmax) && d < uint64_t(btmax) ) {
 		set(base_type(n), base_type(d));
 	}
@@ -106,6 +125,7 @@ ExtendedInt64Pq::ExtendedInt64Pq(uint64_t n, uint64_t d)
 
 ExtendedInt64Pq::ExtendedInt64Pq(const ExtendedInt64z& n, const ExtendedInt64z& d)
 {
+	EI64_INC_NUM_ALLOC
 	if (n.isExtended() && d.isExtended()) {
 		set( extension_type( n.getExtended(), d.getExtended()) );
 	}
@@ -126,6 +146,7 @@ ExtendedInt64Pq(extension_type(n, d))
 
 ExtendedInt64Pq::ExtendedInt64Pq(double d)
 {
+	EI64_INC_NUM_ALLOC
 	if (double(base_type(d)) == d) {
 		set(base_type(d), base_type(1));
 	}
@@ -139,6 +160,7 @@ ExtendedInt64Pq(extension_type(str, base))
 {}
 
 ExtendedInt64Pq::~ExtendedInt64Pq() {
+	EI64_DEC_NUM_ALLOC
 	if (isExtended()) {
 		deleteExt();
 	}
@@ -437,6 +459,7 @@ void ExtendedInt64Pq::set(const extension_type & v) {
 		}
 		else {
 			set( new extension_type(v) );
+			EI64_INC_NUM_E_ALLOC
 		}
 		assert(isExtended());
 	}
@@ -456,7 +479,14 @@ void ExtendedInt64Pq::set(ExtendedInt64Pq::extension_type* v) {
 void ExtendedInt64Pq::deleteExt() {
 	assert(isExtended());
 	delete ptr();
+	EI64_DEC_NUM_E_ALLOC
 	set((extension_type*)0);
 }
+
+#undef EI64_INC_NUM_E_ALLOC
+#undef EI64_DEC_NUM_E_ALLOC
+#undef EI64_INC_NUM_ALLOC
+#undef EI64_DEC_NUM_ALLOC
+
 
 }//end namespace CGAL

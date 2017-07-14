@@ -62,6 +62,9 @@ public:
 	typedef CGAL::ExtendedInt64z::base_type base_type;
 	typedef CGAL::Gmpq extension_type;
 public:
+	static uint64_t number_of_extended_allocations;
+	static uint64_t number_of_allocations;
+public:
 	ExtendedInt64Pq();
 	ExtendedInt64Pq(const ExtendedInt64Pq & other);
 	ExtendedInt64Pq(ExtendedInt64Pq&& other);
