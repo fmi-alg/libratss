@@ -285,32 +285,64 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator/=(const ExtendedInt64Pq &q) {
 	return *this;
 }
 
-ExtendedInt64Pq ExtendedInt64Pq::operator+(const ExtendedInt64Pq & q) const {
-	ExtendedInt64Pq tmp(*this);
-	tmp += q;
-	assert(asExtended() + q.asExtended() == tmp.asExtended());
-	return tmp;
+ExtendedInt64Pq ExtendedInt64Pq::operator+(const ExtendedInt64Pq & other) const {
+	if (isExtended() && other.isExtended()) {
+		return ExtendedInt64Pq( getExtended() + other.getExtended() );
+	}
+	else if (isExtended()) {
+		return ExtendedInt64Pq( getExtended() + other.asExtended() );
+	}
+	else if (other.isExtended()) {
+		return ExtendedInt64Pq( asExtended() + other.getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( asExtended() + other.asExtended() );
+	}
 }
 
-ExtendedInt64Pq ExtendedInt64Pq::operator-(const ExtendedInt64Pq & q) const {
-	ExtendedInt64Pq tmp(*this);
-	tmp -= q;
-	assert(asExtended() - q.asExtended() == tmp.asExtended());
-	return tmp;
+ExtendedInt64Pq ExtendedInt64Pq::operator-(const ExtendedInt64Pq & other) const {
+	if (isExtended() && other.isExtended()) {
+		return ExtendedInt64Pq( getExtended() - other.getExtended() );
+	}
+	else if (isExtended()) {
+		return ExtendedInt64Pq( getExtended() - other.asExtended() );
+	}
+	else if (other.isExtended()) {
+		return ExtendedInt64Pq( asExtended() - other.getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( asExtended() - other.asExtended() );
+	}
 }
 
-ExtendedInt64Pq ExtendedInt64Pq::operator*(const ExtendedInt64Pq & q) const {
-	ExtendedInt64Pq tmp(*this);
-	tmp *= q;
-	assert(asExtended() * q.asExtended() == tmp.asExtended());
-	return tmp;
+ExtendedInt64Pq ExtendedInt64Pq::operator*(const ExtendedInt64Pq & other) const {
+	if (isExtended() && other.isExtended()) {
+		return ExtendedInt64Pq( getExtended() * other.getExtended() );
+	}
+	else if (isExtended()) {
+		return ExtendedInt64Pq( getExtended() * other.asExtended() );
+	}
+	else if (other.isExtended()) {
+		return ExtendedInt64Pq( asExtended() * other.getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( asExtended() * other.asExtended() );
+	}
 }
 
-ExtendedInt64Pq ExtendedInt64Pq::operator/(const ExtendedInt64Pq & q) const {
-	ExtendedInt64Pq tmp(*this);
-	tmp /= q;
-	assert(asExtended() / q.asExtended() == tmp.asExtended());
-	return tmp;
+ExtendedInt64Pq ExtendedInt64Pq::operator/(const ExtendedInt64Pq & other) const {
+	if (isExtended() && other.isExtended()) {
+		return ExtendedInt64Pq( getExtended() / other.getExtended() );
+	}
+	else if (isExtended()) {
+		return ExtendedInt64Pq( getExtended() / other.asExtended() );
+	}
+	else if (other.isExtended()) {
+		return ExtendedInt64Pq( asExtended() / other.getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( asExtended() / other.asExtended() );
+	}
 }
 
 bool ExtendedInt64Pq::operator==(const ExtendedInt64Pq &q) const {
