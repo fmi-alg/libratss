@@ -229,6 +229,13 @@ private:
 	Storage m_v;
 };
 
+inline ExtendedInt64Pq min BOOST_PREVENT_MACRO_SUBSTITUTION(const ExtendedInt64Pq& x,const ExtendedInt64Pq& y){
+  return (x<=y)?x:y;
+}
+inline ExtendedInt64Pq max BOOST_PREVENT_MACRO_SUBSTITUTION(const ExtendedInt64Pq& x,const ExtendedInt64Pq& y){
+  return (x>=y)?x:y;
+}
+
 // AST for ExtendedInt64Pq
 template<>
 class Algebraic_structure_traits<ExtendedInt64Pq> : public Algebraic_structure_traits_base< ExtendedInt64Pq, Field_tag >  {
