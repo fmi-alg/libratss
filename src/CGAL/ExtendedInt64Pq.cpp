@@ -382,12 +382,10 @@ ExtendedInt64Pq::extension_type* ExtendedInt64Pq::ptr() const {
 }
 
 ExtendedInt64Pq::PQ& ExtendedInt64Pq::getPq() {
-	assert(!isExtended());
 	return m_v.pq;
 }
 
 const ExtendedInt64Pq::PQ& ExtendedInt64Pq::getPq() const {
-	assert(!isExtended());
 	return m_v.pq;
 }
 
