@@ -416,7 +416,7 @@ void ExtendedInt64Pq::set(base_type num, base_type den) {
 		den = -den;
 		num = -num;
 	}
-	if (!den) {
+	if (den == 0) {
 		throw std::domain_error("Denominator is not allowed to be zero");
 	}
 	getPq().num = num;
