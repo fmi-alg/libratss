@@ -123,6 +123,8 @@ public:
 	const extension_type & getExtended() const;
 	extension_type & getExtended();
 	extension_type asExtended() const;
+	
+	inline operator extension_type() const { return asExtended(); }
 
 	// Interoperability with int32_t
 	inline ExtendedInt64Pq& operator+=(int32_t z) { return (*this) += ExtendedInt64Pq(z); }
