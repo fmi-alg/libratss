@@ -199,22 +199,34 @@ public:
 private:
 	static constexpr base_type btmin = std::numeric_limits<base_type>::min();
 	static constexpr base_type btmax = std::numeric_limits<base_type>::max();
+	//the denomintator also stores if ptr is used
+	//If den == 0, then ptr is set and valid
 	struct PQ {
+		PQ() : num(0), den(1) {}
 		base_type num;
 		base_type den;
 	};
+	struct Ext {
+		Ext() : ptr(0) {}
+		extension_type * ptr;
+		char dummy[2*sizeof(base_type)-sizeof(extension_type*)];
+	};
+	union Storage {
+		Storage() : pq() {}
+		PQ pq;
+		Ext ext;
+	};
+	static_assert(sizeof(extension_type*) <= sizeof(base_type), "extension_type* needs to be smaller of equal than base_type");
 private:
 	const PQ & get() const;
 	PQ & get();
+	extension_type * ptr() const;
 	void set(const PQ & pq);
 	void set(base_type num, base_type den);
 	void set(const extension_type & v);
+	void set(extension_type * v);
 private:
-	union {
-		PQ pq;
-		extension_type * ptr;
-	} m_v;
-	bool m_isExtended;
+	Storage m_v;
 };
 
 // AST for ExtendedInt64Pq
