@@ -59,6 +59,8 @@ public:
 	using extension_type = CGAL::Gmpz;
 // 	static_assert( --std::numeric_limits<base_type>::min() == std::numeric_limits<base_type>::min(), "");
 public:
+public:
+	static uint64_t number_of_extended_allocations;
 	ExtendedInt64z();
 	ExtendedInt64z(const ExtendedInt64z & other);
 	ExtendedInt64z(ExtendedInt64z && other);
@@ -146,8 +148,11 @@ private:
 	static constexpr base_type btmax = std::numeric_limits<base_type>::max();
 	static constexpr base_type btmin = std::numeric_limits<base_type>::min();
 private:
+	extension_type * ptr() const;
 	void set(base_type v);
 	void set(const extension_type & v);
+	void set(extension_type * v);
+	void deleteExt();
 private:
 	union {
 		base_type i; 

@@ -2,6 +2,8 @@
 
 namespace CGAL {
 
+uint64_t ExtendedInt64z::number_of_extended_allocations = 0;
+
 ExtendedInt64z::ExtendedInt64z() :
 m_isExtended(false)
 {
@@ -23,11 +25,8 @@ ExtendedInt64z::ExtendedInt64z(ExtendedInt64z && other) :
 m_isExtended(false)
 {
 	if (other.isExtended()) {
-		m_v.ptr = other.m_v.ptr;
-		m_isExtended = true;
-		
-		other.m_v.ptr = 0;
-		other.m_isExtended = false;
+		set(m_v.ptr);
+		other.set((extension_type*)0);
 	}
 	else {
 		set(other.get());
@@ -91,15 +90,13 @@ ExtendedInt64z& ExtendedInt64z::operator=(const ExtendedInt64z & other) {
 
 ExtendedInt64z& ExtendedInt64z::operator=(ExtendedInt64z && other) {
 	if (isExtended() && other.isExtended()) {
-		using std::swap;
-		swap(m_v.ptr, other.m_v.ptr);
+		deleteExt();
+		set(other.ptr());
+		other.set((extension_type*)0);
 	}
 	else if (other.isExtended()) {
-		m_v.ptr = other.m_v.ptr;
-		m_isExtended = true;
-		
-		other.m_v.ptr = 0;
-		other.m_isExtended = false;
+		set(other.ptr());
+		other.set((extension_type*)0);
 	}
 	else {
 		set(other.get());
@@ -376,12 +373,12 @@ const ExtendedInt64z::base_type & ExtendedInt64z::get() const {
 
 ExtendedInt64z::extension_type & ExtendedInt64z::getExtended() {
 	assert(isExtended());
-	return *m_v.ptr;
+	return *ptr();
 }
 
 const ExtendedInt64z::extension_type & ExtendedInt64z::getExtended() const {
 	assert(isExtended());
-	return *m_v.ptr;
+	return *ptr();
 }
 
 ExtendedInt64z::extension_type ExtendedInt64z::asExtended() const {
@@ -393,10 +390,14 @@ ExtendedInt64z::extension_type ExtendedInt64z::asExtended() const {
 	}
 }
 
+ExtendedInt64z::extension_type* ExtendedInt64z::ptr() const {
+	assert(isExtended());
+	return m_v.ptr;
+}
+
 void ExtendedInt64z::set(base_type v) {
 	if (isExtended()) {
-		delete m_v.ptr;
-		m_isExtended = false;
+		deleteExt();
 	}
 	m_v.i = v;
 }
@@ -410,10 +411,24 @@ void ExtendedInt64z::set(const extension_type & v) {
 			getExtended() = v;
 		}
 		else {
-			m_v.ptr = new extension_type(v);
-			m_isExtended = true;
+			set( new extension_type(v) );
+			++number_of_extended_allocations;
 		}
 	}
 }
+
+void ExtendedInt64z::set(ExtendedInt64z::extension_type* v) {
+	m_isExtended = v;
+	m_v.ptr = v;
+}
+
+void ExtendedInt64z::deleteExt() {
+	assert(isExtended());
+	delete m_v.ptr;
+	--number_of_extended_allocations;
+	set( (extension_type*)0 );
+}
+
+
 
 }//end namespace
