@@ -140,8 +140,7 @@ ExtendedInt64Pq(extension_type(str, base))
 
 ExtendedInt64Pq::~ExtendedInt64Pq() {
 	if (isExtended()) {
-		delete ptr();
-		set((extension_type*)0);
+		deleteExt();
 	}
 }
 
@@ -158,7 +157,7 @@ ExtendedInt64Pq& ExtendedInt64Pq::operator=(const ExtendedInt64Pq & other) {
 
 ExtendedInt64Pq& ExtendedInt64Pq::operator=(ExtendedInt64Pq && other) {
 	if (isExtended() && other.isExtended()) {
-		delete ptr();
+		deleteExt();
 		set(other.ptr());
 		other.set((extension_type*)0);
 	}
@@ -408,9 +407,7 @@ void ExtendedInt64Pq::set(const ExtendedInt64Pq::PQ& pq) {
 
 void ExtendedInt64Pq::set(base_type num, base_type den) {
 	if (isExtended()) {
-		assert(ptr());
-		delete ptr();
-		set((extension_type*)0);
+		deleteExt();
 	}
 	if (den < 0) {
 		den = -den;
@@ -456,5 +453,10 @@ void ExtendedInt64Pq::set(ExtendedInt64Pq::extension_type* v) {
 	}
 }
 
+void ExtendedInt64Pq::deleteExt() {
+	assert(isExtended());
+	delete ptr();
+	set((extension_type*)0);
+}
 
 }//end namespace CGAL

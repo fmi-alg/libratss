@@ -227,6 +227,7 @@ private:
 	void set(base_type num, base_type den);
 	void set(const extension_type & v);
 	void set(extension_type * v);
+	void deleteExt();
 private:
 	Storage m_v;
 };
