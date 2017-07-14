@@ -66,6 +66,11 @@ T_TARGET convert(const T_SOURCE & v) {
 	return Conversion<T_TARGET>::moveFrom( Conversion<T_SOURCE>::toMpq(v) );
 }
 
+template<typename T_TARGET>
+T_TARGET convert(const mpq_class & v) {
+	return Conversion<T_TARGET>::moveFrom( v );
+}
+
 }
 
 #endif
