@@ -59,4 +59,13 @@ struct Conversion<mpq_class> {
 	#include <libratss/CGAL/Conversion.h>
 #endif
 
+namespace LIB_RATSS_NAMESPACE {
+
+template<typename T_TARGET, typename T_SOURCE>
+T_TARGET convert(const T_SOURCE & v) {
+	return Conversion<T_TARGET>::moveFrom( Conversion<T_SOURCE>::toMpq(v) );
+}
+
+}
+
 #endif
