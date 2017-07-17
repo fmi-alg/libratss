@@ -221,7 +221,7 @@ private:
 		PQ pq;
 		Ext ext;
 	};
-	static_assert(sizeof(extension_type*) <= sizeof(base_type), "extension_type* needs to be smaller of equal than base_type");
+	static_assert(sizeof(extension_type*) <= sizeof(base_type), "extension_type* needs to be smaller or equal than base_type");
 private:
 	const PQ & getPq() const;
 	PQ & getPq();
