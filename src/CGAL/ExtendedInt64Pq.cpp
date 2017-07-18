@@ -230,7 +230,7 @@ ExtendedInt64z ExtendedInt64Pq::denominator() const {
 }
 
 ExtendedInt64Pq ExtendedInt64Pq::operator+() const {
-	return *this;
+	return ExtendedInt64Pq(*this);
 }
 
 ExtendedInt64Pq ExtendedInt64Pq::operator-() const {
@@ -420,7 +420,7 @@ ExtendedInt64Pq::extension_type ExtendedInt64Pq::asExtended() const {
 }
 
 bool ExtendedInt64Pq::isExtended() const {
-	return !getPq().den;
+	return getPq().den == 0;
 }
 
 void ExtendedInt64Pq::set(const ExtendedInt64Pq::PQ& pq) {
@@ -472,7 +472,7 @@ void ExtendedInt64Pq::set(ExtendedInt64Pq::extension_type* v) {
 	}
 	else {
 		getPq().num = 0;
-		getPq().den = 1;
+		getPq().den = 0xFEFE;
 	}
 }
 
