@@ -34,7 +34,7 @@ ExtendedInt64Pq::ExtendedInt64Pq(ExtendedInt64Pq && other)
 	EI64_INC_NUM_ALLOC
 	if (other.isExtended()) {
 		set(other.ptr());
-		set((extension_type*)0);
+		other.set((extension_type*)0);
 	}
 	else {
 		set(other.getPq());
