@@ -44,20 +44,23 @@ namespace CGAL {
 /*! \ingroup CGAL_Arithmetic_kernel
  *  \brief  The GMP set of exact number types
  */
+template<typename T_EXTENSION_TYPE>
 class ExtendedInt_arithmetic_kernel : public internal::Arithmetic_kernel_base {
 public:
-	typedef CGAL::ExtendedInt64z Integer;
-	typedef CGAL::ExtendedInt64Pq Rational;
+	typedef CGAL::ExtendedInt64Pq<T_EXTENSION_TYPE> Rational;
+	typedef typename Rational::numerator_type Integer;
+};
+
+template <>
+struct Get_arithmetic_kernel< ExtendedInt64Pq<CGAL::Gmpq> >{
+	typedef ExtendedInt_arithmetic_kernel<CGAL::Gmpq> Arithmetic_kernel;
 };
     
-template <>
-struct Get_arithmetic_kernel<ExtendedInt64z> {
-  typedef ExtendedInt_arithmetic_kernel Arithmetic_kernel;
+template<>
+struct Get_arithmetic_kernel< ExtendedInt64z > {
+	typedef ExtendedInt_arithmetic_kernel<CGAL::Gmpq> Arithmetic_kernel;
 };
-template <>
-struct Get_arithmetic_kernel<ExtendedInt64Pq>{
-  typedef ExtendedInt_arithmetic_kernel Arithmetic_kernel;
-};
+
 
 } //namespace CGAL
 

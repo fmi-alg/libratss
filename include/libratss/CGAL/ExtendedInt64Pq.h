@@ -35,19 +35,28 @@
 
 #include <libratss/constants.h>
 #include <libratss/CGAL/ExtendedInt64z.h>
+#include <boost/multiprecision/rational_adaptor.hpp>
 
 namespace CGAL {
+namespace internal {
+	
+	struct ExtendedInt64PqTraits {
+		
+	};
+	
+}
 
+template<typename T_EXTENSION_TYPE = CGAL::Gmpq>
 class ExtendedInt64Pq:
-	boost::totally_ordered1< ExtendedInt64Pq
-	, boost::ordered_field_operators2< ExtendedInt64Pq, int
-	, boost::ordered_field_operators2< ExtendedInt64Pq, long
-	, boost::ordered_field_operators2< ExtendedInt64Pq, long long
-	, boost::ordered_field_operators2< ExtendedInt64Pq, double
-	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpq
-	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpz
-	, boost::ordered_field_operators2< ExtendedInt64Pq, Gmpfr
-	, boost::ordered_field_operators2< ExtendedInt64Pq, ExtendedInt64z
+	boost::totally_ordered1< ExtendedInt64Pq<T_EXTENSION_TYPE>
+	, boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, int
+	, boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, long
+	, boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, long long
+	, boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, double
+	, boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, Gmpq
+	, boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, Gmpz
+	, boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, Gmpfr
+	, boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, ExtendedInt64z
 		> > > > > > > > >
 {
 public:
@@ -60,7 +69,9 @@ public:
 	typedef Tag_false  Has_exact_sqrt;
 public:
 	typedef CGAL::ExtendedInt64z::base_type base_type;
-	typedef CGAL::Gmpq extension_type;
+	typedef T_EXTENSION_TYPE extension_type;
+	typedef ExtendedInt64z numerator_type;
+	typedef ExtendedInt64z denominator_type;
 public:
 	static uint64_t number_of_extended_allocations;
 	static uint64_t number_of_allocations;
@@ -83,7 +94,7 @@ public:
 	ExtendedInt64Pq(base_type n, base_type d);
 	ExtendedInt64Pq(base_type n, uint64_t d);
 	ExtendedInt64Pq(uint64_t n, uint64_t d);
-	ExtendedInt64Pq(const ExtendedInt64z& n, const ExtendedInt64z& d);
+	ExtendedInt64Pq(const numerator_type& n, const denominator_type& d);
 	ExtendedInt64Pq(const Gmpz& n, const Gmpz& d);
 	ExtendedInt64Pq(double d);
 	
@@ -99,8 +110,8 @@ public:
 	
 	void canonicalize();
 
-	ExtendedInt64z numerator() const;
-	ExtendedInt64z denominator() const;
+	numerator_type  numerator() const;
+	denominator_type denominator() const;
 
 	ExtendedInt64Pq operator+() const;
 	ExtendedInt64Pq operator-() const;
@@ -120,7 +131,6 @@ public:
 
 	double to_double() const;
 	Sign sign() const;
-
 
 	bool isExtended() const;
 	const extension_type & getExtended() const;
@@ -235,19 +245,34 @@ private:
 	Storage m_v;
 };
 
-inline ExtendedInt64Pq min BOOST_PREVENT_MACRO_SUBSTITUTION(const ExtendedInt64Pq& x,const ExtendedInt64Pq& y){
+
+#define EI64PQ_TPL_PARAMS template<typename T_EXTENSION_TYPE>
+#define EI64PQ_CLS_NAME ExtendedInt64Pq<T_EXTENSION_TYPE>
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME
+min BOOST_PREVENT_MACRO_SUBSTITUTION(const EI64PQ_CLS_NAME& x,const EI64PQ_CLS_NAME& y){
   return (x<=y)?x:y;
 }
-inline ExtendedInt64Pq max BOOST_PREVENT_MACRO_SUBSTITUTION(const ExtendedInt64Pq& x,const ExtendedInt64Pq& y){
+
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME
+max BOOST_PREVENT_MACRO_SUBSTITUTION(const EI64PQ_CLS_NAME & x, const EI64PQ_CLS_NAME& y){
   return (x>=y)?x:y;
 }
 
+EI64PQ_TPL_PARAMS
+std::ostream & operator<<(std::ostream & out, const EI64PQ_CLS_NAME & v);
+
 // AST for ExtendedInt64Pq
-template<>
-class Algebraic_structure_traits<ExtendedInt64Pq> : public Algebraic_structure_traits_base< ExtendedInt64Pq, Field_tag >  {
+EI64PQ_TPL_PARAMS
+class Algebraic_structure_traits< EI64PQ_CLS_NAME > : public Algebraic_structure_traits_base< EI64PQ_CLS_NAME, Field_tag >  {
 private:
-	typedef Algebraic_structure_traits<ExtendedInt64Pq::extension_type> AstExt;
-	typedef Algebraic_structure_traits<ExtendedInt64Pq> AstBase;
+	typedef EI64PQ_CLS_NAME Type;
+	typedef typename Type::extension_type ExtensionType;
+	typedef Algebraic_structure_traits<ExtensionType> AstExt;
+	typedef Algebraic_structure_traits<Type> AstBase;
 public:
 	typedef Tag_true            Is_exact;
 	typedef Tag_false            Is_numerical_sensitive;
@@ -264,7 +289,7 @@ public:
 			return m_p(x.asExtended());
 		}
 	private:
-		AstExt::Is_square m_p;
+		typename AstExt::Is_square m_p;
 	};
 
 	class Simplify: public std::unary_function< Type&, void > {
@@ -278,11 +303,12 @@ public:
 
 // RET for ExtendedInt64Pq
 
-template<>
-class Real_embeddable_traits< ExtendedInt64Pq >: public INTERN_RET::Real_embeddable_traits_base<ExtendedInt64Pq , CGAL::Tag_true > {
+EI64PQ_TPL_PARAMS
+class Real_embeddable_traits< EI64PQ_CLS_NAME >: public INTERN_RET::Real_embeddable_traits_base<EI64PQ_CLS_NAME, CGAL::Tag_true> {
 private:
-	typedef Real_embeddable_traits< ExtendedInt64Pq::extension_type > RetExt;
-	typedef Real_embeddable_traits< ExtendedInt64Pq > RetBase;
+	typedef EI64PQ_CLS_NAME Type;
+	typedef typename Type::extension_type ExtensionType;
+	typedef Real_embeddable_traits<ExtensionType> RetExt;
 public:
 
 	class Sgn: public std::unary_function< Type, ::CGAL::Sign > {
@@ -305,43 +331,642 @@ public:
 			return m_p( x.asExtended() );
 		}
 	private:
-		RetExt::To_interval m_p;
+		typename RetExt::To_interval m_p;
 	};
 };
 
 /*! \ingroup NiX_Fraction_traits_spec
  *  \brief Specialization of Fraction_traits for ExtendedInt64Pq
  */
-template <>
-class Fraction_traits< ExtendedInt64Pq > {
+EI64PQ_TPL_PARAMS
+class Fraction_traits< EI64PQ_CLS_NAME > {
 public:
-	typedef ExtendedInt64Pq Type;
+	typedef EI64PQ_CLS_NAME Type;
+	typedef typename Type::extension_type ExtensionType;
 	typedef ::CGAL::Tag_true Is_fraction;
-	typedef ExtendedInt64z Numerator_type;
-	typedef ExtendedInt64z Denominator_type;
-	typedef Algebraic_structure_traits<ExtendedInt64z>::Gcd Common_factor;
+	typedef typename Type::numerator_type Numerator_type;
+	typedef typename Type::denominator_type Denominator_type;
+	typedef typename Algebraic_structure_traits<Numerator_type>::Gcd Common_factor;
 	class Decompose {
 	public:
-		typedef ExtendedInt64Pq first_argument_type;
-		typedef ExtendedInt64z& second_argument_type;
-		typedef ExtendedInt64z& third_argument_type;
-		void operator () (const ExtendedInt64Pq& rat, ExtendedInt64z& num,ExtendedInt64z& den) {
+		typedef Type first_argument_type;
+		typedef Numerator_type& second_argument_type;
+		typedef Denominator_type& third_argument_type;
+		void operator () (Type const & rat, Numerator_type & num, Denominator_type & den) {
 			num = rat.numerator();
 			den = rat.denominator();
 		}
 	};
 	class Compose {
 	public:
-		typedef ExtendedInt64z first_argument_type;
-		typedef ExtendedInt64z second_argument_type;
-		typedef ExtendedInt64Pq result_type;
-		ExtendedInt64Pq operator () (const ExtendedInt64z& num,const ExtendedInt64z& den) {
-			return ExtendedInt64Pq(num, den);
+		typedef Numerator_type first_argument_type;
+		typedef Denominator_type second_argument_type;
+		typedef Type result_type;
+		result_type operator () (const first_argument_type& num,const second_argument_type& den) {
+			return result_type(num, den);
 		}
 	};
 };
 
 } //namespace CGAL
+
+//definitions
+
+namespace CGAL {
+
+#ifdef WITH_EI64_COUNT_ALLOCATIONS
+	#define EI64_INC_NUM_E_ALLOC {++number_of_extended_allocations;}
+	#define EI64_DEC_NUM_E_ALLOC {--number_of_extended_allocations;}
+	#define EI64_INC_NUM_ALLOC {++number_of_allocations;}
+	#define EI64_DEC_NUM_ALLOC {--number_of_allocations;}
+#else
+	#define EI64_INC_NUM_E_ALLOC
+	#define EI64_DEC_NUM_E_ALLOC
+	#define EI64_INC_NUM_ALLOC
+	#define EI64_DEC_NUM_ALLOC
+#endif
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq()
+{
+	EI64_INC_NUM_ALLOC
+	set(base_type(0), base_type(1));
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(const ExtendedInt64Pq & other)
+{
+	EI64_INC_NUM_ALLOC
+	if (other.isExtended()) {
+		set(other.getExtended());
+	}
+	else {
+		set(other.getPq());
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(ExtendedInt64Pq && other)
+{
+	EI64_INC_NUM_ALLOC
+	if (other.isExtended()) {
+		set(other.ptr());
+		other.set((extension_type*)0);
+	}
+	else {
+		set(other.getPq());
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(const CGAL::Gmpq & q)
+{
+	EI64_INC_NUM_ALLOC
+	set(q);
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(int32_t n) :
+ExtendedInt64Pq(base_type(n))
+{}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(uint32_t n) :
+ExtendedInt64Pq(base_type(n))
+{}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(base_type n)
+{
+	EI64_INC_NUM_ALLOC
+	set(n, base_type(1));
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(uint64_t n)
+{
+	EI64_INC_NUM_ALLOC
+	if (n < (uint64_t) btmax) {
+		set(base_type(n), base_type(1));
+	}
+	else {
+		set(extension_type(n));
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(const Gmpz& n) :
+ExtendedInt64Pq(extension_type(n))
+{}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(const ExtendedInt64z & n)
+{
+	EI64_INC_NUM_ALLOC
+	if (n.isExtended()) {
+		set( extension_type(n.getExtended()) );
+	}
+	else {
+		set(n.get(), base_type(1));
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(const Gmpfr &f) :
+ExtendedInt64Pq(extension_type(f))
+{}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(int32_t n, int32_t d) :
+ExtendedInt64Pq(base_type(n), base_type(d))
+{}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(base_type n, base_type d)
+{
+	EI64_INC_NUM_ALLOC
+	set(n, d);
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(base_type n, uint64_t d)
+{
+	EI64_INC_NUM_ALLOC
+	if (d < uint64_t(btmax) ) {
+		set(base_type(n), base_type(d));
+	}
+	else {
+		set(extension_type(n, d));
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(uint64_t n, uint64_t d)
+{
+	EI64_INC_NUM_ALLOC
+	if (n < uint64_t(btmax) && d < uint64_t(btmax) ) {
+		set(base_type(n), base_type(d));
+	}
+	else {
+		set(extension_type(n, d));
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(const ExtendedInt64z& n, const ExtendedInt64z& d)
+{
+	EI64_INC_NUM_ALLOC
+	if (n.isExtended() && d.isExtended()) {
+		set( extension_type( n.getExtended(), d.getExtended()) );
+	}
+	else if (n.isExtended()) {
+		set( extension_type( n.getExtended(), d.asExtended()) );
+	}
+	else if (d.isExtended()) {
+		set( extension_type( n.asExtended(), d.getExtended()) );
+	}
+	else {
+		set(n.get(), d.get());
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(const Gmpz& n, const Gmpz& d) :
+ExtendedInt64Pq(extension_type(n, d))
+{}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(double d)
+{
+	EI64_INC_NUM_ALLOC
+	if (double(base_type(d)) == d) {
+		set(base_type(d), base_type(1));
+	}
+	else {
+		set(extension_type(d));
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64Pq(const std::string& str, int base) :
+ExtendedInt64Pq(extension_type(str, base))
+{}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::~ExtendedInt64Pq() {
+	EI64_DEC_NUM_ALLOC
+	if (isExtended()) {
+		deleteExt();
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME&
+EI64PQ_CLS_NAME::operator=(const ExtendedInt64Pq & other) {
+	if (other.isExtended()) {
+		set(other.getExtended());
+	}
+	else {
+		set(other.getPq());
+	}
+	return *this;
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME&
+EI64PQ_CLS_NAME::operator=(ExtendedInt64Pq && other) {
+	if (isExtended() && other.isExtended()) {
+		deleteExt();
+		set(other.ptr());
+		other.set((extension_type*)0);
+	}
+	else if (isExtended()) {
+		set(other.getPq());
+	}
+	else if (other.isExtended()) {
+		set(other.ptr());
+		other.set((extension_type*)0);
+	}
+	else {
+		set(other.getPq());
+	}
+	return *this;
+}
+
+EI64PQ_TPL_PARAMS
+std::size_t
+EI64PQ_CLS_NAME::size() const {
+	return sizeof(m_v) + (isExtended() ? getExtended().size() : 0);
+}
+
+EI64PQ_TPL_PARAMS
+void
+EI64PQ_CLS_NAME::canonicalize() {
+	if (isExtended()) {
+		::mpq_canonicalize(getExtended().mpq());
+	}
+	else {
+		auto tmp = asExtended();
+		::mpq_canonicalize(tmp.mpq());
+		set(tmp);
+	}
+}
+
+EI64PQ_TPL_PARAMS
+ExtendedInt64z
+EI64PQ_CLS_NAME::numerator() const {
+	if (isExtended()) {
+		return ExtendedInt64z( getExtended().numerator() );
+	}
+	else {
+		return ExtendedInt64z( getPq().num );
+	}
+}
+
+EI64PQ_TPL_PARAMS
+ExtendedInt64z
+EI64PQ_CLS_NAME::denominator() const {
+	if (isExtended()) {
+		return ExtendedInt64z( getExtended().denominator() );
+	}
+	else {
+		return ExtendedInt64z( getPq().den );
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME
+EI64PQ_CLS_NAME::operator+() const {
+	return ExtendedInt64Pq(*this);
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME
+EI64PQ_CLS_NAME::operator-() const {
+	if (isExtended()) {
+		return ExtendedInt64Pq( -getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( -getPq().num, getPq().den );
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME&
+EI64PQ_CLS_NAME::operator+=(const ExtendedInt64Pq &q) {
+	if (isExtended() && q.isExtended()) {
+		getExtended() += q.getExtended();
+	}
+	else if (isExtended()) {
+		getExtended() += q.asExtended();
+	}
+	else if (q.isExtended()) {
+		set( asExtended() + q.getExtended() );
+	}
+	else {
+		set( asExtended() + q.asExtended() );
+	}
+	return *this;
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME&
+EI64PQ_CLS_NAME::operator-=(const ExtendedInt64Pq &q) {
+	if (isExtended() && q.isExtended()) {
+		getExtended() -= q.getExtended();
+	}
+	else if (isExtended()) {
+		getExtended() -= q.asExtended();
+	}
+	else if (q.isExtended()) {
+		set( asExtended() - q.getExtended() );
+	}
+	else {
+		set( asExtended() - q.asExtended() );
+	}
+	return *this;
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME&
+EI64PQ_CLS_NAME::operator*=(const ExtendedInt64Pq &q) {
+	if (isExtended() && q.isExtended()) {
+		getExtended() *= q.getExtended();
+	}
+	else if (isExtended()) {
+		getExtended() *= q.asExtended();
+	}
+	else if (q.isExtended()) {
+		set( asExtended() * q.getExtended() );
+	}
+	else {
+		set( asExtended() * q.asExtended() );
+	}
+	return *this;
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME&
+EI64PQ_CLS_NAME::operator/=(const ExtendedInt64Pq &q) {
+	if (isExtended() && q.isExtended()) {
+		getExtended() /= q.getExtended();
+	}
+	else if (isExtended()) {
+		getExtended() /= q.asExtended();
+	}
+	else if (q.isExtended()) {
+		set( asExtended() / q.getExtended() );
+	}
+	else {
+		set( asExtended() / q.asExtended() );
+	}
+	return *this;
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME
+EI64PQ_CLS_NAME::operator+(const ExtendedInt64Pq & other) const {
+	if (isExtended() && other.isExtended()) {
+		return ExtendedInt64Pq( getExtended() + other.getExtended() );
+	}
+	else if (isExtended()) {
+		return ExtendedInt64Pq( getExtended() + other.asExtended() );
+	}
+	else if (other.isExtended()) {
+		return ExtendedInt64Pq( asExtended() + other.getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( asExtended() + other.asExtended() );
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME
+EI64PQ_CLS_NAME::operator-(const ExtendedInt64Pq & other) const {
+	if (isExtended() && other.isExtended()) {
+		return ExtendedInt64Pq( getExtended() - other.getExtended() );
+	}
+	else if (isExtended()) {
+		return ExtendedInt64Pq( getExtended() - other.asExtended() );
+	}
+	else if (other.isExtended()) {
+		return ExtendedInt64Pq( asExtended() - other.getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( asExtended() - other.asExtended() );
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME
+EI64PQ_CLS_NAME::operator*(const ExtendedInt64Pq & other) const {
+	if (isExtended() && other.isExtended()) {
+		return ExtendedInt64Pq( getExtended() * other.getExtended() );
+	}
+	else if (isExtended()) {
+		return ExtendedInt64Pq( getExtended() * other.asExtended() );
+	}
+	else if (other.isExtended()) {
+		return ExtendedInt64Pq( asExtended() * other.getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( asExtended() * other.asExtended() );
+	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME
+EI64PQ_CLS_NAME::operator/(const ExtendedInt64Pq & other) const {
+	if (isExtended() && other.isExtended()) {
+		return ExtendedInt64Pq( getExtended() / other.getExtended() );
+	}
+	else if (isExtended()) {
+		return ExtendedInt64Pq( getExtended() / other.asExtended() );
+	}
+	else if (other.isExtended()) {
+		return ExtendedInt64Pq( asExtended() / other.getExtended() );
+	}
+	else {
+		return ExtendedInt64Pq( asExtended() / other.asExtended() );
+	}
+}
+
+EI64PQ_TPL_PARAMS
+bool
+EI64PQ_CLS_NAME::operator==(const ExtendedInt64Pq &q) const {
+	return asExtended() == q.asExtended();
+}
+
+EI64PQ_TPL_PARAMS
+bool
+EI64PQ_CLS_NAME::operator< (const ExtendedInt64Pq &q) const {
+	return asExtended() < q.asExtended();
+}
+
+EI64PQ_TPL_PARAMS
+double
+EI64PQ_CLS_NAME::to_double() const {
+	return asExtended().to_double();
+}
+
+EI64PQ_TPL_PARAMS
+Sign
+EI64PQ_CLS_NAME::sign() const {
+	if (isExtended()) {
+		return getExtended().sign();
+	}
+	else {
+		return CGAL::sign(getPq().num);
+	}
+}
+
+EI64PQ_TPL_PARAMS
+typename EI64PQ_CLS_NAME::extension_type const &
+EI64PQ_CLS_NAME::getExtended() const {
+	assert(isExtended() && ptr());
+	return *ptr();
+}
+
+EI64PQ_TPL_PARAMS
+typename EI64PQ_CLS_NAME::extension_type &
+EI64PQ_CLS_NAME::getExtended() {
+	assert(isExtended() && ptr());
+	return *ptr();
+}
+
+EI64PQ_TPL_PARAMS
+typename EI64PQ_CLS_NAME::extension_type*
+EI64PQ_CLS_NAME::ptr() const {
+	assert(isExtended());
+	return m_v.ext.ptr;
+}
+
+EI64PQ_TPL_PARAMS
+typename EI64PQ_CLS_NAME::PQ&
+EI64PQ_CLS_NAME::getPq() {
+	return m_v.pq;
+}
+
+EI64PQ_TPL_PARAMS
+typename EI64PQ_CLS_NAME::ExtendedInt64Pq::PQ const &
+EI64PQ_CLS_NAME::getPq() const {
+	return m_v.pq;
+}
+
+EI64PQ_TPL_PARAMS
+typename EI64PQ_CLS_NAME::extension_type
+EI64PQ_CLS_NAME::asExtended() const {
+	if (isExtended()) {
+		return getExtended();
+	}
+	else {
+		return extension_type(getPq().num, getPq().den);
+	}
+}
+
+EI64PQ_TPL_PARAMS
+bool
+EI64PQ_CLS_NAME::isExtended() const {
+	return getPq().den == 0;
+}
+
+EI64PQ_TPL_PARAMS
+void
+EI64PQ_CLS_NAME::set(const ExtendedInt64Pq::PQ& pq) {
+	set(pq.num, pq.den);
+}
+
+EI64PQ_TPL_PARAMS
+void
+EI64PQ_CLS_NAME::set(base_type num, base_type den) {
+	if (isExtended()) {
+		deleteExt();
+	}
+	if (den < 0) {
+		den = -den;
+		num = -num;
+	}
+	if (den == 0) {
+		throw std::domain_error("Denominator is not allowed to be zero");
+	}
+	getPq().num = num;
+	getPq().den = den;
+	assert(!isExtended());
+}
+
+EI64PQ_TPL_PARAMS
+void
+EI64PQ_CLS_NAME::set(const extension_type & v) {
+	
+	auto num = v.numerator();
+	auto den = v.denominator();
+	
+	if (::mpz_fits_slong_p(num.mpz()) && ::mpz_fits_slong_p(den.mpz())) {
+		set(::mpz_get_si(num.mpz()), ::mpz_get_si(den.mpz()));
+		assert(asExtended() == v);
+		assert(num == getPq().num && den == getPq().den);
+	}
+	else {
+		if (isExtended()) {
+			getExtended() = v;
+		}
+		else {
+			set( new extension_type(v) );
+			EI64_INC_NUM_E_ALLOC
+		}
+		assert(isExtended());
+	}
+}
+
+EI64PQ_TPL_PARAMS
+void
+EI64PQ_CLS_NAME::set(ExtendedInt64Pq::extension_type* v) {
+	if (v) {
+		getPq().den = 0;
+		m_v.ext.ptr = v;
+	}
+	else {
+		getPq().num = 0;
+		getPq().den = 0xFEFE;
+	}
+}
+
+EI64PQ_TPL_PARAMS
+void
+EI64PQ_CLS_NAME::deleteExt() {
+	assert(isExtended());
+	delete ptr();
+	EI64_DEC_NUM_E_ALLOC
+	set((extension_type*)0);
+}
+
+EI64PQ_TPL_PARAMS
+std::ostream &
+operator<<(std::ostream & out, const EI64PQ_CLS_NAME & v) {
+	if (v.isExtended()) {
+// 		::gmp_fprintf();
+	}
+	else {
+		out << v.numerator().get() << '/' << v.denominator().get();
+	}
+	return out;
+}
+
+#undef EI64_INC_NUM_E_ALLOC
+#undef EI64_DEC_NUM_E_ALLOC
+#undef EI64_INC_NUM_ALLOC
+#undef EI64_DEC_NUM_ALLOC
+
+#undef EI64PQ_TPL_PARAMS
+#undef EI64PQ_CLS_NAME
+
+template<>
+uint64_t ExtendedInt64Pq<CGAL::Gmpq>::number_of_extended_allocations;
+
+template<>
+uint64_t ExtendedInt64Pq<CGAL::Gmpq>::number_of_allocations;
+
+}//end namespace CGAL
 
 #if defined(BOOST_MSVC)
 #  pragma warning(pop)

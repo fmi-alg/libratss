@@ -43,7 +43,7 @@
 
 namespace CGAL {
 
-typedef ExtendedInt64Pq Epeceik_ft;
+typedef ExtendedInt64Pq<CGAL::Gmpq> Epeceik_ft;
 
 // The following are redefined kernels instead of simple typedefs in order to shorten
 // template name length (for error messages, mangling...).
