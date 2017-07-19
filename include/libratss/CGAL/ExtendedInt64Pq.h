@@ -39,14 +39,18 @@
 
 namespace CGAL {
 namespace internal {
+
+	using boost_int1024 = boost::multiprecision::int1024_t;
+	using boost_int1024pq = boost::multiprecision::number< boost::multiprecision::rational_adaptor<boost_int1024::backend_type> >;
 	
 	template<typename T_EXTENSION_TYPE>
 	struct ExtendedInt64PqTraits {
-		typedef T_EXTENSION_TYPE type;
-		typedef typename type::numerator_type numerator_type;
-		typedef typename type::denominator_type denominator_type;
-		//TODO:correctly implement this
-// 		typedef boost::ordered_field_operators2< ExtendedInt64Pq<T_EXTENSION_TYPE>, Gmpq> ordered_field_operators2;
+		using type = T_EXTENSION_TYPE;
+		using numerator_type = typename type::numerator_type;
+		using denominator_type = typename type::denominator_type;
+		
+		template<typename T_FIRST_OP>
+		using ordered_field_operators2 = boost::ordered_field_operators2<T_FIRST_OP, type>;
 		
 		static void simplify(type & v);
 		static bool fits_int64(const numerator_type & v);
@@ -71,21 +75,21 @@ class ExtendedInt64Pq:
 		> > > > > > > >
 {
 public:
-	typedef Tag_false  Has_gcd;
-	typedef Tag_true   Has_division;
-	typedef Tag_false  Has_sqrt;
+	using Has_gcd = Tag_false;
+	using Has_division = Tag_true;
+	using Has_sqrt = Tag_false;
 
-	typedef Tag_true   Has_exact_ring_operations;
-	typedef Tag_true   Has_exact_division;
-	typedef Tag_false  Has_exact_sqrt;
+	using Has_exact_ring_operations = Tag_true;
+	using Has_exact_division = Tag_true;
+	using Has_exact_sqrt = Tag_false;
 public:
-	typedef CGAL::ExtendedInt64z::base_type base_type;
-	typedef T_EXTENSION_TYPE extension_type;
-	typedef ExtendedInt64z numerator_type;
-	typedef ExtendedInt64z denominator_type;
+	using base_type = CGAL::ExtendedInt64z::base_type;
+	using extension_type = T_EXTENSION_TYPE;
+	using numerator_type = ExtendedInt64z;
+	using denominator_type = ExtendedInt64z;
 
-	typedef typename internal::ExtendedInt64PqTraits<extension_type>::numerator_type extension_numerator_type;
-	typedef typename internal::ExtendedInt64PqTraits<extension_type>::denominator_type extension_denominator_type;
+	using extension_numerator_type = typename internal::ExtendedInt64PqTraits<extension_type>::numerator_type;
+	using extension_denominator_type = typename internal::ExtendedInt64PqTraits<extension_type>::denominator_type;
 
 public:
 	static uint64_t number_of_extended_allocations;
