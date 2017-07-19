@@ -3,17 +3,17 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
-//BEGIN CGAL::ExtendedInt64Pq specilizations
+//BEGIN CGAL::ExtendedInt64q specilizations
 
-Conversion<CGAL::ExtendedInt64Pq<CGAL::Gmpq>>::type
-Conversion<CGAL::ExtendedInt64Pq<CGAL::Gmpq>>::moveFrom(const mpq_class & v) {
-	return CGAL::ExtendedInt64Pq<CGAL::Gmpq>( Conversion<CGAL::ExtendedInt64Pq<CGAL::Gmpq>::extension_type>::moveFrom(v) );
+Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>>::type
+Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>>::moveFrom(const mpq_class & v) {
+	return CGAL::ExtendedInt64q<CGAL::Gmpq>( Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>::extension_type>::moveFrom(v) );
 }
 
 mpq_class
-Conversion< CGAL::ExtendedInt64Pq<CGAL::Gmpq> >::toMpq(const type & v) {
+Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::toMpq(const type & v) {
 	if (v.isExtended()) {
-		return Conversion<CGAL::ExtendedInt64Pq<CGAL::Gmpq>::extension_type>::toMpq( v.getExtended() );
+		return Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>::extension_type>::toMpq( v.getExtended() );
 	}
 	else {
 		return mpq_class(v.numerator().get(), v.denominator().get());
@@ -21,26 +21,26 @@ Conversion< CGAL::ExtendedInt64Pq<CGAL::Gmpq> >::toMpq(const type & v) {
 }
 
 mpfr::mpreal
-Conversion< CGAL::ExtendedInt64Pq<CGAL::Gmpq> >::toMpreal(const type & v, int precision) {
-	return Conversion<CGAL::ExtendedInt64Pq<CGAL::Gmpq>::extension_type>::toMpreal(v.asExtended(), precision);
+Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::toMpreal(const type & v, int precision) {
+	return Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>::extension_type>::toMpreal(v.asExtended(), precision);
 }
 
-Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64Pq<CGAL::Gmpq> > >::type
-Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64Pq<CGAL::Gmpq> > >::moveFrom(const mpq_class & v) {
-	return type( Conversion< CGAL::ExtendedInt64Pq<CGAL::Gmpq> >::moveFrom(v) );
+Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::Gmpq> > >::type
+Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::Gmpq> > >::moveFrom(const mpq_class & v) {
+	return type( Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::moveFrom(v) );
 }
 
 mpq_class
-Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64Pq<CGAL::Gmpq> > >::toMpq(const type & v) {
-	return Conversion< CGAL::ExtendedInt64Pq<CGAL::Gmpq> >::toMpq(v.exact());
+Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::Gmpq> > >::toMpq(const type & v) {
+	return Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::toMpq(v.exact());
 }
 
 mpfr::mpreal
-Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64Pq<CGAL::Gmpq> > >::toMpreal(const type & v, int precision) {
-	return Conversion< CGAL::ExtendedInt64Pq<CGAL::Gmpq> >::toMpreal(v.exact(), precision);
+Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::Gmpq> > >::toMpreal(const type & v, int precision) {
+	return Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::toMpreal(v.exact(), precision);
 }
 
-//END CGAL::ExtendedInt64Pq specilizations
+//END CGAL::ExtendedInt64q specilizations
 //BEGIN CGAL::Gmpq specilizations
 
 Conversion<CGAL::Gmpq>::type

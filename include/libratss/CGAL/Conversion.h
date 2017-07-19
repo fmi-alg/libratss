@@ -10,13 +10,13 @@
 #include <CGAL/CORE/Expr.h>
 #include <CGAL/Gmpq.h>
 #include <CGAL/Lazy_exact_nt.h>
-#include <libratss/CGAL/ExtendedInt64Pq.h>
+#include <libratss/CGAL/ExtendedInt64q.h>
 
 namespace LIB_RATSS_NAMESPACE {
 
 template<>
-struct Conversion< CGAL::ExtendedInt64Pq<CGAL::Gmpq> > {
-	using type = CGAL::ExtendedInt64Pq<CGAL::Gmpq>;
+struct Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> > {
+	using type = CGAL::ExtendedInt64q<CGAL::Gmpq>;
 	static type moveFrom(const mpq_class & v);
 	static mpq_class toMpq(const type & v);
 	static mpfr::mpreal toMpreal(const type & v, int precision);
@@ -25,11 +25,11 @@ struct Conversion< CGAL::ExtendedInt64Pq<CGAL::Gmpq> > {
 template<>
 struct Conversion<
 	CGAL::Lazy_exact_nt<
-		CGAL::ExtendedInt64Pq<CGAL::Gmpq>
+		CGAL::ExtendedInt64q<CGAL::Gmpq>
 	>
 >
 {
-	using type = CGAL::Lazy_exact_nt< CGAL::ExtendedInt64Pq<CGAL::Gmpq> >;
+	using type = CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::Gmpq> >;
 	static type moveFrom(const mpq_class & v);
 	static mpq_class toMpq(const type & v);
 	static mpfr::mpreal toMpreal(const type & v, int precision);

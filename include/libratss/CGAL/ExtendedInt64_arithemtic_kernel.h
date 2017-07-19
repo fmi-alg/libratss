@@ -37,7 +37,7 @@
 #include <CGAL/Get_arithmetic_kernel.h>
 
 #include <libratss/CGAL/ExtendedInt64z.h>
-#include <libratss/CGAL/ExtendedInt64Pq.h>
+#include <libratss/CGAL/ExtendedInt64q.h>
 
 namespace CGAL {
 
@@ -47,12 +47,12 @@ namespace CGAL {
 template<typename T_EXTENSION_TYPE>
 class ExtendedInt_arithmetic_kernel : public internal::Arithmetic_kernel_base {
 public:
-	typedef CGAL::ExtendedInt64Pq<T_EXTENSION_TYPE> Rational;
+	typedef CGAL::ExtendedInt64q<T_EXTENSION_TYPE> Rational;
 	typedef typename Rational::numerator_type Integer;
 };
 
 template <>
-struct Get_arithmetic_kernel< ExtendedInt64Pq<CGAL::Gmpq> >{
+struct Get_arithmetic_kernel< ExtendedInt64q<CGAL::Gmpq> >{
 	typedef ExtendedInt_arithmetic_kernel<CGAL::Gmpq> Arithmetic_kernel;
 };
     
