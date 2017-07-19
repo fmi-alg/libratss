@@ -1,3 +1,7 @@
+#ifndef LIBRATSS_CGAL_EXTENDED_INT_64_Q_H
+#define LIBRATSS_CGAL_EXTENDED_INT_64_Q_H
+#pragma once
+
 //This file is based on the Gmpq implementation of CGAL.
 //Original Header follows
 
@@ -27,21 +31,17 @@
 
 //End of original header
 
-
-#ifndef LIBRATSS_CGAL_EXTENDED_INT_64_PQ_H
-#define LIBRATSS_CGAL_EXTENDED_INT_64_PQ_H
-
-#include <CGAL/Gmpq.h>
-
 #include <libratss/constants.h>
 #include <libratss/CGAL/ExtendedInt64z.h>
-#include <boost/multiprecision/rational_adaptor.hpp>
+#include <libratss/CGAL/boost_int1024q_traits.h>
+
+#include <CGAL/Gmpq.h>
 
 namespace CGAL {
 namespace internal {
 
 	using boost_int1024 = boost::multiprecision::int1024_t;
-	using boost_int1024pq = boost::multiprecision::number< boost::multiprecision::rational_adaptor<boost_int1024::backend_type> >;
+	using boost_int1024q = boost::multiprecision::number< boost::multiprecision::rational_adaptor<boost_int1024::backend_type> >;
 	
 	template<typename T_EXTENSION_TYPE>
 	struct ExtendedInt64qTraits {
@@ -58,6 +58,8 @@ namespace internal {
 		static int64_t to_int64(const numerator_type & v);
 		static int64_t to_int64(const denominator_type & v);
 		static double to_double(const type & v);
+		static CGAL::ExtendedInt64z::extension_type to_ei64z(const numerator_type & v);
+		static CGAL::ExtendedInt64z::extension_type to_ei64z(const denominator_type & v);
 	};
 	
 }
@@ -88,8 +90,10 @@ public:
 	using numerator_type = ExtendedInt64z;
 	using denominator_type = ExtendedInt64z;
 
-	using extension_numerator_type = typename internal::ExtendedInt64qTraits<extension_type>::numerator_type;
-	using extension_denominator_type = typename internal::ExtendedInt64qTraits<extension_type>::denominator_type;
+	using config_traits = internal::ExtendedInt64qTraits<extension_type>;
+	using extension_numerator_type = typename config_traits::numerator_type;
+	using extension_denominator_type = typename config_traits::denominator_type;
+	
 
 public:
 	static uint64_t number_of_extended_allocations;
@@ -607,11 +611,11 @@ EI64PQ_TPL_PARAMS
 void
 EI64PQ_CLS_NAME::canonicalize() {
 	if (isExtended()) {
-		internal::ExtendedInt64qTraits<extension_type>::simplify(getExtended());
+		config_traits::simplify(getExtended());
 	}
 	else {
 		auto tmp = asExtended();
-		internal::ExtendedInt64qTraits<extension_type>::simplify(tmp);
+		config_traits::simplify(tmp);
 		set(tmp);
 	}
 }
@@ -620,7 +624,7 @@ EI64PQ_TPL_PARAMS
 ExtendedInt64z
 EI64PQ_CLS_NAME::numerator() const {
 	if (isExtended()) {
-		return ExtendedInt64z( getExtended().numerator() );
+		return ExtendedInt64z( config_traits::to_ei64z(config_traits::numerator(getExtended())) );
 	}
 	else {
 		return ExtendedInt64z( getPq().num );
@@ -631,7 +635,7 @@ EI64PQ_TPL_PARAMS
 ExtendedInt64z
 EI64PQ_CLS_NAME::denominator() const {
 	if (isExtended()) {
-		return ExtendedInt64z( getExtended().denominator() );
+		return ExtendedInt64z( config_traits::to_ei64z( config_traits::denominator(getExtended()) ) );
 	}
 	else {
 		return ExtendedInt64z( getPq().den );
@@ -810,7 +814,7 @@ EI64PQ_CLS_NAME::operator< (const ExtendedInt64q &q) const {
 EI64PQ_TPL_PARAMS
 double
 EI64PQ_CLS_NAME::to_double() const {
-	return internal::ExtendedInt64qTraits<extension_type>::to_double(asExtended());
+	return config_traits::to_double(asExtended());
 }
 
 EI64PQ_TPL_PARAMS
@@ -901,11 +905,11 @@ EI64PQ_CLS_NAME::set(base_type num, base_type den) {
 EI64PQ_TPL_PARAMS
 void
 EI64PQ_CLS_NAME::set(const extension_type & v) {
-	auto num = v.numerator();
-	auto den = v.denominator();
+	auto num = config_traits::numerator(v);
+	auto den = config_traits::denominator(v);
 	
-	if (internal::ExtendedInt64qTraits<extension_type>::fits_int64(num) && internal::ExtendedInt64qTraits<extension_type>::fits_int64(den.mpz())) {
-		set(internal::ExtendedInt64qTraits<extension_type>::to_int64(num), internal::ExtendedInt64qTraits<extension_type>::to_int64(den));
+	if (config_traits::fits_int64(num) && config_traits::fits_int64(den)) {
+		set(config_traits::to_int64(num), config_traits::to_int64(den));
 		assert(asExtended() == v);
 		assert(num == getPq().num && den == getPq().den);
 	}
@@ -969,15 +973,33 @@ operator<<(std::ostream & out, const EI64PQ_CLS_NAME & v) {
 
 namespace CGAL {
 namespace internal {
+
 template<>
 struct ExtendedInt64qTraits<CGAL::Gmpq> {
 	typedef CGAL::Gmpq type;
 	typedef CGAL::Gmpz numerator_type;
 	typedef CGAL::Gmpz denominator_type;
-	static void simplify(CGAL::Gmpq & v);
-	static bool fits_int64(const CGAL::Gmpz & v);
-	static int64_t to_int64(const CGAL::Gmpz & v);
-	static double to_double(const CGAL::Gmpz & v);
+	static void simplify(type & v);
+	static bool fits_int64(const numerator_type & v);
+	static int64_t to_int64(const numerator_type & v);
+	static double to_double(const type & v);
+	static numerator_type numerator(const type & v);
+	static denominator_type denominator(const type & v);
+	static CGAL::ExtendedInt64z::extension_type const & to_ei64z(const numerator_type & v);
+};
+
+template<>
+struct ExtendedInt64qTraits<boost_int1024q> {
+	typedef boost_int1024q type;
+	typedef boost_int1024 numerator_type;
+	typedef boost_int1024 denominator_type;
+	static void simplify(type & v);
+	static bool fits_int64(const numerator_type & v);
+	static int64_t to_int64(const numerator_type & v);
+	static double to_double(const type & v);
+	static numerator_type numerator(const type & v);
+	static denominator_type denominator(const type & v);
+	static CGAL::ExtendedInt64z::extension_type to_ei64z(const numerator_type & v);
 };
 
 } //end namespace internal

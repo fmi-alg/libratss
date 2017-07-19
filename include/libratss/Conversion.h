@@ -71,6 +71,6 @@ T_TARGET convert(const mpq_class & v) {
 	return Conversion<T_TARGET>::moveFrom( v );
 }
 
-}
+}//end namespace LIB_RATSS_NAMESPACE
 
 #endif

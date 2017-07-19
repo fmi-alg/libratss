@@ -3,7 +3,65 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
-//BEGIN CGAL::ExtendedInt64q specilizations
+//BEGIN CGAL::internal::boost_int1024q specilizations
+
+Conversion<CGAL::internal::boost_int1024q>::type
+Conversion<CGAL::internal::boost_int1024q>::moveFrom(const mpq_class & v) {
+	return type( v.get_str() );
+}
+
+mpq_class
+Conversion<CGAL::internal::boost_int1024q>::toMpq(const type & v) {
+	return mpq_class( v.str() );
+}
+
+mpfr::mpreal
+Conversion<CGAL::internal::boost_int1024q>::toMpreal(const type & v, int precision) {
+	return Conversion<mpq_class>::toMpreal( toMpq(v), precision );
+}
+
+//END CGAL::internal::boost_int1024q specilizations
+//BEGIN CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> specilizations
+
+Conversion<CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>>::type
+Conversion<CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>>::moveFrom(const mpq_class & v) {
+	return CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>(
+		Conversion<CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>::extension_type>::moveFrom(v)
+	);
+}
+
+mpq_class
+Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >::toMpq(const type & v) {
+	if (v.isExtended()) {
+		return Conversion<CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>::extension_type>::toMpq( v.getExtended() );
+	}
+	else {
+		return mpq_class(v.numerator().get(), v.denominator().get());
+	}
+}
+
+mpfr::mpreal
+Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >::toMpreal(const type & v, int precision) {
+	return Conversion<CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>::extension_type>::toMpreal(v.asExtended(), precision);
+}
+
+Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> > >::type
+Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> > >::moveFrom(const mpq_class & v) {
+	return type( Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >::moveFrom(v) );
+}
+
+mpq_class
+Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> > >::toMpq(const type & v) {
+	return Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >::toMpq(v.exact());
+}
+
+mpfr::mpreal
+Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> > >::toMpreal(const type & v, int precision) {
+	return Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >::toMpreal(v.exact(), precision);
+}
+
+//END CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> specilizations
+//BEGIN CGAL::ExtendedInt64q<CGAL::Gmpq> specilizations
 
 Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>>::type
 Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>>::moveFrom(const mpq_class & v) {
@@ -40,7 +98,7 @@ Conversion< CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::Gmpq> > >::toMpreal(
 	return Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::toMpreal(v.exact(), precision);
 }
 
-//END CGAL::ExtendedInt64q specilizations
+//END CGAL::ExtendedInt64q<CGAL::Gmpq> specilizations
 //BEGIN CGAL::Gmpq specilizations
 
 Conversion<CGAL::Gmpq>::type
