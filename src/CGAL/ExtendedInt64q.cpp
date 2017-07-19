@@ -77,15 +77,15 @@ ExtendedInt64qTraits<boost_int1024q>::to_double(const type & v)
 ExtendedInt64qTraits<boost_int1024q>::numerator_type
 ExtendedInt64qTraits<boost_int1024q>::numerator(const type & v)
 {
-	return v.backend().numerator();
+	return boost::multiprecision::numerator(v);
 }
 
 ExtendedInt64qTraits<boost_int1024q>::denominator_type
 ExtendedInt64qTraits<boost_int1024q>::denominator(const type & v) {
-	return v.backend().denominator();
+	return boost::multiprecision::denominator(v);
 }
 
-CGAL::ExtendedInt64z::extension_type const &
+CGAL::ExtendedInt64z::extension_type
 ExtendedInt64qTraits<boost_int1024q>::to_ei64z(const numerator_type & v) {
 	return CGAL::ExtendedInt64z::extension_type( v.str() );
 }

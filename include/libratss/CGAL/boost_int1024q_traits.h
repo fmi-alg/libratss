@@ -7,8 +7,6 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-#include <libratss/Conversion.h>
-
 namespace CGAL {
 
 // AST for boost
@@ -42,16 +40,8 @@ public:
 	
 	class Is_square: public std::binary_function<Type, Type&, bool >  {
 	public:
-		inline bool operator()( const Type& x_, Type& y ) const {
-			auto xtmp = LIB_RATSS_NAMESPACE::convert<BaseType>(x_);
-			auto ytmp = LIB_RATSS_NAMESPACE::convert<BaseType>(y);
-			bool ret = m_p(xtmp, ytmp);
-			y = LIB_RATSS_NAMESPACE::convert<Type>(ytmp);
-			return ret;
-		}
-		inline bool operator()( const Type& x) const {
-			return m_p( LIB_RATSS_NAMESPACE::convert<BaseType>(x) );
-		}
+		bool operator()( const Type& x_, Type& y ) const;
+		bool operator()( const Type& x) const;
 	private:
 		typename BaseAst::Is_square m_p;
 	};
@@ -111,9 +101,7 @@ public:
 
 	class To_interval: public std::unary_function< Type, std::pair< double, double > > {
 	public:
-		std::pair<double, double> operator()(const Type & x ) const {
-			return m_p( LIB_RATSS_NAMESPACE::convert<BaseType>(x) );
-		}
+		std::pair<double, double> operator()(const Type & x) const;
 	private:
 		typename RetBase::To_interval m_p;
 	};

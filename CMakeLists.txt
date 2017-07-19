@@ -105,6 +105,7 @@ if (CGAL_FOUND)
 		src/CGAL/Conversion.cpp
 		src/CGAL/ExtendedInt64z.cpp
 		src/CGAL/ExtendedInt64q.cpp
+		src/CGAL/boost_int1024q_traits.cpp
 	)
 endif(CGAL_FOUND)
 

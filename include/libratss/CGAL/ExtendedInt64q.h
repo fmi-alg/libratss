@@ -31,9 +31,10 @@
 
 //End of original header
 
+
+#include <libratss/CGAL/boost_int1024q_traits.h>
 #include <libratss/constants.h>
 #include <libratss/CGAL/ExtendedInt64z.h>
-#include <libratss/CGAL/boost_int1024q_traits.h>
 
 #include <CGAL/Gmpq.h>
 
