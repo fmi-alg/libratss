@@ -44,6 +44,7 @@
 namespace CGAL {
 
 typedef ExtendedInt64q<CGAL::Gmpq> Epeceik_ft;
+typedef ExtendedInt64q<internal::boost_int1024q> Epecei1024k_ft;
 
 // The following are redefined kernels instead of simple typedefs in order to shorten
 // template name length (for error messages, mangling...).
@@ -92,7 +93,12 @@ class Epeceik
 #endif // no CGAL_DONT_USE_LAZY_KERNEL
 
 typedef Epeceik Exact_predicates_exact_constructions_extended_integer_kernel;
+typedef Simple_cartesian<Epeceik_ft> Simple_cartesian_extended_integer_kernel;
 typedef Filtered_kernel< Simple_cartesian<Epeceik_ft> > Filtered_simple_cartesian_extended_integer_kernel;
+typedef Filtered_kernel< Simple_cartesian< Lazy_exact_nt<Epeceik_ft> > > Filtered_lazy_cartesian_extended_integer_kernel;
+typedef Simple_cartesian<Epecei1024k_ft> Simple_cartesian_extended_1024_integer_kernel;
+typedef Filtered_kernel< Simple_cartesian<Epecei1024k_ft> > Filtered_simple_cartesian_extended_1024_integer_kernel;
+typedef Filtered_kernel< Simple_cartesian< Lazy_exact_nt<Epecei1024k_ft> > > Filtered_lazy_cartesian_extended_1024_integer_kernel;
 
 template <>
 struct Triangulation_structural_filtering_traits<Epeceik> {
