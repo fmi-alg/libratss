@@ -37,8 +37,13 @@
 #include <libratss/CGAL/ExtendedInt64z.h>
 
 #include <CGAL/Gmpq.h>
+#include <CGAL/internal/Exact_type_selector.h>
 
 namespace CGAL {
+
+template<typename T_EXTENSION_TYPE>
+class ExtendedInt64q;
+
 namespace internal {
 
 	using boost_int1024 = boost::multiprecision::int1024_t;
@@ -63,9 +68,14 @@ namespace internal {
 		static CGAL::ExtendedInt64z::extension_type to_ei64z(const denominator_type & v);
 	};
 	
+	template<typename T_EXTENSION_TYPE>
+	struct Exact_field_selector< ExtendedInt64q<T_EXTENSION_TYPE> > {
+		typedef ExtendedInt64q<T_EXTENSION_TYPE> Type;
+	};
+	
 }
 
-template<typename T_EXTENSION_TYPE = CGAL::Gmpq>
+template<typename T_EXTENSION_TYPE>
 class ExtendedInt64q:
 	boost::totally_ordered1< ExtendedInt64q<T_EXTENSION_TYPE>
 	, boost::ordered_field_operators2< ExtendedInt64q<T_EXTENSION_TYPE>, int
@@ -1010,6 +1020,12 @@ uint64_t ExtendedInt64q<CGAL::Gmpq>::number_of_extended_allocations;
 
 template<>
 uint64_t ExtendedInt64q<CGAL::Gmpq>::number_of_allocations;
+
+template<>
+uint64_t ExtendedInt64q<CGAL::internal::boost_int1024q>::number_of_extended_allocations;
+
+template<>
+uint64_t ExtendedInt64q<CGAL::internal::boost_int1024q>::number_of_allocations;
 
 }//end namespace CGAL
 

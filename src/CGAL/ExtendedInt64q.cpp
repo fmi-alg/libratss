@@ -8,6 +8,12 @@ uint64_t ExtendedInt64q<CGAL::Gmpq>::number_of_extended_allocations = 0;
 template<>
 uint64_t ExtendedInt64q<CGAL::Gmpq>::number_of_allocations = 0;
 
+template<>
+uint64_t ExtendedInt64q<CGAL::internal::boost_int1024q>::number_of_extended_allocations = 0;
+
+template<>
+uint64_t ExtendedInt64q<CGAL::internal::boost_int1024q>::number_of_allocations = 0;
+
 namespace internal {
 
 void
@@ -53,14 +59,12 @@ ExtendedInt64qTraits<CGAL::Gmpq>::to_ei64z(const numerator_type & v) {
 //BEGIN boost_int1024q
 void
 ExtendedInt64qTraits<boost_int1024q>::simplify(type & /*v*/)
-{
-	assert(false);
-}
+{}
 
 bool
 ExtendedInt64qTraits<boost_int1024q>::fits_int64(const numerator_type & v)
 {
-	return to_int64(v) == v;
+	return std::numeric_limits<int64_t>::min() <= v && v <= std::numeric_limits<int64_t>::max();
 }
 
 int64_t
