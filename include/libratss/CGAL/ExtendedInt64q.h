@@ -853,8 +853,20 @@ EI64PQ_CLS_NAME::operator==(const ExtendedInt64q & other) const {
 
 EI64PQ_TPL_PARAMS
 bool
-EI64PQ_CLS_NAME::operator< (const ExtendedInt64q &q) const {
-	return asExtended() < q.asExtended();
+EI64PQ_CLS_NAME::operator< (const ExtendedInt64q &other) const {
+	if (isExtended() && other.isExtended()) {
+		return getExtended() < other.getExtended();
+	}
+	else if (isExtended()) {
+		return getExtended() < other.asExtended();
+	}
+	else if (other.isExtended()) {
+		return asExtended() < other.getExtended();
+	}
+	else {
+		using int128 = __int128_t;
+		return (int128(getPq().num) * int128(other.getPq().den)) < (int128(other.getPq().num) * int128(getPq().den));
+	}
 }
 
 EI64PQ_TPL_PARAMS
