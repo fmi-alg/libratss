@@ -298,8 +298,10 @@ class Algebraic_structure_traits< EI64PQ_CLS_NAME > : public Algebraic_structure
 private:
 	typedef EI64PQ_CLS_NAME Type;
 	typedef typename Type::extension_type ExtensionType;
+	typedef typename Type::base_type BaseType;
 	typedef Algebraic_structure_traits<ExtensionType> AstExt;
-	typedef Algebraic_structure_traits<Type> AstBase;
+	typedef CGAL::Quotient<BaseType> BaseTypeQuotient;
+	typedef Algebraic_structure_traits< BaseTypeQuotient > AstBase;
 public:
 	typedef Tag_true            Is_exact;
 	typedef Tag_false            Is_numerical_sensitive;
@@ -307,16 +309,24 @@ public:
 	class Is_square: public std::binary_function<Type, Type&, bool >  {
 	public:
 		inline bool operator()( const Type& x_, Type& y ) const {
+			assert(false);
 			auto ye = y.asExtended();
-			bool ret = m_p(x_.asExtended(), ye);
+			bool ret = m_pe(x_.asExtended(), ye);
 			y = Type(ye);
 			return ret;
 		}
 		inline bool operator()( const Type& x) const {
-			return m_p(x.asExtended());
+			assert(false);
+			if (x.isExtended()) {
+				return m_pe(x.getExtended());
+			}
+			else {
+				return m_pb( BaseTypeQuotient(x.getPq().num, x.getPq().den) );
+			}
 		}
 	private:
-		typename AstExt::Is_square m_p;
+		typename AstExt::Is_square m_pe;
+		typename AstBase::Is_square m_pb;
 	};
 
 	class Simplify: public std::unary_function< Type&, void > {
