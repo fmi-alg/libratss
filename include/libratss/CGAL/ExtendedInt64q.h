@@ -105,7 +105,8 @@ public:
 	using extension_numerator_type = typename config_traits::numerator_type;
 	using extension_denominator_type = typename config_traits::denominator_type;
 	
-
+	struct PQ;
+	
 public:
 	static uint64_t number_of_extended_allocations;
 	static uint64_t number_of_allocations;
@@ -167,7 +168,7 @@ public:
 
 	bool isExtended() const;
 	const extension_type & getExtended() const;
-	extension_type & getExtended();
+	const PQ & getPq() const;
 	extension_type asExtended() const;
 	
 	inline operator extension_type() const { return asExtended(); }
@@ -238,6 +239,7 @@ public:
 private:
 	static constexpr base_type btmin = std::numeric_limits<base_type>::min();
 	static constexpr base_type btmax = std::numeric_limits<base_type>::max();
+public:
 	//the denomintator also stores if ptr is used
 	//If den == 0, then ptr is set and valid
 	struct PQ {
@@ -245,6 +247,7 @@ private:
 		base_type num;
 		base_type den;
 	};
+public:
 	struct Ext {
 		Ext() : ptr(0) {}
 		extension_type * ptr;
@@ -257,8 +260,8 @@ private:
 	};
 	static_assert(sizeof(extension_type*) <= sizeof(base_type), "extension_type* needs to be smaller or equal than base_type");
 private:
-	const PQ & getPq() const;
 	PQ & getPq();
+	extension_type & getExtended();
 	extension_type * ptr() const;
 	void set(const PQ & pq);
 	void set(base_type num, base_type den);
