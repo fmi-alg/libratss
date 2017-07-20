@@ -87,8 +87,15 @@ public:
 	class Sgn: public std::unary_function< Type, ::CGAL::Sign > {
 	public:
 		::CGAL::Sign operator()( const Type& x ) const {
-			assert(false);
-			return CGAL::sign( x.sign() );
+			if (x < 0) {
+				return CGAL::NEGATIVE;
+			}
+			else if (x > 0) {
+				return CGAL::POSITIVE;
+			}
+			else {
+				return CGAL::ZERO;
+			}
 		}
 	};
 
