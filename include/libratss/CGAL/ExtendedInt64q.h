@@ -344,8 +344,10 @@ EI64PQ_TPL_PARAMS
 class Real_embeddable_traits< EI64PQ_CLS_NAME >: public INTERN_RET::Real_embeddable_traits_base<EI64PQ_CLS_NAME, CGAL::Tag_true> {
 private:
 	typedef EI64PQ_CLS_NAME Type;
+	typedef typename Type::base_type base_type;
 	typedef typename Type::extension_type ExtensionType;
 	typedef Real_embeddable_traits<ExtensionType> RetExt;
+	typedef Real_embeddable_traits<base_type> BaseExt;
 public:
 
 	class Sgn: public std::unary_function< Type, ::CGAL::Sign > {
@@ -365,7 +367,15 @@ public:
 	class To_interval: public std::unary_function< Type, std::pair< double, double > > {
 	public:
 		std::pair<double, double> operator()(const Type & x ) const {
-			return m_p( x.asExtended() );
+			if (x.isExtended()) {
+				return m_p( x.getExtended() );
+			}
+			else {
+				Interval_nt<> quot =
+				Interval_nt<>(CGAL_NTS to_interval(x.getPq().num)) /
+				Interval_nt<>(CGAL_NTS to_interval(x.getPq().den));
+				return std::make_pair(quot.inf(), quot.sup());
+			}
 		}
 	private:
 		typename RetExt::To_interval m_p;
