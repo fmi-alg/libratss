@@ -872,7 +872,12 @@ EI64PQ_CLS_NAME::operator< (const ExtendedInt64q &other) const {
 EI64PQ_TPL_PARAMS
 double
 EI64PQ_CLS_NAME::to_double() const {
-	return config_traits::to_double(asExtended());
+	if (isExtended()) {
+		return config_traits::to_double(getExtended());
+	}
+	else {
+		return CGAL::to_double( Quotient<base_type>(getPq().num, getPq().den) );
+	}
 }
 
 EI64PQ_TPL_PARAMS
