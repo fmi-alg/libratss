@@ -41,9 +41,22 @@ void GeoCalc::spherical(const mpfr::mpreal &lat, const mpfr::mpreal &lon, mpfr::
 }
 
 void GeoCalc::cartesian(const mpfr::mpreal & lat, const mpfr::mpreal & lon, mpfr::mpreal & x, mpfr::mpreal & y, mpfr::mpreal & z) const {
-	mpfr::mpreal theta, phi;
-	spherical(lat, lon, theta, phi);
-	cartesianFromSpherical(theta, phi, x, y, z);
+// 	mpfr::mpreal theta, phi;
+// 	spherical(lat, lon, theta, phi);
+// 	cartesianFromSpherical(theta, phi, x, y, z);
+
+	int outputPrecision = std::max<int>(std::max<int>(x.getPrecision(), y.getPrecision()), z.getPrecision());
+	int inputPrecision = std::max<int>(lat.getPrecision(), lon.getPrecision());
+	int calcPrecision = std::max<int>(inputPrecision, outputPrecision);
+	
+	auto pi = mpfr::const_pi(calcPrecision);
+	
+	mpfr::mpreal lat_rad = lat/180 * pi;
+	mpfr::mpreal lon_rad = lon/180 * pi;
+	
+	x = mult(cos(lon_rad), cos(lat_rad));
+	y = mult(sin(lon_rad), cos(lat_rad));
+	z = sin(lat_rad);
 }
 
 void GeoCalc::cartesianFromSpherical(const mpfr::mpreal & theta, const mpfr::mpreal & phi, mpfr::mpreal & x, mpfr::mpreal & y, mpfr::mpreal & z) const {
