@@ -5,6 +5,24 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
+InputOutput::InputOutput() :
+inFile(&std::cin),
+outFile(&std::cout),
+infoOut(&std::cerr)
+{}
+
+InputOutput::InputOutput(std::istream& input, std::ostream& info) :
+inFile(&input),
+outFile(&info),
+infoOut(&info)
+{}
+
+InputOutput::InputOutput(std::istream& input, std::ostream& info, std::ostream& output) :
+inFile(&input),
+outFile(&info),
+infoOut(&output)
+{}
+
 std::ostream& InputOutput::info() {
 	return *infoOut;
 }

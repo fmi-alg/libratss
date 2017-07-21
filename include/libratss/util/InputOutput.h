@@ -12,6 +12,12 @@ namespace LIB_RATSS_NAMESPACE {
 
 class InputOutput {
 public:
+	InputOutput();
+	//input, info have to be valid during the lifetime of this instance
+	explicit InputOutput(std::istream & input, std::ostream & info);
+	//input, info, output have to be valid during the lifetime of this instance
+	explicit InputOutput(std::istream & input, std::ostream & info, std::ostream & output);
+public:
 	std::istream & input();
 	std::ostream & output();
 	std::ostream & info();
