@@ -27,7 +27,7 @@ public:
 	mpfr::mpreal add(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
 	mpfr::mpreal sub(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
 	mpfr::mpreal mult(const mpfr::mpreal & a, const mpfr::mpreal & b) const;
-	mpfr::mpreal div(mpfr::mpreal a, const mpfr::mpreal& b) const;
+	mpfr::mpreal div(const mpfr::mpreal& a, const mpfr::mpreal& b) const;
 public:
 	mpfr::mpreal sin(const mpfr::mpreal & v) const;
 	mpfr::mpreal asin(const mpfr::mpreal & v) const;

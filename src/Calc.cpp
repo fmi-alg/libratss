@@ -23,7 +23,6 @@ mpfr::mpreal Calc::acos(const mpfr::mpreal& v) const {
 	return mpfr::acos(v);
 }
 
-
 mpfr::mpreal Calc::tan(const mpfr::mpreal & v) const {
 	return mpfr::tan(v);
 }
@@ -43,18 +42,20 @@ mpfr::mpreal Calc::squaredDistance(const mpfr::mpreal& a, const mpfr::mpreal& b,
 
 mpfr::mpreal Calc::mult(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	//double precision to remove rounding errors
-	int prec = a.getPrecision() + b.getPrecision();
-	mpfr::mpreal tmp1(a), tmp2(b);
-	tmp1.setPrecision(prec);
-	tmp2.setPrecision(prec);
-	return tmp1*tmp2;
+// 	int prec = a.getPrecision() + b.getPrecision();
+// 	mpfr::mpreal tmp1(a), tmp2(b);
+// 	tmp1.setPrecision(prec);
+// 	tmp2.setPrecision(prec);
+// 	return tmp1*tmp2;
+	return a*b;
 }
 
-mpfr::mpreal Calc::div(mpfr::mpreal a, const mpfr::mpreal &b) const {
-	int prec = std::max<int>(a.getPrecision(), b.getPrecision());
-	a.setPrecision(prec);
-	a /= b;
-	return a;
+mpfr::mpreal Calc::div(const mpfr::mpreal & a, const mpfr::mpreal &b) const {
+// 	int prec = std::max<int>(a.getPrecision(), b.getPrecision());
+// 	a.setPrecision(prec);
+// 	a /= b;
+// 	return a;
+	return a / b;
 }
 
 mpfr::mpreal Calc::sq(const mpfr::mpreal& v) const {
@@ -67,20 +68,22 @@ mpfr::mpreal Calc::sqrt(const mpfr::mpreal& v) const {
 
 mpfr::mpreal Calc::add(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	//double precision to remove rounding
-	int prec = std::max<int>(a.getPrecision(), b.getPrecision()) + 1;
-	mpfr::mpreal tmp1(a), tmp2(b);
-	tmp1.setPrecision(prec);
-	tmp2.setPrecision(prec);
-	return tmp1+tmp2;
+// 	int prec = std::max<int>(a.getPrecision(), b.getPrecision()) + 1;
+// 	mpfr::mpreal tmp1(a), tmp2(b);
+// 	tmp1.setPrecision(prec);
+// 	tmp2.setPrecision(prec);
+// 	return tmp1+tmp2;
+	return a+b;
 }
 
 mpfr::mpreal Calc::sub(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	//double precision to remove rounding errors
-	int prec = std::max<int>(a.getPrecision(), b.getPrecision()) + 1;
-	mpfr::mpreal tmp1(a), tmp2(b);
-	tmp1.setPrecision(prec);
-	tmp2.setPrecision(prec);
-	return tmp1-tmp2;
+// 	int prec = std::max<int>(a.getPrecision(), b.getPrecision()) + 1;
+// 	mpfr::mpreal tmp1(a), tmp2(b);
+// 	tmp1.setPrecision(prec);
+// 	tmp2.setPrecision(prec);
+// 	return tmp1-tmp2;
+	return a-b;
 }
 
 /*
