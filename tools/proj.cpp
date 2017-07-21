@@ -65,6 +65,7 @@ int main(int argc, char ** argv) {
 	
 	if (cfg.verbose) {
 		cfg.print(io.info());
+		io.info() << std::endl;
 	}
 	
 	FloatPoint ip;
