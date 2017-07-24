@@ -110,6 +110,8 @@ public:
 public:
 	static uint64_t number_of_extended_allocations;
 	static uint64_t number_of_allocations;
+	static uint32_t max_numerator_bits;
+	static uint32_t max_denominator_bits;
 public:
 	ExtendedInt64q();
 	ExtendedInt64q(const ExtendedInt64q & other);
@@ -423,16 +425,22 @@ public:
 
 namespace CGAL {
 
-#ifdef WITH_EI64_COUNT_ALLOCATIONS
+#define WITH_EI64_STATS
+#ifdef WITH_EI64_STATS
 	#define EI64_INC_NUM_E_ALLOC {++number_of_extended_allocations;}
 	#define EI64_DEC_NUM_E_ALLOC {--number_of_extended_allocations;}
 	#define EI64_INC_NUM_ALLOC {++number_of_allocations;}
 	#define EI64_DEC_NUM_ALLOC {--number_of_allocations;}
+	#define EI64_UPDATE_MAX_BITS(__x) {{ \
+		max_numerator_bits = std::max<uint32_t>(max_numerator_bits, config_traits::num_bits(config_traits::numerator(__x))); \
+		max_denominator_bits = std::max<uint32_t>(max_denominator_bits, config_traits::num_bits(config_traits::denominator( __x))); \
+	}}
 #else
 	#define EI64_INC_NUM_E_ALLOC
 	#define EI64_DEC_NUM_E_ALLOC
 	#define EI64_INC_NUM_ALLOC
 	#define EI64_DEC_NUM_ALLOC
+	#define EI64_UPDATE_MAX_BITS
 #endif
 
 EI64PQ_TPL_PARAMS
@@ -994,6 +1002,9 @@ EI64PQ_CLS_NAME::set(const extension_type & v) {
 			EI64_INC_NUM_E_ALLOC
 		}
 		assert(isExtended());
+		EI64_UPDATE_MAX_BITS( getExtended() );
+	}
+}
 EI64PQ_TPL_PARAMS
 void
 EI64PQ_CLS_NAME::set(extension_type && v) {
@@ -1024,6 +1035,7 @@ EI64PQ_CLS_NAME::set(ExtendedInt64q::extension_type* v) {
 	if (v) {
 		getPq().den = 0;
 		m_v.ext.ptr = v;
+		EI64_UPDATE_MAX_BITS(getExtended());
 	}
 	else {
 		getPq().num = 0;
@@ -1079,6 +1091,7 @@ struct ExtendedInt64qTraits<CGAL::Gmpq> {
 	static numerator_type numerator(const type & v);
 	static denominator_type denominator(const type & v);
 	static CGAL::ExtendedInt64z::extension_type const & to_ei64z(const numerator_type & v);
+	static uint32_t num_bits(const numerator_type &);
 };
 
 template<>
@@ -1093,6 +1106,7 @@ struct ExtendedInt64qTraits<boost_int1024q> {
 	static numerator_type numerator(const type & v);
 	static denominator_type denominator(const type & v);
 	static CGAL::ExtendedInt64z::extension_type to_ei64z(const numerator_type & v);
+	static uint32_t num_bits(const numerator_type & v);
 };
 
 } //end namespace internal
@@ -1104,10 +1118,23 @@ template<>
 uint64_t ExtendedInt64q<CGAL::Gmpq>::number_of_allocations;
 
 template<>
+uint32_t ExtendedInt64q<CGAL::Gmpq>::max_numerator_bits;
+
+template<>
+uint32_t ExtendedInt64q<CGAL::Gmpq>::max_denominator_bits;
+
+template<>
 uint64_t ExtendedInt64q<CGAL::internal::boost_int1024q>::number_of_extended_allocations;
 
 template<>
 uint64_t ExtendedInt64q<CGAL::internal::boost_int1024q>::number_of_allocations;
+
+template<>
+uint32_t ExtendedInt64q<CGAL::internal::boost_int1024q>::max_numerator_bits;
+
+template<>
+uint32_t ExtendedInt64q<CGAL::internal::boost_int1024q>::max_denominator_bits;
+
 
 }//end namespace CGAL
 

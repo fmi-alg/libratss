@@ -9,10 +9,22 @@ template<>
 uint64_t ExtendedInt64q<CGAL::Gmpq>::number_of_allocations = 0;
 
 template<>
+uint32_t ExtendedInt64q<CGAL::Gmpq>::max_numerator_bits = 0;
+
+template<>
+uint32_t ExtendedInt64q<CGAL::Gmpq>::max_denominator_bits = 0;
+
+template<>
 uint64_t ExtendedInt64q<CGAL::internal::boost_int1024q>::number_of_extended_allocations = 0;
 
 template<>
 uint64_t ExtendedInt64q<CGAL::internal::boost_int1024q>::number_of_allocations = 0;
+
+template<>
+uint32_t ExtendedInt64q<CGAL::internal::boost_int1024q>::max_numerator_bits = 0;
+
+template<>
+uint32_t ExtendedInt64q<CGAL::internal::boost_int1024q>::max_denominator_bits = 0;
 
 namespace internal {
 
@@ -56,6 +68,12 @@ ExtendedInt64qTraits<CGAL::Gmpq>::to_ei64z(const numerator_type & v) {
 	return v;
 }
 
+
+uint32_t
+ExtendedInt64qTraits<CGAL::Gmpq>::num_bits(const numerator_type & v) {
+	return ::mpz_sizeinbase(v.mpz(), 2);
+}
+
 //BEGIN boost_int1024q
 void
 ExtendedInt64qTraits<boost_int1024q>::simplify(type & /*v*/)
@@ -92,6 +110,11 @@ ExtendedInt64qTraits<boost_int1024q>::denominator(const type & v) {
 CGAL::ExtendedInt64z::extension_type
 ExtendedInt64qTraits<boost_int1024q>::to_ei64z(const numerator_type & v) {
 	return CGAL::ExtendedInt64z::extension_type( v.str() );
+}
+
+uint32_t
+ExtendedInt64qTraits<boost_int1024q>::num_bits(const numerator_type &) {
+	return 1024;
 }
 
 }//end namespace internal
