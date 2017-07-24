@@ -36,7 +36,6 @@ std::ostream & InputOutput::output() {
 }
 
 void InputOutput::setInput(const std::string & inFileName) {
-	assert(!inFile);
 	if (inFileName.size()) {
 		inFileHandle.open(inFileName);
 		if (!inFileHandle.is_open()) {
@@ -50,7 +49,6 @@ void InputOutput::setInput(const std::string & inFileName) {
 }
 
 void InputOutput::setOutput(const std::string & outFileName) {
-	assert(!outFile);
 	if (outFileName.size()) {
 		outFileHandle.open(outFileName);
 		if (!outFileHandle.is_open()) {
