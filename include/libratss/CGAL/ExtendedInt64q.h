@@ -116,6 +116,7 @@ public:
 	ExtendedInt64q(ExtendedInt64q&& other);
 
 	ExtendedInt64q(const extension_type & q);
+	ExtendedInt64q(extension_type && q);
 
 	ExtendedInt64q(int32_t n);
 	ExtendedInt64q(uint32_t n);
@@ -266,6 +267,7 @@ private:
 	void set(const PQ & pq);
 	void set(base_type num, base_type den);
 	void set(const extension_type & v);
+	void set(extension_type && v);
 	void set(extension_type * v);
 	void deleteExt();
 private:
@@ -470,6 +472,13 @@ EI64PQ_CLS_NAME::ExtendedInt64q(const extension_type & q)
 {
 	EI64_INC_NUM_ALLOC
 	set(q);
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64q(extension_type && q)
+{
+	EI64_INC_NUM_ALLOC
+	set(std::move(q));
 }
 
 EI64PQ_TPL_PARAMS
@@ -985,6 +994,27 @@ EI64PQ_CLS_NAME::set(const extension_type & v) {
 			EI64_INC_NUM_E_ALLOC
 		}
 		assert(isExtended());
+EI64PQ_TPL_PARAMS
+void
+EI64PQ_CLS_NAME::set(extension_type && v) {
+	auto num = config_traits::numerator(v);
+	auto den = config_traits::denominator(v);
+	
+	if (config_traits::fits_int64(num) && config_traits::fits_int64(den)) {
+		set(config_traits::to_int64(num), config_traits::to_int64(den));
+		assert(asExtended() == v);
+		assert(num == getPq().num && den == getPq().den);
+	}
+	else {
+		if (isExtended()) {
+			getExtended() = std::move(v);
+		}
+		else {
+			set( new extension_type(std::move(v)) );
+			EI64_INC_NUM_E_ALLOC
+		}
+		assert(isExtended());
+		EI64_UPDATE_MAX_BITS( getExtended() );
 	}
 }
 
