@@ -67,7 +67,7 @@ public:
 	///Projects the coordinates of begin->end onto new coordinates such that one coordinate is zero
 	///If you want to reproject onto the sphere, then you need to store the return value
 	template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
-	PositionOnSphere sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const WARN_UNUSED_RESULT;
+	PositionOnSphere sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out, PositionOnSphere pos = SP_INVALID) const WARN_UNUSED_RESULT;
 	
 	template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
 	void plane2Sphere(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, PositionOnSphere pos, T_FT_OUTPUT_ITERATOR out) const;
@@ -148,13 +148,15 @@ PositionOnSphere ProjectSN::positionOnSphere(T_FT_ITERATOR begin, const T_FT_ITE
 
 
 template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
-PositionOnSphere ProjectSN::sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out) const {
+PositionOnSphere ProjectSN::sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR& end, T_FT_OUTPUT_ITERATOR out, ratss::PositionOnSphere pos) const {
 	using std::iterator_traits;
 	using FT = typename iterator_traits<T_FT_INPUT_ITERATOR>::value_type;
 	if (begin == end) {
 		return SP_INVALID;
 	}
-	PositionOnSphere pos = positionOnSphere(begin, end);
+	if (pos == SP_INVALID) {
+		pos = positionOnSphere(begin, end);
+	}
 	int projCoord = abs((int) pos); //starts from 1
 	//first get the value of our projection coordinate
 	FT projVal = *std::next(begin, projCoord-1);

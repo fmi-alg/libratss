@@ -17,7 +17,7 @@ public:
 	using ProjectSN::plane2Sphere;
 
 	template<typename T_FT>
-	PositionOnSphere sphere2Plane(const T_FT& xs, const T_FT& ys, const T_FT& zs, T_FT& xp, T_FT& yp, T_FT& zp) const WARN_UNUSED_RESULT;
+	PositionOnSphere sphere2Plane(const T_FT& xs, const T_FT& ys, const T_FT& zs, T_FT& xp, T_FT& yp, T_FT& zp, PositionOnSphere pos = SP_INVALID) const WARN_UNUSED_RESULT;
 
 	template<typename T_FT>
 	void plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const;
@@ -78,7 +78,7 @@ void ProjectS2::plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, 
 }
 
 template<typename T_FT>
-PositionOnSphere ProjectS2::sphere2Plane(const T_FT & xs, const T_FT & ys, const T_FT & zs, T_FT & xp, T_FT & yp, T_FT & zp) const {
+PositionOnSphere ProjectS2::sphere2Plane(const T_FT & xs, const T_FT & ys, const T_FT & zs, T_FT & xp, T_FT & yp, T_FT & zp, PositionOnSphere pos) const {
 	using ConstRefWrap = internal::ReferenceWrapper<const T_FT>;
 	using RefWrap = internal::ReferenceWrapper<T_FT>;
 	using ConstRefWrapIt = internal::ReferenceWrapperIterator<ConstRefWrap * >;
@@ -89,7 +89,7 @@ PositionOnSphere ProjectS2::sphere2Plane(const T_FT & xs, const T_FT & ys, const
 	ConstRefWrapIt inputBegin(input);
 	ConstRefWrapIt inputEnd(input+3);
 	RefWrapIt outputBegin(output);
-	return ProjectSN::sphere2Plane<ConstRefWrapIt, RefWrapIt>(inputBegin, inputEnd, outputBegin);
+	return ProjectSN::sphere2Plane<ConstRefWrapIt, RefWrapIt>(inputBegin, inputEnd, outputBegin, pos);
 }
 
 template<typename T_FT>
