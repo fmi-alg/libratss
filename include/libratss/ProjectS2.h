@@ -15,6 +15,9 @@ class ProjectS2: public ProjectSN {
 public:
 	using ProjectSN::sphere2Plane;
 	using ProjectSN::plane2Sphere;
+	
+	template<typename T_FT>
+	PositionOnSphere positionOnSphere(const T_FT& xs, const T_FT& ys, const T_FT& zs) const;
 
 	template<typename T_FT>
 	PositionOnSphere sphere2Plane(const T_FT& xs, const T_FT& ys, const T_FT& zs, T_FT& xp, T_FT& yp, T_FT& zp, PositionOnSphere pos = SP_INVALID) const WARN_UNUSED_RESULT;
@@ -64,6 +67,15 @@ private:
 
 //below are the template definitions
 namespace LIB_RATSS_NAMESPACE {
+
+template<typename T_FT>
+PositionOnSphere ProjectS2::positionOnSphere(const T_FT& xs, const T_FT& ys, const T_FT& zs) const {
+	using ConstRefWrap = internal::ReferenceWrapper<const T_FT>;
+	using ConstRefWrapIt = internal::ReferenceWrapperIterator<ConstRefWrap * >;
+	
+	ConstRefWrap input[3] = {xs, ys, zs};
+	return ProjectSN::positionOnSphere(ConstRefWrapIt(input), ConstRefWrapIt(input+3));
+}
 
 template<typename T_FT>
 void ProjectS2::plane2Sphere(const T_FT & xp, const T_FT & yp, const T_FT & zp, PositionOnSphere pos, T_FT & xs, T_FT & ys, T_FT & zs) const {
