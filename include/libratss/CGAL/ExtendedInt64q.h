@@ -676,9 +676,9 @@ EI64PQ_CLS_NAME::canonicalize() {
 		config_traits::simplify(getExtended());
 	}
 	else {
-		auto tmp = asExtended();
-		config_traits::simplify(tmp);
-		set(tmp);
+		int64_t gcd = std::__gcd(getPq().num, getPq().den);
+		getPq().num /= gcd;
+		getPq().den /= gcd;
 	}
 }
 
@@ -806,7 +806,18 @@ EI64PQ_CLS_NAME::operator+(const ExtendedInt64q & other) const {
 		return ExtendedInt64q( asExtended() + other.getExtended() );
 	}
 	else {
-		return ExtendedInt64q( asExtended() + other.asExtended() );
+		//TODO: check if this can overflow
+		int128 num = int128(getPq().num)*int128(other.getPq().den) + int128(other.getPq().num)*int128(getPq().den);
+		int128 den = int128(getPq().den)*int128(other.getPq().den);
+		int128 gcd = std::__gcd(num, den);
+		num /= gcd;
+		den /= gcd;
+		if (btmin <= num && num <= btmax && btmin <= den && den <= btmax) {
+			return ExtendedInt64q(base_type(num), base_type(den));
+		}
+		else {
+			return ExtendedInt64q( asExtended() + other.asExtended() );
+		}
 	}
 }
 
