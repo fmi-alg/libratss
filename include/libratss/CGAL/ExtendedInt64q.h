@@ -96,7 +96,9 @@ public:
 	using Has_exact_division = Tag_true;
 	using Has_exact_sqrt = Tag_false;
 public:
+	using MySelf = ExtendedInt64q<T_EXTENSION_TYPE>;
 	using base_type = CGAL::ExtendedInt64z::base_type;
+	using unsigned_base_type = std::make_unsigned<base_type>::type;
 	using extension_type = T_EXTENSION_TYPE;
 	using numerator_type = ExtendedInt64z;
 	using denominator_type = ExtendedInt64z;
@@ -155,10 +157,10 @@ public:
 	ExtendedInt64q operator+() const;
 	ExtendedInt64q operator-() const;
 
-	ExtendedInt64q& operator+=(const ExtendedInt64q &q);
-	ExtendedInt64q& operator-=(const ExtendedInt64q &q);
-	ExtendedInt64q& operator*=(const ExtendedInt64q &q);
-	ExtendedInt64q& operator/=(const ExtendedInt64q &q);
+	ExtendedInt64q& operator+=(const ExtendedInt64q & other);
+	ExtendedInt64q& operator-=(const ExtendedInt64q & other);
+	ExtendedInt64q& operator*=(const ExtendedInt64q & other);
+	ExtendedInt64q& operator/=(const ExtendedInt64q & other);
 	
 	ExtendedInt64q operator+(const ExtendedInt64q & other) const;
 	ExtendedInt64q operator-(const ExtendedInt64q & other) const;
@@ -254,6 +256,7 @@ public:
 		base_type den;
 	};
 private:
+	using uint128 = __uint128_t;
 	using int128 = __int128_t;
 	struct Ext {
 		Ext() : ptr(0) {}
@@ -267,11 +270,13 @@ private:
 	};
 	static_assert(sizeof(extension_type*) <= sizeof(base_type), "extension_type* needs to be smaller or equal than base_type");
 private:
+	ExtendedInt64q(int128 n, int128 d);
 	PQ & getPq();
 	extension_type & getExtended();
 	extension_type * ptr() const;
 	void set(const PQ & pq);
 	void set(base_type num, base_type den);
+	void set(int128 num, int128 den);
 	void set(const extension_type & v);
 	void set(extension_type && v);
 	void set(extension_type * v);
@@ -559,6 +564,18 @@ EI64PQ_CLS_NAME::ExtendedInt64q(base_type n, base_type d)
 }
 
 EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64q(int128 n, int128 d)
+{
+	set(n, d);
+	if (isExtended()) {
+		EI64_INC_NUM_E_ALLOC
+	}
+	else {
+		EI64_INC_NUM_ALLOC
+	}
+}
+
+EI64PQ_TPL_PARAMS
 EI64PQ_CLS_NAME::ExtendedInt64q(base_type n, uint64_t d)
 {
 	EI64_INC_NUM_ALLOC
@@ -676,7 +693,7 @@ EI64PQ_CLS_NAME::canonicalize() {
 		config_traits::simplify(getExtended());
 	}
 	else {
-		int64_t gcd = std::__gcd(getPq().num, getPq().den);
+		int64_t gcd = std::__gcd(std::abs<base_type>(getPq().num), getPq().den);
 		getPq().num /= gcd;
 		getPq().den /= gcd;
 	}
@@ -723,72 +740,80 @@ EI64PQ_CLS_NAME::operator-() const {
 
 EI64PQ_TPL_PARAMS
 EI64PQ_CLS_NAME&
-EI64PQ_CLS_NAME::operator+=(const ExtendedInt64q &q) {
-	if (isExtended() && q.isExtended()) {
-		getExtended() += q.getExtended();
+EI64PQ_CLS_NAME::operator+=(const ExtendedInt64q &other) {
+	if (isExtended() && other.isExtended()) {
+		getExtended() += other.getExtended();
 	}
 	else if (isExtended()) {
-		getExtended() += q.asExtended();
+		getExtended() += other.asExtended();
 	}
-	else if (q.isExtended()) {
-		set( asExtended() + q.getExtended() );
+	else if (other.isExtended()) {
+		set( asExtended() + other.getExtended() );
 	}
 	else {
-		set( asExtended() + q.asExtended() );
+		int128 num = int128(getPq().num)*int128(other.getPq().den) + int128(other.getPq().num)*int128(getPq().den);
+		int128 den = int128(getPq().den)*int128(other.getPq().den);
+		set(num, den);
 	}
 	return *this;
 }
 
 EI64PQ_TPL_PARAMS
 EI64PQ_CLS_NAME&
-EI64PQ_CLS_NAME::operator-=(const ExtendedInt64q &q) {
-	if (isExtended() && q.isExtended()) {
-		getExtended() -= q.getExtended();
+EI64PQ_CLS_NAME::operator-=(const ExtendedInt64q &other) {
+	if (isExtended() && other.isExtended()) {
+		getExtended() -= other.getExtended();
 	}
 	else if (isExtended()) {
-		getExtended() -= q.asExtended();
+		getExtended() -= other.asExtended();
 	}
-	else if (q.isExtended()) {
-		set( asExtended() - q.getExtended() );
+	else if (other.isExtended()) {
+		set( asExtended() - other.getExtended() );
 	}
 	else {
-		set( asExtended() - q.asExtended() );
+		int128 num = int128(getPq().num)*int128(other.getPq().den) - int128(other.getPq().num)*int128(getPq().den);
+		int128 den = int128(getPq().den)*int128(other.getPq().den);
+		set(num, den);
 	}
 	return *this;
 }
 
 EI64PQ_TPL_PARAMS
 EI64PQ_CLS_NAME&
-EI64PQ_CLS_NAME::operator*=(const ExtendedInt64q &q) {
-	if (isExtended() && q.isExtended()) {
-		getExtended() *= q.getExtended();
+EI64PQ_CLS_NAME::operator*=(const ExtendedInt64q & other) {
+	if (isExtended() && other.isExtended()) {
+		getExtended() *= other.getExtended();
 	}
 	else if (isExtended()) {
-		getExtended() *= q.asExtended();
+		getExtended() *= other.asExtended();
 	}
-	else if (q.isExtended()) {
-		set( asExtended() * q.getExtended() );
+	else if (other.isExtended()) {
+		set( asExtended() * other.getExtended() );
 	}
 	else {
-		set( asExtended() * q.asExtended() );
+		int128 num = int128(getPq().num) * int128(other.getPq().num);
+		int128 den = int128(getPq().den) * int128(other.getPq().den);
+		set(num, den);
 	}
 	return *this;
 }
 
 EI64PQ_TPL_PARAMS
 EI64PQ_CLS_NAME&
-EI64PQ_CLS_NAME::operator/=(const ExtendedInt64q &q) {
-	if (isExtended() && q.isExtended()) {
-		getExtended() /= q.getExtended();
+EI64PQ_CLS_NAME::operator/=(const ExtendedInt64q &other) {
+	if (isExtended() && other.isExtended()) {
+		getExtended() /= other.getExtended();
 	}
 	else if (isExtended()) {
-		getExtended() /= q.asExtended();
+		getExtended() /= other.asExtended();
 	}
-	else if (q.isExtended()) {
-		set( asExtended() / q.getExtended() );
+	else if (other.isExtended()) {
+		set( asExtended() / other.getExtended() );
 	}
 	else {
-		set( asExtended() / q.asExtended() );
+		int128 num = int128(getPq().num)*int128(other.getPq().den);
+		int128 den = int128(getPq().den)*int128(other.getPq().num);
+		set(num, den);
 	}
 	return *this;
 }
@@ -806,18 +831,12 @@ EI64PQ_CLS_NAME::operator+(const ExtendedInt64q & other) const {
 		return ExtendedInt64q( asExtended() + other.getExtended() );
 	}
 	else {
-		//TODO: check if this can overflow
-		int128 num = int128(getPq().num)*int128(other.getPq().den) + int128(other.getPq().num)*int128(getPq().den);
-		int128 den = int128(getPq().den)*int128(other.getPq().den);
-		int128 gcd = std::__gcd(num, den);
-		num /= gcd;
-		den /= gcd;
-		if (btmin <= num && num <= btmax && btmin <= den && den <= btmax) {
-			return ExtendedInt64q(base_type(num), base_type(den));
-		}
-		else {
-			return ExtendedInt64q( asExtended() + other.asExtended() );
-		}
+		const int128 num1 = int128(getPq().num)*int128(other.getPq().den);
+		const int128 num2 = int128(other.getPq().num)*int128(getPq().den);
+		const int128 num = num1 + num2;
+		const int128 den = int128(getPq().den)*int128(other.getPq().den);
+		assert( ExtendedInt64q(num, den) == (asExtended() + other.asExtended()) );
+		return ExtendedInt64q(num, den);
 	}
 }
 
@@ -834,7 +853,11 @@ EI64PQ_CLS_NAME::operator-(const ExtendedInt64q & other) const {
 		return ExtendedInt64q( asExtended() - other.getExtended() );
 	}
 	else {
-		return ExtendedInt64q( asExtended() - other.asExtended() );
+		//TODO: check if this can overflow
+		int128 num = int128(getPq().num)*int128(other.getPq().den) - int128(other.getPq().num)*int128(getPq().den);
+		int128 den = int128(getPq().den)*int128(other.getPq().den);
+		assert( ExtendedInt64q(num, den) == (asExtended() - other.asExtended()) );
+		return ExtendedInt64q(num, den);
 	}
 }
 
@@ -851,7 +874,10 @@ EI64PQ_CLS_NAME::operator*(const ExtendedInt64q & other) const {
 		return ExtendedInt64q( asExtended() * other.getExtended() );
 	}
 	else {
-		return ExtendedInt64q( asExtended() * other.asExtended() );
+		int128 num = int128(getPq().num) * int128(other.getPq().num);
+		int128 den = int128(getPq().den) * int128(other.getPq().den);
+		assert(ExtendedInt64q(num, den) == asExtended() * other.asExtended());
+		return ExtendedInt64q(num, den);
 	}
 }
 
@@ -868,7 +894,10 @@ EI64PQ_CLS_NAME::operator/(const ExtendedInt64q & other) const {
 		return ExtendedInt64q( asExtended() / other.getExtended() );
 	}
 	else {
-		return ExtendedInt64q( asExtended() / other.asExtended() );
+		int128 num = int128(getPq().num) * int128(other.getPq().den);
+		int128 den = int128(getPq().den) * int128(other.getPq().num);
+		assert( ExtendedInt64q(num, den) == (asExtended() / other.asExtended()) );
+		return ExtendedInt64q(num, den);
 	}
 }
 
@@ -1000,6 +1029,41 @@ EI64PQ_CLS_NAME::set(base_type num, base_type den) {
 	getPq().num = num;
 	getPq().den = den;
 	assert(!isExtended());
+}
+
+EI64PQ_TPL_PARAMS
+void
+EI64PQ_CLS_NAME::set(int128 num, int128 den) {
+	if (den < 0) {
+		num = -num;
+		den = -den;
+	}
+	if (den == 0) {
+		throw std::domain_error("Denominator is not allowed to be zero");
+	}
+	int128 gcd = std::__gcd(num < 0 ? -num : num, den);
+	num /= gcd;
+	den /= gcd;
+	if (btmin <= num && num <= btmax && btmin <= den && den <= btmax) {
+		set(base_type(num), base_type(den));
+	}
+	else {
+		uint128 num_us = num < 0 ? uint128(-num) : uint128(num);
+		uint128 den_us = uint128(den);
+		
+		typename config_traits::numerator_type num_e(unsigned_base_type(num_us >> std::numeric_limits<unsigned_base_type>::digits));
+		num_e <<= std::numeric_limits<unsigned_base_type>::digits;
+		num_e += unsigned_base_type(num_us);
+		if (num < 0) {
+			num_e = -num_e;
+		}
+		
+		typename config_traits::denominator_type den_e(unsigned_base_type(den_us >> std::numeric_limits<unsigned_base_type>::digits));
+		den_e <<= std::numeric_limits<unsigned_base_type>::digits;
+		den_e += unsigned_base_type(den_us);
+		
+		set( extension_type(num_e, den_e) );
+	}
 }
 
 EI64PQ_TPL_PARAMS
