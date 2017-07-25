@@ -1055,7 +1055,7 @@ EI64PQ_TPL_PARAMS
 std::ostream &
 operator<<(std::ostream & out, const EI64PQ_CLS_NAME & v) {
 	if (v.isExtended()) {
-// 		::gmp_fprintf();
+		out << v.getExtended();
 	}
 	else {
 		out << v.numerator().get() << '/' << v.denominator().get();
