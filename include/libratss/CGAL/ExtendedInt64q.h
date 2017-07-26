@@ -1053,14 +1053,14 @@ EI64PQ_CLS_NAME::set(int128 num, int128 den) {
 		
 		typename config_traits::numerator_type num_e(unsigned_base_type(num_us >> std::numeric_limits<unsigned_base_type>::digits));
 		num_e <<= std::numeric_limits<unsigned_base_type>::digits;
-		num_e += unsigned_base_type(num_us);
+		num_e |= unsigned_base_type(num_us);
 		if (num < 0) {
 			num_e = -num_e;
 		}
 		
 		typename config_traits::denominator_type den_e(unsigned_base_type(den_us >> std::numeric_limits<unsigned_base_type>::digits));
 		den_e <<= std::numeric_limits<unsigned_base_type>::digits;
-		den_e += unsigned_base_type(den_us);
+		den_e |= unsigned_base_type(den_us);
 		
 		set( extension_type(num_e, den_e) );
 	}
