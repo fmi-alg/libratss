@@ -566,13 +566,8 @@ EI64PQ_CLS_NAME::ExtendedInt64q(base_type n, base_type d)
 EI64PQ_TPL_PARAMS
 EI64PQ_CLS_NAME::ExtendedInt64q(int128 n, int128 d)
 {
+	EI64_INC_NUM_ALLOC
 	set(n, d);
-	if (isExtended()) {
-		EI64_INC_NUM_E_ALLOC
-	}
-	else {
-		EI64_INC_NUM_ALLOC
-	}
 }
 
 EI64PQ_TPL_PARAMS
