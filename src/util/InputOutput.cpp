@@ -23,6 +23,17 @@ outFile(&info),
 infoOut(&output)
 {}
 
+InputOutput::~InputOutput() {
+	if (outFileHandle.is_open()) {
+		outFileHandle.flush();
+		outFileHandle.close();
+	}
+	if (inFileHandle.is_open()) {
+		inFileHandle.close();
+	}
+}
+
+
 std::ostream& InputOutput::info() {
 	return *infoOut;
 }
@@ -35,12 +46,12 @@ std::ostream & InputOutput::output() {
 	return *outFile;
 }
 
-void InputOutput::setInput(const std::string & inFileName) {
+void InputOutput::setInput(const std::string & inFileName, std::ios_base::openmode mode) {
 	if (inFileName.size()) {
 		if (inFileHandle.is_open()) {
 			inFileHandle.close();
 		}
-		inFileHandle.open(inFileName);
+		inFileHandle.open(inFileName, mode);
 		if (!inFileHandle.is_open()) {
 			throw std::runtime_error("Could not open input file: " + inFileName);
 		}
@@ -51,12 +62,13 @@ void InputOutput::setInput(const std::string & inFileName) {
 	}
 }
 
-void InputOutput::setOutput(const std::string & outFileName) {
+void InputOutput::setOutput(const std::string & outFileName, std::ios_base::openmode mode) {
 	if (outFileName.size()) {
 		if (outFileHandle.is_open()) {
+			outFileHandle.flush();
 			outFileHandle.close();
 		}
-		outFileHandle.open(outFileName);
+		outFileHandle.open(outFileName, mode);
 		if (!outFileHandle.is_open()) {
 			throw std::runtime_error("Could not open output file: " + outFileName);
 		}
