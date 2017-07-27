@@ -61,14 +61,41 @@ struct Conversion<mpq_class> {
 
 namespace LIB_RATSS_NAMESPACE {
 
+// template<typename T_TARGET, typename T_SOURCE>
+// T_TARGET convert(const T_SOURCE & v);
+
 template<typename T_TARGET, typename T_SOURCE>
-T_TARGET convert(const T_SOURCE & v) {
+typename std::enable_if<
+	!std::is_same<T_TARGET, T_SOURCE>::value
+	&& !std::is_same<T_SOURCE, mpq_class>::value
+	&& !std::is_same<T_TARGET, mpq_class>::value
+	, T_TARGET>::type
+convert(const T_SOURCE & v) {
 	return Conversion<T_TARGET>::moveFrom( Conversion<T_SOURCE>::toMpq(v) );
 }
 
+template<typename T_TARGET, typename T_SOURCE>
+typename std::enable_if<
+	std::is_same<T_TARGET, T_SOURCE>::value
+	&& !std::is_same<T_SOURCE, mpq_class>::value
+	&& !std::is_same<T_TARGET, mpq_class>::value
+	, T_TARGET>::type
+convert(const T_SOURCE & v) {
+	return v;
+}
+
 template<typename T_TARGET>
-T_TARGET convert(const mpq_class & v) {
+typename std::enable_if<
+	!std::is_same<T_TARGET, mpq_class>::value
+	,T_TARGET>::type
+convert(const mpq_class & v) {
 	return Conversion<T_TARGET>::moveFrom( v );
+}
+
+template<typename T_TARGET, typename T_SOURCE>
+typename std::enable_if<std::is_same<T_TARGET, mpq_class>::value, mpq_class>::type
+convert(const T_SOURCE & v) {
+	return Conversion<T_SOURCE>::toMpq(v);
 }
 
 }//end namespace LIB_RATSS_NAMESPACE
