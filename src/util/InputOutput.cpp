@@ -37,6 +37,9 @@ std::ostream & InputOutput::output() {
 
 void InputOutput::setInput(const std::string & inFileName) {
 	if (inFileName.size()) {
+		if (inFileHandle.is_open()) {
+			inFileHandle.close();
+		}
 		inFileHandle.open(inFileName);
 		if (!inFileHandle.is_open()) {
 			throw std::runtime_error("Could not open input file: " + inFileName);
@@ -50,6 +53,9 @@ void InputOutput::setInput(const std::string & inFileName) {
 
 void InputOutput::setOutput(const std::string & outFileName) {
 	if (outFileName.size()) {
+		if (outFileHandle.is_open()) {
+			outFileHandle.close();
+		}
 		outFileHandle.open(outFileName);
 		if (!outFileHandle.is_open()) {
 			throw std::runtime_error("Could not open output file: " + outFileName);
