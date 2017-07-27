@@ -116,6 +116,8 @@ public:
 	ExtendedInt64q();
 	ExtendedInt64q(const ExtendedInt64q & other);
 	ExtendedInt64q(ExtendedInt64q&& other);
+	
+	ExtendedInt64q(const PQ & q);
 
 	ExtendedInt64q(const extension_type & q);
 	ExtendedInt64q(extension_type && q);
@@ -247,6 +249,7 @@ public:
 	//If den == 0, then ptr is set and valid
 	struct PQ {
 		PQ() : num(0), den(1) {}
+		PQ(base_type num, base_type den) : num(num), den(den) {}
 		base_type num;
 		base_type den;
 	};
@@ -474,6 +477,13 @@ EI64PQ_CLS_NAME::ExtendedInt64q(ExtendedInt64q && other)
 	else {
 		set(other.getPq());
 	}
+}
+
+EI64PQ_TPL_PARAMS
+EI64PQ_CLS_NAME::ExtendedInt64q(const PQ & q)
+{
+	EI64_INC_NUM_ALLOC
+	set(q);
 }
 
 EI64PQ_TPL_PARAMS
