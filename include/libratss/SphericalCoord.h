@@ -40,11 +40,11 @@ namespace std {
 template<>
 struct hash< LIB_RATSS_NAMESPACE::SphericalCoord > {
 	std::hash<double> hS;
-	inline void hash_combine(uint64_t & seed, double v) const {
-		seed ^= static_cast<uint64_t>(hS(v)) + static_cast<uint64_t>(0x9e3779b9) + (seed << 6) + (seed >> 2);
+	inline void hash_combine(std::size_t & seed, double v) const {
+		seed ^= static_cast<std::size_t>(hS(v)) + static_cast<std::size_t>(0x9e3779b9) + (seed << 6) + (seed >> 2);
 	}
 	inline size_t operator()(const LIB_RATSS_NAMESPACE::SphericalCoord & v) const {
-		uint64_t seed = 0;
+		std::size_t seed = 0;
 		hash_combine(seed, v.theta);
 		hash_combine(seed, v.phi);
 		return seed;
