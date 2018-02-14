@@ -71,7 +71,7 @@ ExtendedInt64qTraits<CGAL::Gmpq>::to_ei64z(const numerator_type & v) {
 
 uint32_t
 ExtendedInt64qTraits<CGAL::Gmpq>::num_bits(const numerator_type & v) {
-	return ::mpz_sizeinbase(v.mpz(), 2);
+	return uint32_t(::mpz_sizeinbase(v.mpz(), 2));
 }
 
 //BEGIN boost_int1024q

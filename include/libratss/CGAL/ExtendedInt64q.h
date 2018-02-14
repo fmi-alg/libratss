@@ -46,6 +46,7 @@ class ExtendedInt64q;
 
 namespace internal {
 
+	using boost_int128 = boost::multiprecision::int128_t;
 	using boost_int1024 = boost::multiprecision::int1024_t;
 	using boost_int1024q = boost::multiprecision::number< boost::multiprecision::rational_adaptor<boost_int1024::backend_type> >;
 	
@@ -254,7 +255,11 @@ public:
 		base_type den;
 	};
 private:
+	#ifdef __SIZEOF_INT128__
 	using int128 = __int128_t;
+	#else 
+	using int128 = internal::boost_int128;
+	#endif
 	struct Ext {
 		Ext() : ptr(0) {}
 		extension_type * ptr;

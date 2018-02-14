@@ -98,8 +98,8 @@ The problem are points that are close to 0 that are representable by floating po
 */
 void Calc::makeFixpoint(mpfr::mpreal& v, int significands) const {
 	if (significands < 0) {
-		mp_exp_t exp = v.get_exp();
-		int prec = v.get_prec();
+		auto exp = v.get_exp();
+		auto prec = v.get_prec();
 		
 		if (exp < -prec) { //exponent does more right-shifts than we have bits in our mantissa
 			using std::signbit;
@@ -113,13 +113,13 @@ void Calc::makeFixpoint(mpfr::mpreal& v, int significands) const {
 			//exponent does right shifts,
 			//this means that there are leading zeros,
 			//thus we need to cut off as many bits at the end as we have leading zeros
-			int new_prec = prec + exp;
+			auto new_prec = prec + exp;
 			if (new_prec < 2) {
 				v = 0;
 				v.setPrecision(2, MPFR_RNDZ);
 			}
 			else {
-				v.setPrecision(new_prec, MPFR_RNDZ);
+				v.setPrecision(int(new_prec), MPFR_RNDZ);
 			}
 		}
 		else if (exp > 0) {
