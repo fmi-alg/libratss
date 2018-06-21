@@ -1,5 +1,6 @@
 ## Introduction
-This library snapps points that are ε-close to the sphere to rational points that are no more than 2ε away from the closest point on the sphere
+This library snapps points that are ε-close to the sphere to rational points that are no more than 2ε away from the closest point on the sphere. It is based on the paper [
+Rational Points on the Unit Sphere: Approximation Complexity and Practical Constructions](https://arxiv.org/abs/1707.08549)
 
 ## Dependecies
 * gmpxx
