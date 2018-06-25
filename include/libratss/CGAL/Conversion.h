@@ -13,6 +13,10 @@
 #include <libratss/CGAL/ExtendedInt64q.h>
 
 namespace LIB_RATSS_NAMESPACE {
+	
+//make sure that GMP is able to handle 64 Bit numbers.
+static_assert(sizeof(uint64_t) <= sizeof(unsigned long), "Unable to initialize GMP types from uint64_t");
+static_assert(sizeof(int64_t) <= sizeof(signed long), "Unable to initialize GMP types from int64_t");
 
 template<>
 struct Conversion< CGAL::internal::boost_int1024q > {
