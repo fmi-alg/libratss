@@ -7,6 +7,7 @@
 #include <utility>
 #include <iosfwd>
 #include <functional>
+#include <string>
 
 namespace LIB_RATSS_NAMESPACE {
 
