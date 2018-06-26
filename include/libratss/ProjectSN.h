@@ -5,8 +5,11 @@
 #include <libratss/constants.h>
 #include <libratss/Calc.h>
 #include <libratss/enum.h>
+
 #include "internal/SkipIterator.h"
+
 #include <assert.h>
+#include <array>
 
 namespace LIB_RATSS_NAMESPACE {
 
