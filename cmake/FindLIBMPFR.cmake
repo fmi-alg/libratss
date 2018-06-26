@@ -9,7 +9,19 @@ IF (LIBMPFR_INCLUDE_DIR)
   SET(LIBMPFR_FIND_QUIETLY TRUE)
 ENDIF (LIBMPFR_INCLUDE_DIR)
 
-set(LIBMPFR_INCLUDE_DIR /usr/include)
+find_path(LIBMPFR_INCLUDE_DIR
+		NAMES mpfr.h
+		HINTS ENV MPFR_INC_DIR
+				ENV MPFR_DIR
+				/usr/include
+				/opt/local/include
+				/usr/local/include
+				/opt/include
+		PATH_SUFFIXES include
+		DOC "The directory containing the MPFR header files"
+		)
+
+# set(LIBMPFR_INCLUDE_DIR /usr/include)
 
 SET(LIBMPFR_NAMES mpfr )
 FIND_LIBRARY(LIBMPFR_LIBRARY NAMES ${LIBMPFR_NAMES} )

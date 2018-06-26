@@ -9,8 +9,32 @@ IF (LIBGMPXX_INCLUDE_DIR)
   SET(LIBGMPXX_FIND_QUIETLY TRUE)
 ENDIF (LIBGMPXX_INCLUDE_DIR)
 
-set(LIBGMPXX_INCLUDE_DIR /usr/include)
-set(LIBGMP_INCLUDE_DIR /usr/include)
+find_path(LIBGMP_INCLUDE_DIR
+		NAMES gmp.h
+		HINTS ENV GMP_INC_DIR
+				ENV GMP_DIR
+				/usr/include
+				/opt/local/include
+				/usr/local/include
+				/opt/include
+		PATH_SUFFIXES include
+		DOC "The directory containing the GMP header files"
+		)
+
+find_path(LIBGMPXX_INCLUDE_DIR NAMES gmpxx.h
+		HINTS ENV GMPXX_INC_DIR
+				ENV GMPXX_DIR
+				${GMP_INCLUDE_DIR_SEARCH}
+				/usr/include
+				/opt/local/include
+				/usr/local/include
+				/opt/include
+		PATH_SUFFIXES include
+		DOC "The directory containing the GMPXX include files"
+		)
+
+# set(LIBGMPXX_INCLUDE_DIR /usr/include)
+# set(LIBGMP_INCLUDE_DIR /usr/include)
 
 SET(LIBGMPXX_NAMES gmpxx )
 SET(LIBGMP_NAMES gmp )
