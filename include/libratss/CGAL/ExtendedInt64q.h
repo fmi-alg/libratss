@@ -47,8 +47,6 @@ class ExtendedInt64q;
 
 namespace internal {
 
-	using boost_int128 = boost::multiprecision::int128_t;
-	using boost_int1024 = boost::multiprecision::int1024_t;
 	using boost_int1024q = boost::multiprecision::number< boost::multiprecision::rational_adaptor<boost_int1024::backend_type> >;
 	
 	template<typename T_EXTENSION_TYPE>

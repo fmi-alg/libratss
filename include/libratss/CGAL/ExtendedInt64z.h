@@ -34,10 +34,16 @@
 
 #include <libratss/types.h>
 
+#include <boost/multiprecision/cpp_int.hpp>
+
 #include <type_traits>
 
 namespace CGAL {
 namespace internal {
+	
+using boost_int128 = boost::multiprecision::int128_t;
+using boost_int1024 = boost::multiprecision::int1024_t;
+
 
 template<typename T_EXTENSION_TYPE>
 struct ExtendedInt64zTraits {
@@ -51,6 +57,15 @@ struct ExtendedInt64zTraits {
 template<>
 struct ExtendedInt64zTraits<CGAL::Gmpz> {
 	using type = CGAL::Gmpz;
+	using primitive_type = LIB_RATSS_NAMESPACE::gmp_int64_t;
+	static type make(int64_t v);
+	static type make(uint64_t v);
+	static primitive_type make_primitive(int64_t v);
+};
+
+template<>
+struct ExtendedInt64zTraits<boost_int1024> {
+	using type = boost_int1024;
 	using primitive_type = LIB_RATSS_NAMESPACE::gmp_int64_t;
 	static type make(int64_t v);
 	static type make(uint64_t v);

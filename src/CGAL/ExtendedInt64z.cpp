@@ -450,6 +450,21 @@ ExtendedInt64zTraits<CGAL::Gmpz>::make_primitive(int64_t v) {
 	return primitive_type(v);
 }
 
+ExtendedInt64zTraits<boost_int1024>::type
+ExtendedInt64zTraits<boost_int1024>::make(int64_t v) {
+	return type(LIB_RATSS_NAMESPACE::gmp_int64_t(v));
+}
+
+ExtendedInt64zTraits<boost_int1024>::type
+ExtendedInt64zTraits<boost_int1024>::make(uint64_t v) {
+	return type(LIB_RATSS_NAMESPACE::gmp_uint64_t(v));
+}
+
+ExtendedInt64zTraits<boost_int1024>::primitive_type
+ExtendedInt64zTraits<boost_int1024>::make_primitive(int64_t v) {
+	return primitive_type(v);
+}
+
 }//end namespace internal
 
 
