@@ -38,6 +38,14 @@ struct Conversion<double> {
 };
 
 template<>
+struct Conversion<uint64_t> {
+	using type = uint64_t;
+	static type moveFrom(const mpq_class & v);
+	static mpq_class toMpq(const type & v);
+	static mpfr::mpreal toMpreal(const type & v, int precision);
+};
+
+template<>
 struct Conversion<mpfr::mpreal> {
 	using type = mpfr::mpreal;
 	static type moveFrom(const mpq_class & v);
