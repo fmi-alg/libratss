@@ -1,5 +1,6 @@
 #include <libratss/Conversion.h>
 #include <libratss/CGAL/Conversion.h>
+#include <libratss/types.h>
 
 namespace LIB_RATSS_NAMESPACE {
 
@@ -36,7 +37,10 @@ Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >::toMpq(const 
 		return Conversion<CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>::extension_type>::toMpq( v.getExtended() );
 	}
 	else {
-		return mpq_class(v.numerator().get(), v.denominator().get());
+		return mpq_class(
+			gmp_int64_t(v.numerator().get()), 
+			gmp_uint64_t(v.denominator().get())
+		);
 	}
 }
 
@@ -74,7 +78,10 @@ Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::toMpq(const type & v) {
 		return Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>::extension_type>::toMpq( v.getExtended() );
 	}
 	else {
-		return mpq_class(v.numerator().get(), v.denominator().get());
+		return mpq_class(
+			gmp_int64_t(v.numerator().get()),
+			gmp_uint64_t(v.denominator().get())
+		);
 	}
 }
 
