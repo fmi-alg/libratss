@@ -74,6 +74,11 @@ Conversion<mpfr::mpreal>::toMpreal(const type & v, int /*precision*/) {
 //BEGIN mpq_class specializations
 
 Conversion<mpq_class>::type &&
+Conversion<mpq_class>::moveFrom(mpq_class & v) {
+	return std::move(v);
+}
+
+Conversion<mpq_class>::type &&
 Conversion<mpq_class>::moveFrom(mpq_class && v) {
 	return std::move(v);
 }
