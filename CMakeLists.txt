@@ -26,8 +26,6 @@ set(MY_C_FLAGS "-std=c99")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CXX_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MY_C_FLAGS}")
 
-include(add_buildtype_lto)
-
 find_package(LIBGMPXX REQUIRED)
 find_package(LIBMPFR REQUIRED)
 find_package(Threads)
