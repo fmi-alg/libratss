@@ -31,9 +31,34 @@
 #define LIBRATSS_CGAL_EXTENDED_INT64_Z_H
 
 #include <CGAL/Gmpz.h>
+
+#include <libratss/types.h>
+
 #include <type_traits>
 
 namespace CGAL {
+namespace internal {
+
+template<typename T_EXTENSION_TYPE>
+struct ExtendedInt64zTraits {
+	using type = T_EXTENSION_TYPE;
+	using primitive_type = LIB_RATSS_NAMESPACE::gmp_int64_t;
+	static type make(int64_t v);
+	static type make(uint64_t v);
+	static primitive_type make_primitive(int64_t v);
+};
+
+template<>
+struct ExtendedInt64zTraits<CGAL::Gmpz> {
+	using type = CGAL::Gmpz;
+	using primitive_type = LIB_RATSS_NAMESPACE::gmp_int64_t;
+	static type make(int64_t v);
+	static type make(uint64_t v);
+	static primitive_type make_primitive(int64_t v);
+};
+
+} //end namespace iternal
+
 
 class ExtendedInt64z:
     boost::ordered_euclidian_ring_operators1< ExtendedInt64z
@@ -57,6 +82,7 @@ public:
 	using base_type = int64_t;
 	using unsigned_base_type = typename std::make_unsigned<base_type>::type;
 	using extension_type = CGAL::Gmpz;
+	using config_traits = internal::ExtendedInt64zTraits<extension_type>;
 // 	static_assert( --std::numeric_limits<base_type>::min() == std::numeric_limits<base_type>::min(), "");
 public:
 public:
@@ -147,6 +173,8 @@ public:
 private:
 	static constexpr base_type btmax = std::numeric_limits<base_type>::max();
 	static constexpr base_type btmin = std::numeric_limits<base_type>::min();
+private:
+	config_traits::primitive_type getExtendedPrimitive() const;
 private:
 	extension_type * ptr() const;
 	void set(base_type v);
@@ -290,4 +318,4 @@ private:
 
 } //namespace CGAL
 
-#endif // CGAL_GMPZ_TYPE_H
+#endif // LIBRATSS_CGAL_EXTENDED_INT64_Z_H
