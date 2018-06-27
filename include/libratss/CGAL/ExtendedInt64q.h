@@ -34,6 +34,7 @@
 
 #include <libratss/CGAL/boost_int1024q_traits.h>
 #include <libratss/constants.h>
+#include <libratss/types.h>
 #include <libratss/CGAL/ExtendedInt64z.h>
 
 #include <CGAL/Gmpq.h>
@@ -67,6 +68,8 @@ namespace internal {
 		static double to_double(const type & v);
 		static CGAL::ExtendedInt64z::extension_type to_ei64z(const numerator_type & v);
 		static CGAL::ExtendedInt64z::extension_type to_ei64z(const denominator_type & v);
+		static uint32_t num_bits(const numerator_type &);
+		static type make(CGAL::ExtendedInt64z::base_type numerator, CGAL::ExtendedInt64z::base_type denominator);
 	};
 	
 	template<typename T_EXTENSION_TYPE>
@@ -530,7 +533,7 @@ EI64PQ_CLS_NAME::ExtendedInt64q(uint64_t n)
 		set(base_type(n), base_type(1));
 	}
 	else {
-		set(extension_type(n));
+		set(config_traits::make(n));
 	}
 }
 
@@ -571,7 +574,7 @@ EI64PQ_CLS_NAME::ExtendedInt64q(base_type n, uint64_t d)
 		set(base_type(n), base_type(d));
 	}
 	else {
-		set(extension_type(n, d));
+		set(config_traits::make(n, d));
 	}
 }
 
@@ -583,7 +586,7 @@ EI64PQ_CLS_NAME::ExtendedInt64q(uint64_t n, uint64_t d)
 		set(base_type(n), base_type(d));
 	}
 	else {
-		set(extension_type(n, d));
+		set(config_traits::make(n, d));
 	}
 }
 
@@ -962,7 +965,7 @@ EI64PQ_CLS_NAME::asExtended() const {
 		return getExtended();
 	}
 	else {
-		return extension_type(getPq().num, getPq().den);
+		return config_traits::make(getPq().num, getPq().den);
 	}
 }
 
@@ -1005,7 +1008,8 @@ EI64PQ_CLS_NAME::set(const extension_type & v) {
 	if (config_traits::fits_int64(num) && config_traits::fits_int64(den)) {
 		set(config_traits::to_int64(num), config_traits::to_int64(den));
 		assert(asExtended() == v);
-		assert(num == getPq().num && den == getPq().den);
+		assert(num == internal::ExtendedInt64zTraits<decltype(num)>::make(getPq().num));
+		assert(den == internal::ExtendedInt64zTraits<decltype(den)>::make(getPq().den));
 	}
 	else {
 		if (isExtended()) {
@@ -1028,7 +1032,8 @@ EI64PQ_CLS_NAME::set(extension_type && v) {
 	if (config_traits::fits_int64(num) && config_traits::fits_int64(den)) {
 		set(config_traits::to_int64(num), config_traits::to_int64(den));
 		assert(asExtended() == v);
-		assert(num == getPq().num && den == getPq().den);
+		assert(num == internal::ExtendedInt64zTraits<decltype(num)>::make(getPq().num));
+		assert(den == internal::ExtendedInt64zTraits<decltype(den)>::make(getPq().den));
 	}
 	else {
 		if (isExtended()) {
@@ -1095,9 +1100,11 @@ namespace internal {
 
 template<>
 struct ExtendedInt64qTraits<CGAL::Gmpq> {
-	typedef CGAL::Gmpq type;
-	typedef CGAL::Gmpz numerator_type;
-	typedef CGAL::Gmpz denominator_type;
+	using type = CGAL::Gmpq;
+	using base_type = CGAL::ExtendedInt64z::base_type;
+	using unsigned_base_type = std::make_unsigned<base_type>::type;
+	using numerator_type = CGAL::Gmpz;
+	using denominator_type = CGAL::Gmpz;
 	static void simplify(type & v);
 	static bool fits_int64(const numerator_type & v);
 	static int64_t to_int64(const numerator_type & v);
@@ -1106,13 +1113,17 @@ struct ExtendedInt64qTraits<CGAL::Gmpq> {
 	static denominator_type denominator(const type & v);
 	static CGAL::ExtendedInt64z::extension_type const & to_ei64z(const numerator_type & v);
 	static uint32_t num_bits(const numerator_type &);
+	static type make(base_type numerator, unsigned_base_type denominator);
+	static type make(base_type numerator, base_type denominator);
 };
 
 template<>
 struct ExtendedInt64qTraits<boost_int1024q> {
-	typedef boost_int1024q type;
-	typedef boost_int1024 numerator_type;
-	typedef boost_int1024 denominator_type;
+	using type = boost_int1024q;
+	using base_type = CGAL::ExtendedInt64z::base_type;
+	using unsigned_base_type = std::make_unsigned<base_type>::type;
+	using numerator_type = boost_int1024;
+	using denominator_type = boost_int1024;
 	static void simplify(type & v);
 	static bool fits_int64(const numerator_type & v);
 	static int64_t to_int64(const numerator_type & v);
@@ -1121,6 +1132,8 @@ struct ExtendedInt64qTraits<boost_int1024q> {
 	static denominator_type denominator(const type & v);
 	static CGAL::ExtendedInt64z::extension_type to_ei64z(const numerator_type & v);
 	static uint32_t num_bits(const numerator_type & v);
+	static type make(base_type numerator, unsigned_base_type denominator);
+	static type make(base_type numerator, base_type denominator);
 };
 
 } //end namespace internal

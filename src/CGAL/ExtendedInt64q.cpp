@@ -1,5 +1,4 @@
 #include <libratss/CGAL/ExtendedInt64q.h>
-
 namespace CGAL {
 
 template<>
@@ -74,6 +73,16 @@ ExtendedInt64qTraits<CGAL::Gmpq>::num_bits(const numerator_type & v) {
 	return uint32_t(::mpz_sizeinbase(v.mpz(), 2));
 }
 
+ExtendedInt64qTraits<CGAL::Gmpq>::type
+ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, base_type denominator) {
+	return type(LIB_RATSS_NAMESPACE::gmp_int64_t(numerator), LIB_RATSS_NAMESPACE::gmp_int64_t(denominator));
+}
+
+ExtendedInt64qTraits<CGAL::Gmpq>::type
+ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, unsigned_base_type denominator) {
+	return type(LIB_RATSS_NAMESPACE::gmp_int64_t(numerator), LIB_RATSS_NAMESPACE::gmp_uint64_t(denominator));
+}
+
 //BEGIN boost_int1024q
 void
 ExtendedInt64qTraits<boost_int1024q>::simplify(type & /*v*/)
@@ -115,6 +124,21 @@ ExtendedInt64qTraits<boost_int1024q>::to_ei64z(const numerator_type & v) {
 uint32_t
 ExtendedInt64qTraits<boost_int1024q>::num_bits(const numerator_type &) {
 	return 1024;
+}
+
+ExtendedInt64qTraits<boost_int1024q>::type
+ExtendedInt64qTraits<boost_int1024q>::make(base_type numerator, base_type denominator) {
+	return type(numerator, denominator);
+}
+
+ExtendedInt64qTraits<boost_int1024q>::type
+ExtendedInt64qTraits<boost_int1024q>::make(base_type numerator, unsigned_base_type denominator) {
+	if (numerator < 0) {
+		return -type(unsigned_base_type(-numerator), denominator);
+	}
+	else {
+		return type(unsigned_base_type(numerator), denominator);
+	}
 }
 
 }//end namespace internal
