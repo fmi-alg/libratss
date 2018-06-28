@@ -29,24 +29,20 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MY_C_FLAGS}")
 find_package(LIBGMPXX REQUIRED)
 find_package(LIBMPFR REQUIRED)
 find_package(Threads)
+find_package(CGALSimple)
 
-#optionally try to find cgal
-find_package(CGAL COMPONENTS Core)
-
-if (CGAL_FOUND)
+if (LIBCGAL_FOUND)
 	set(LIBRATSS_CGAL_LINK_LIBRARIES
-		"CGAL"
-		"CGAL_Core"
-		"boost_thread"
-		"boost_system"
+		${LIBCGAL_LIBRARIES}
 	)
 	set(LIBRATSS_CGAL_COMPILE_DEFINITIONS
 		"LIB_RATSS_WITH_CGAL=1"
 	)
-endif(CGAL_FOUND)
+endif(LIBCGAL_FOUND)
 
 set(LIBRATSS_INCLUDE_DIR
 	"${CMAKE_CURRENT_SOURCE_DIR}/include"
+	${LIBCGAL_INCLUDE_DIR}
 	${LIBGMP_INCLUDE_DIR}
 	${LIBGMPXX_INCLUDE_DIR}
 	${LIBMPFR_INCLUDE_DIR}
