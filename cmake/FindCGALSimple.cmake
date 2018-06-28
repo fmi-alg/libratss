@@ -1,10 +1,10 @@
 #  LIBCGAL_INCLUDE_DIR - Where to find cgal include sub-directory.
 #  LIBCGAL_LIBRARIES   - List of libraries when using LIBCGAL.
 #  LIBCGAL_FOUND       - True if LIBCGAL found.
-IF (LIBCGAL_INCLUDE_DIR)
+if (LIBCGAL_INCLUDE_DIR)
   # Already in cache, be silent.
-  SET(LIBCGAL_FIND_QUIETLY TRUE)
-ENDIF (LIBCGAL_INCLUDE_DIR)
+  set(LIBCGAL_FIND_QUIETLY TRUE)
+endif (LIBCGAL_INCLUDE_DIR)
 
 find_package(CGAL COMPONENTS Core)
 find_package(Boost COMPONENTS thread system)
@@ -20,14 +20,14 @@ if( ${Boost_THREAD_FOUND} AND ${Boost_SYSTEM_FOUND} AND ${CGAL_FOUND})
 			DOC "The directory containing the CGAL header files"
 			)
 
-	SET(LIBCGAL_NAMES CGAL)
-	SET(LIBCGAL_CORE_NAMES CGAL_Core )
-	FIND_LIBRARY(LIBCGAL_LIBRARY NAMES ${LIBCGAL_NAMES} )
-	FIND_LIBRARY(LIBCGAL_CORE_LIBRARY NAMES ${LIBCGAL_CORE_NAMES} )
+	set(LIBCGAL_NAMES CGAL)
+	set(LIBCGAL_CORE_NAMES CGAL_Core )
+	find_library(LIBCGAL_LIBRARY NAMES ${LIBCGAL_NAMES} )
+	find_library(LIBCGAL_CORE_LIBRARY NAMES ${LIBCGAL_CORE_NAMES} )
 
 	# Handle the QUIETLY and REQUIRED arguments and set LIBCGAL_FOUND to
 	# TRUE if all listed variables are TRUE.
-	INCLUDE(FindPackageHandleStandardArgs)
+	include(FindPackageHandleStandardArgs)
 	FIND_PACKAGE_HANDLE_STANDARD_ARGS(
 		LIBCGAL DEFAULT_MSG
 		LIBCGAL_LIBRARY LIBCGAL_INCLUDE_DIR
@@ -38,8 +38,8 @@ if( ${Boost_THREAD_FOUND} AND ${Boost_SYSTEM_FOUND} AND ${CGAL_FOUND})
 		LIBCGAL_CORE_LIBRARY LIBCGAL_INCLUDE_DIR
 	)
 
-	IF(LIBCGAL_FOUND AND LIBCGAL_CORE_FOUND)
-		SET(LIBCGAL_LIBRARIES
+	if(LIBCGAL_FOUND AND LIBCGAL_CORE_FOUND)
+		set(LIBCGAL_LIBRARIES
 			${LIBCGAL_LIBRARY}
 			${LIBCGAL_CORE_LIBRARY}
 			${Boost_THREAD_LIBRARY}
@@ -53,13 +53,31 @@ if( ${Boost_THREAD_FOUND} AND ${Boost_SYSTEM_FOUND} AND ${CGAL_FOUND})
 			${LIBMPFR_INCLUDE_DIR}
 			${LIBGMPXX_INCLUDE_DIR}
 		)
+		set(LIBCGAL_COMPILE_OPTIONS
+			"-frounding-math"
+			CACHE STRING "cgal compile definitions"
+			FORCE
+		)
 		
 		message(STATUS "CGAL include dirs: ${LIBCGAL_INCLUDE_DIR}")
 		message(STATUS "CGAL libraries: ${LIBCGAL_LIBRARIES}")
 		message(STATUS "CGAL may need specific compiler options like -frounding-math which have to be added by the caller")
-	ELSE()
-		SET(LIBCGAL_LIBRARIES )
-	ENDIF()
+		
+		if (NOT TARGET CGALSimple::CGAL)
+			add_library(CGALSimple::CGAL INTERFACE IMPORTED)
+			set_target_properties(CGALSimple::CGAL PROPERTIES
+				INTERFACE_INCLUDE_DIRECTORIES "${LIBCGAL_INCLUDE_DIR}"
+			)
+			set_target_properties(CGALSimple::CGAL PROPERTIES
+				INTERFACE_COMPILE_OPTIONS "${LIBCGAL_COMPILE_OPTIONS}"
+			)
+			set_target_properties(CGALSimple::CGAL PROPERTIES
+				INTERFACE_LINK_LIBRARIES "${LIBCGAL_LIBRARIES}"
+			)
+		endif()
+	else()
+		set(LIBCGAL_LIBRARIES )
+	endif()
 
-	MARK_AS_ADVANCED( LIBCGAL_LIBRARY LIBCGAL_INCLUDE_DIR )
-ENDIF()
+	mark_as_advanced( LIBCGAL_LIBRARY LIBCGAL_INCLUDE_DIR )
+endif()
