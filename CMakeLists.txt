@@ -20,15 +20,13 @@ set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake
 )
 
-set(MY_CXX_FLAGS "-std=gnu++0x")
-set(MY_C_FLAGS "-std=c99")
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CXX_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${MY_C_FLAGS}")
 
+
+find_package(Threads)
 find_package(LIBGMPXX REQUIRED)
 find_package(LIBMPFR REQUIRED)
-find_package(Threads)
 find_package(CGALSimple)
 
 if (LIBCGAL_FOUND)
@@ -68,6 +66,12 @@ set(LIBRATSS_LINK_LIBRARIES
 
 set(LIBRATSS_COMPILE_DEFINITIONS
 	${LIBRATSS_CGAL_COMPILE_DEFINITIONS}
+	CACHE STRING "libratss compile definitions"
+	FORCE
+)
+
+set(LIBRATSS_COMPILE_OPTIONS
+	${LIBRATSS_CGAL_COMPILE_OPTIONS}
 	CACHE STRING "libratss compile definitions"
 	FORCE
 )
@@ -113,6 +117,8 @@ add_library(${PROJECT_NAME} STATIC
 if (CGAL_FOUND)
 	target_compile_definitions(${PROJECT_NAME} PUBLIC ${LIBRATSS_COMPILE_DEFINITIONS})
 endif(CGAL_FOUND)
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
 
 add_subdirectory(common ${PROJECT_NAME}common EXCLUDE_FROM_ALL)
 add_subdirectory(bench ${PROJECT_NAME}bench EXCLUDE_FROM_ALL)
