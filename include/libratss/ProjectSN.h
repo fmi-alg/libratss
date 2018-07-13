@@ -10,6 +10,7 @@
 
 #include <assert.h>
 #include <array>
+#include <vector>
 
 namespace LIB_RATSS_NAMESPACE {
 
