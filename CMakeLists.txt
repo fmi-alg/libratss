@@ -13,7 +13,7 @@
 # target_link_libraries(${PROJECT_NAME} ${LIBRATSS_LIBRARIES})
 # add_dependencies(${PROJECT_NAME} ratss)
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.9)
 project(ratss)
 
 set(CMAKE_MODULE_PATH
