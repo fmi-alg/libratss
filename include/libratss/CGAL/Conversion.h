@@ -11,6 +11,7 @@
 #include <CGAL/Gmpq.h>
 #include <CGAL/Lazy_exact_nt.h>
 #include <libratss/CGAL/ExtendedInt64q.h>
+#include <gmpxx.h>
 
 namespace LIB_RATSS_NAMESPACE {
 
@@ -95,6 +96,19 @@ struct Conversion<CORE::BigRat> {
 	static mpq_class toMpq(const type & v);
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };
+
+#if CGAL_VERSION_NR >= 1041111000
+
+template<>
+struct Conversion< CGAL::Lazy_exact_nt<mpq_class> > {
+	using type = CGAL::Lazy_exact_nt<mpq_class>;
+	static type moveFrom(mpq_class & v);
+	static type moveFrom(mpq_class && v);
+	static mpq_class toMpq(const type & v);
+	static mpfr::mpreal toMpreal(const type & v, int precision);
+};
+
+#endif
 
 }//end namespace LIB_RATSS_NAMESPACE
 

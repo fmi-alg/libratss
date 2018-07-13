@@ -170,4 +170,32 @@ Conversion<CORE::BigRat>::toMpreal(const type & v, int precision) {
 	return mpfr::mpreal(v.get_mp(), precision);
 }
 
+//BEGIN CGAL::Lazy_exact_nt<mpq_class>
+
+#if CGAL_VERSION_NR >= 1041111000
+
+Conversion< CGAL::Lazy_exact_nt<mpq_class> >::type
+Conversion< CGAL::Lazy_exact_nt<mpq_class> >::moveFrom(mpq_class & v) {
+	return type( std::move(v) );
+}
+
+Conversion< CGAL::Lazy_exact_nt<mpq_class> >::type
+Conversion< CGAL::Lazy_exact_nt<mpq_class> >::moveFrom(mpq_class && v) {
+	return type( std::move(v) );
+}
+
+mpq_class
+Conversion< CGAL::Lazy_exact_nt<mpq_class> >::toMpq(const type & v) {
+	return v.exact();
+}
+
+mpfr::mpreal
+Conversion< CGAL::Lazy_exact_nt<mpq_class> >::toMpreal(const type & v, int precision) {
+	return Conversion<mpq_class>::toMpreal(toMpq(v), precision);
+}
+
+#endif
+
+//END CGAL::Lazy_exact_nt<mpq_class>
+
 }
