@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.9)
 project(ratsstools)
 
 include_directories(
@@ -18,7 +18,7 @@ add_dependencies(${PROJECT_NAME} ratss ratsscommon)
 set(LINK_LIBS
 	ratsstools
 	ratsscommon
-	${LIBRATSS_LINK_LIBRARIES}
+	ratss
 )
 
 MACRO(ADD_TOOLS_TARGET _name _sourcefiles)
