@@ -12,17 +12,18 @@
 namespace LIB_RATSS_NAMESPACE {
 
 template<typename T_FT>
-struct Conversion {
-	using type = T_FT;
-	//this shall be a move in case T_FT == mpq_class
-	static type moveFrom(mpq_class && v);
-	
-	//this shall return the reference to v in case T_FT == mpq_class
-	static mpq_class toMpq(const type & v);
-	
-	//precision may be ignore if T_FT == mpfr::mpreal
-	static mpfr::mpreal toMpreal(const type & v, int precision);
-};
+struct Conversion;
+// {
+// 	using type = T_FT;
+// 	this shall be a move in case T_FT == mpq_class
+// 	static type moveFrom(mpq_class && v);
+// 	
+// 	this shall return the reference to v in case T_FT == mpq_class
+// 	static mpq_class toMpq(const type & v);
+// 	
+// 	precision may be ignore if T_FT == mpfr::mpreal
+// 	static mpfr::mpreal toMpreal(const type & v, int precision);
+// };
 
 }//end namespace LIB_DTS2_NAMESPACE
 
