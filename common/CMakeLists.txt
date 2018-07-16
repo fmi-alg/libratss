@@ -1,15 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(ratsscommon)
 
-include_directories(
-	${PROJECT_GLOBAL_SOURCE_DIR}
-	${PROJECT_GLOBAL_SOURCE_DIR}/include
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}/include
-)
-
 set(COMMON_LIB_SOURCES_CPP
 	generators.cpp
 	types.cpp
@@ -17,4 +8,4 @@ set(COMMON_LIB_SOURCES_CPP
 )
 
 add_library(${PROJECT_NAME} STATIC ${COMMON_LIB_SOURCES_CPP})
-add_dependencies(${PROJECT_NAME} ratss)
+target_link_libraries(${PROJECT_NAME} ratss)
