@@ -172,7 +172,7 @@ Conversion<CORE::BigRat>::toMpreal(const type & v, int precision) {
 
 //BEGIN CGAL::Lazy_exact_nt<mpq_class>
 
-#if CGAL_VERSION_NR >= 1041111000
+#if CGAL_VERSION_NR >= 1041101000
 
 Conversion< CGAL::Lazy_exact_nt<mpq_class> >::type
 Conversion< CGAL::Lazy_exact_nt<mpq_class> >::moveFrom(mpq_class & v) {
