@@ -30,50 +30,9 @@
 #ifndef LIBRATSS_CGAL_EXTENDED_INT64_Z_H
 #define LIBRATSS_CGAL_EXTENDED_INT64_Z_H
 
-#include <CGAL/Gmpz.h>
-
-#include <libratss/types.h>
-
-#include <boost/multiprecision/cpp_int.hpp>
-
-#include <type_traits>
+#include <libratss/CGAL/ExtendedInt64zTraits.h>
 
 namespace CGAL {
-namespace internal {
-	
-using boost_int128 = boost::multiprecision::int128_t;
-using boost_int1024 = boost::multiprecision::int1024_t;
-
-
-template<typename T_EXTENSION_TYPE>
-struct ExtendedInt64zTraits {
-	using type = T_EXTENSION_TYPE;
-	using primitive_type = LIB_RATSS_NAMESPACE::gmp_int64_t;
-	static type make(int64_t v);
-	static type make(uint64_t v);
-	static primitive_type make_primitive(int64_t v);
-};
-
-template<>
-struct ExtendedInt64zTraits<CGAL::Gmpz> {
-	using type = CGAL::Gmpz;
-	using primitive_type = LIB_RATSS_NAMESPACE::gmp_int64_t;
-	static type make(int64_t v);
-	static type make(uint64_t v);
-	static primitive_type make_primitive(int64_t v);
-};
-
-template<>
-struct ExtendedInt64zTraits<boost_int1024> {
-	using type = boost_int1024;
-	using primitive_type = LIB_RATSS_NAMESPACE::gmp_int64_t;
-	static type make(int64_t v);
-	static type make(uint64_t v);
-	static primitive_type make_primitive(int64_t v);
-};
-
-} //end namespace iternal
-
 
 class ExtendedInt64z:
     boost::ordered_euclidian_ring_operators1< ExtendedInt64z
@@ -119,7 +78,8 @@ public:
 	const base_type & get() const;
 	extension_type & getExtended();
 	const extension_type & getExtended() const;
-	extension_type asExtended() const ;
+	extension_type asExtended() const;
+	config_traits traits() const;
 public:
 	// returns the memory size in bytes
 	size_t size() const;
@@ -188,8 +148,6 @@ public:
 private:
 	static constexpr base_type btmax = std::numeric_limits<base_type>::max();
 	static constexpr base_type btmin = std::numeric_limits<base_type>::min();
-private:
-	config_traits::primitive_type getExtendedPrimitive() const;
 private:
 	extension_type * ptr() const;
 	void set(base_type v);

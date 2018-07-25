@@ -31,7 +31,7 @@ Conversion<uint64_t>::moveFrom(const mpq_class & v) {
 
 mpq_class
 Conversion<uint64_t>::toMpq(const type & v) {
-	return mpq_class(gmp_uint64_t(v));
+	return mpq_class(GmpTraits::unsigned_number(v));
 }
 
 mpfr::mpreal

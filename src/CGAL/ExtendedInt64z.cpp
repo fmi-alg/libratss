@@ -56,7 +56,7 @@ m_isExtended(false)
 		set(base_type(l));
 	}
 	else {
-		set(config_traits::make(l));
+		set(traits().make()(l));
 	}
 }
 
@@ -128,61 +128,61 @@ Sign ExtendedInt64z::sign() const {
 
 ExtendedInt64z & ExtendedInt64z::operator+=(const ExtendedInt64z & other) {
 	if (isExtended() && other.isExtended()) {
-		getExtended() += other.getExtended();
+		traits().addAssign()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		getExtended() += other.getExtendedPrimitive();
+		traits().addAssign()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		set(asExtended() + other.getExtended());
+		set(traits().add()(asExtended(), other.getExtended()));
 	}
 	else {//TODO: fast imp
-		set(asExtended() + other.asExtended());
+		set(traits().add()(asExtended(),other.asExtended()));
 	}
 	return *this;
 }
 
 ExtendedInt64z & ExtendedInt64z::operator-=(const ExtendedInt64z & other) {
 	if (isExtended() && other.isExtended()) {
-		getExtended() -= other.getExtended();
+		traits().subAssign()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		getExtended() -= other.getExtendedPrimitive();
+		traits().subAssign()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		set(asExtended() - other.getExtended());
+		set(traits().sub()(asExtended(), other.getExtended()));
 	}
 	else {//TODO: fast imp
-		set(asExtended() - other.asExtended());
+		set(traits().sub()(asExtended(), other.asExtended()));
 	}
 	return *this;
 }
 
 ExtendedInt64z & ExtendedInt64z::operator*=(const ExtendedInt64z & other) {
 	if (isExtended() && other.isExtended()) {
-		getExtended() *= other.getExtended();
+		traits().multAssign()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		getExtended() *= other.getExtendedPrimitive();
+		traits().multAssign()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		set(asExtended() * other.getExtended());
+		set(traits().mult()(asExtended(), other.getExtended()));
 	}
 	else {//TODO: fast imp
-		set(asExtended() * other.asExtended());
+		set(traits().mult()(asExtended(), other.asExtended()));
 	}
 	return *this;
 }
 
 ExtendedInt64z & ExtendedInt64z::operator/=(const ExtendedInt64z & other) {
 	if (isExtended() && other.isExtended()) {
-		getExtended() /= other.getExtended();
+		traits().divAssign()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		getExtended() /= other.getExtendedPrimitive();
+		traits().divAssign()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		set(asExtended() / other.getExtended());
+		set(traits().div()(asExtended(), other.getExtended()));
 	}
 	else {
 		get() /= other.get();
@@ -192,13 +192,13 @@ ExtendedInt64z & ExtendedInt64z::operator/=(const ExtendedInt64z & other) {
 
 ExtendedInt64z & ExtendedInt64z::operator%=(const ExtendedInt64z & other) {
 	if (isExtended() && other.isExtended()) {
-		getExtended() %= other.getExtended();
+		traits().modAssign()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		getExtended() %= other.getExtendedPrimitive();
+		traits().modAssign()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		set(asExtended() % other.getExtended());
+		set(traits().mod()(asExtended(), other.getExtended()));
 	}
 	else {
 		get() %= other.get();
@@ -208,13 +208,13 @@ ExtendedInt64z & ExtendedInt64z::operator%=(const ExtendedInt64z & other) {
 
 ExtendedInt64z & ExtendedInt64z::operator&=(const ExtendedInt64z & other) {
 	if (isExtended() && other.isExtended()) {
-		getExtended() &= other.getExtended();
+		traits().bitAndAssign()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		getExtended() &= other.getExtendedPrimitive();
+		traits().bitAndAssign()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		set(asExtended() & other.getExtended());
+		set(traits().bitAnd()(asExtended(), other.getExtended()));
 	}
 	else {
 		get() &= other.get();
@@ -224,13 +224,13 @@ ExtendedInt64z & ExtendedInt64z::operator&=(const ExtendedInt64z & other) {
 
 ExtendedInt64z & ExtendedInt64z::operator|=(const ExtendedInt64z & other) {
 	if (isExtended() && other.isExtended()) {
-		getExtended() |= other.getExtended();
+		traits().bitOrAssign()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		getExtended() |= other.getExtendedPrimitive();
+		traits().bitOrAssign()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		set(asExtended() | other.getExtended());
+		set(traits().bitOr()(asExtended(), other.getExtended()));
 	}
 	else {
 		get() |= other.get();
@@ -240,13 +240,13 @@ ExtendedInt64z & ExtendedInt64z::operator|=(const ExtendedInt64z & other) {
 
 ExtendedInt64z & ExtendedInt64z::operator^=(const ExtendedInt64z & other) {
 	if (isExtended() && other.isExtended()) {
-		getExtended() ^= other.getExtended();
+		traits().bitXorAssign()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		getExtended() ^= other.getExtendedPrimitive();
+		traits().bitXorAssign()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		set(asExtended() ^ other.getExtended());
+		set(traits().bitXor()(asExtended(), other.getExtended()));
 	}
 	else {
 		get() ^= other.get();
@@ -256,13 +256,13 @@ ExtendedInt64z & ExtendedInt64z::operator^=(const ExtendedInt64z & other) {
 
 bool ExtendedInt64z::operator<(const ExtendedInt64z & other) const {
 	if (isExtended() && other.isExtended()) {
-		return getExtended() < other.getExtended();
+		return traits().less()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		return getExtended() < other.getExtendedPrimitive();
+		return traits().less()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		return getExtendedPrimitive() < other.getExtended();
+		return traits().less()(get(), other.getExtended());
 	}
 	else {
 		return get() < other.get();
@@ -271,13 +271,13 @@ bool ExtendedInt64z::operator<(const ExtendedInt64z & other) const {
 
 bool ExtendedInt64z::operator==(const ExtendedInt64z & other) const {
 	if (isExtended() && other.isExtended()) {
-		return getExtended() == other.getExtended();
+		return traits().equal()(getExtended(), other.getExtended());
 	}
 	else if (isExtended()) {
-		return getExtended() == other.getExtendedPrimitive();
+		return traits().equal()(getExtended(), other.get());
 	}
 	else if (other.isExtended()) {
-		return getExtendedPrimitive() == other.getExtended();
+		return traits().equal()(get(), other.getExtended());
 	}
 	else {
 		return get() == other.get();
@@ -299,14 +299,14 @@ ExtendedInt64z ExtendedInt64z::operator-() const {
 
 ExtendedInt64z & ExtendedInt64z::operator<<=(const unsigned long& i) {
 	if (isExtended()) {
-		getExtended() <<= i;
+		traits().lShiftAssign()(getExtended(), uint64_t(i));
 	}
 	else {
 		if (false) { //TODO: do correct overflow check here
 			get() <<= i;
 		}
 		else {
-			set( asExtended() << i );
+			set( traits().lShift()(asExtended(), uint64_t(i)) );
 		}
 	}
 	return *this;
@@ -314,14 +314,14 @@ ExtendedInt64z & ExtendedInt64z::operator<<=(const unsigned long& i) {
 
 ExtendedInt64z& ExtendedInt64z::operator>>= (const unsigned long& i) {
 	if (isExtended()) {
-		getExtended() >>= i;
+		traits().rShiftAssign()(getExtended(), uint64_t(i));
 	}
 	else {
 		if (false) { //TODO: do correct overflow check here
 			get() >>= i;
 		}
 		else {
-			set( asExtended() >> i );
+			set( traits().rShift()(asExtended(), uint64_t(i)) );
 		}
 	}
 	return *this;
@@ -386,12 +386,12 @@ ExtendedInt64z::extension_type ExtendedInt64z::asExtended() const {
 		return getExtended();
 	}
 	else {
-		return config_traits::make( get() );
+		return traits().make()( get() );
 	}
 }
 
-ExtendedInt64z::config_traits::primitive_type ExtendedInt64z::getExtendedPrimitive() const {
-	return config_traits::make_primitive(get());
+ExtendedInt64z::config_traits ExtendedInt64z::traits() const {
+	return config_traits();
 }
 
 ExtendedInt64z::extension_type* ExtendedInt64z::ptr() const {
@@ -407,8 +407,8 @@ void ExtendedInt64z::set(base_type v) {
 }
 
 void ExtendedInt64z::set(const extension_type & v) {
-	if (::mpz_fits_slong_p(v.mpz())) {
-		set( ::mpz_get_si(v.mpz()) );
+	if (traits().fits<base_type>()(v)) {
+		set( traits().toIntegral<base_type>()(v.mpz()) );
 	}
 	else {
 		if (isExtended()) {
@@ -434,38 +434,76 @@ void ExtendedInt64z::deleteExt() {
 }
 
 namespace internal {
+namespace imp {
+namespace ExtendedInt64zTraits {
 
-ExtendedInt64zTraits<CGAL::Gmpz>::type
-ExtendedInt64zTraits<CGAL::Gmpz>::make(int64_t v) {
-	return type(LIB_RATSS_NAMESPACE::gmp_int64_t(v));
+//BEGIN CGAL::Gmpz specializations
+Make<CGAL::Gmpz>::type
+Make<CGAL::Gmpz>::operator()(int64_t v) const {
+	return type(LIB_RATSS_NAMESPACE::GmpTraits::signed_number(v));
 }
 
-ExtendedInt64zTraits<CGAL::Gmpz>::type
-ExtendedInt64zTraits<CGAL::Gmpz>::make(uint64_t v) {
-	return type(LIB_RATSS_NAMESPACE::gmp_uint64_t(v));
+Make<CGAL::Gmpz>::type
+Make<CGAL::Gmpz>::operator()(uint64_t v) const {
+	return type(LIB_RATSS_NAMESPACE::GmpTraits::unsigned_number(v));
 }
 
-ExtendedInt64zTraits<CGAL::Gmpz>::primitive_type
-ExtendedInt64zTraits<CGAL::Gmpz>::make_primitive(int64_t v) {
-	return primitive_type(v);
+bool
+Fits<CGAL::Gmpz, uint64_t>::operator()(const type & value) const {
+#ifdef __LP64__
+	return ::mpz_fits_ulong_p(value.mpz());
+#else
+	return (value >> 64) == 0;
+#endif
 }
 
-ExtendedInt64zTraits<boost_int1024>::type
-ExtendedInt64zTraits<boost_int1024>::make(int64_t v) {
-	return type(LIB_RATSS_NAMESPACE::gmp_int64_t(v));
+bool
+Fits<CGAL::Gmpz, int64_t>::operator()(const type & value) const {
+#ifdef __LP64__
+	return ::mpz_fits_slong_p(value.mpz());
+#else
+	return Make<CGAL::Gmpz>()(ToIntegral<CGAL::Gmpz, int64_t>()(value)) == value;
+#endif
 }
 
-ExtendedInt64zTraits<boost_int1024>::type
-ExtendedInt64zTraits<boost_int1024>::make(uint64_t v) {
-	return type(LIB_RATSS_NAMESPACE::gmp_uint64_t(v));
+ToIntegral<CGAL::Gmpz, uint64_t>::integral_type
+ToIntegral<CGAL::Gmpz, uint64_t>::operator()(const type & value) const {
+#ifdef __LP64__
+	return ::mpz_get_ui(value.mpz());
+#else
+	return uint64_t(::mpz_get_ui(value.mpz())) | (uint64_t(::mpz_get_ui((value >> 32).mpz())) << 32);
+#endif
 }
 
-ExtendedInt64zTraits<boost_int1024>::primitive_type
-ExtendedInt64zTraits<boost_int1024>::make_primitive(int64_t v) {
-	return primitive_type(v);
+ToIntegral<CGAL::Gmpz, int64_t>::integral_type
+ToIntegral<CGAL::Gmpz, int64_t>::operator()(const type & value) const {
+#ifdef __LP64__
+	return ::mpz_get_si(value.mpz());
+#else
+	if (value < 0) {
+		return - integral_type(ToIntegral<CGAL::Gmpz, uint64_t>()(value));
+	}
+	else {
+		return integral_type(ToIntegral<CGAL::Gmpz, uint64_t>()(value));
+	}
+#endif
+}
+//END
+//BEGIN boost_int1024 specializations
+
+Make<boost_int1024>::type
+Make<boost_int1024>::operator()(int64_t v) const {
+	return type(LIB_RATSS_NAMESPACE::GmpTraits::signed_number(v));
 }
 
-}//end namespace internal
+Make<boost_int1024>::type
+Make<boost_int1024>::operator()(uint64_t v) const {
+	return type(LIB_RATSS_NAMESPACE::GmpTraits::unsigned_number(v));
+}
+
+//END
+
+}}}//end namespace internal::imp::ExtendedInt64zTraits
 
 
 }//end namespace

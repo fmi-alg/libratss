@@ -38,8 +38,8 @@ Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >::toMpq(const 
 	}
 	else {
 		return mpq_class(
-			gmp_int64_t(v.numerator().get()), 
-			gmp_uint64_t(v.denominator().get())
+			GmpTraits::signed_number(v.numerator().get()), 
+			GmpTraits::unsigned_number(v.denominator().get())
 		);
 	}
 }
@@ -79,8 +79,8 @@ Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::toMpq(const type & v) {
 	}
 	else {
 		return mpq_class(
-			gmp_int64_t(v.numerator().get()),
-			gmp_uint64_t(v.denominator().get())
+			GmpTraits::signed_number(v.numerator().get()),
+			GmpTraits::unsigned_number(v.denominator().get())
 		);
 	}
 }
@@ -171,7 +171,6 @@ Conversion<CORE::BigRat>::toMpreal(const type & v, int precision) {
 }
 
 //BEGIN CGAL::Lazy_exact_nt<mpq_class>
-
 #if CGAL_VERSION_NR >= 1041111000
 
 Conversion< CGAL::Lazy_exact_nt<mpq_class> >::type

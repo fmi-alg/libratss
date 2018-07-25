@@ -1006,8 +1006,8 @@ EI64PQ_CLS_NAME::set(const extension_type & v) {
 	if (config_traits::fits_int64(num) && config_traits::fits_int64(den)) {
 		set(config_traits::to_int64(num), config_traits::to_int64(den));
 		assert(asExtended() == v);
-		assert(num == internal::ExtendedInt64zTraits<decltype(num)>::make(getPq().num));
-		assert(den == internal::ExtendedInt64zTraits<decltype(den)>::make(getPq().den));
+		assert(num == internal::ExtendedInt64zTraits<decltype(num)>().make()(getPq().num));
+		assert(den == internal::ExtendedInt64zTraits<decltype(den)>().make()(getPq().den));
 	}
 	else {
 		if (isExtended()) {
@@ -1030,8 +1030,8 @@ EI64PQ_CLS_NAME::set(extension_type && v) {
 	if (config_traits::fits_int64(num) && config_traits::fits_int64(den)) {
 		set(config_traits::to_int64(num), config_traits::to_int64(den));
 		assert(asExtended() == v);
-		assert(num == internal::ExtendedInt64zTraits<decltype(num)>::make(getPq().num));
-		assert(den == internal::ExtendedInt64zTraits<decltype(den)>::make(getPq().den));
+		assert(num == internal::ExtendedInt64zTraits<decltype(num)>().make()(getPq().num));
+		assert(den == internal::ExtendedInt64zTraits<decltype(den)>().make()(getPq().den));
 	}
 	else {
 		if (isExtended()) {
