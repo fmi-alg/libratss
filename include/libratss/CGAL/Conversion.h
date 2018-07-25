@@ -97,7 +97,7 @@ struct Conversion<CORE::BigRat> {
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };
 
-#if CGAL_VERSION_NR >= 1041101000
+#if CGAL_VERSION_NR >= 1041101000 && defined(CGAL_USE_GMPXX)
 
 template<>
 struct Conversion< CGAL::Lazy_exact_nt<mpq_class> > {
