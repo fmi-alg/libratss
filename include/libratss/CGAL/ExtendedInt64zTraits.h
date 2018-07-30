@@ -43,7 +43,7 @@ namespace ExtendedInt64zTraits {
 
 #if defined(__LP64__)
 	#if defined(__APPLE__)
-		#define EI64ZDT_BINARY_OPERATORS_IMP(__NAME, __OP) \
+		#define EI64ZDT_BINARY_OPERATORS_EE_EI_IE(__NAME, __OP) \
 			template<typename T_EXTENSION_TYPE> \
 			class __NAME { \
 			public: \
@@ -54,18 +54,36 @@ namespace ExtendedInt64zTraits {
 				inline auto operator()(int64_t first, const type & second) const { return GmpTraits::signed_number(first) __OP second; }; \
 				inline auto operator()(uint64_t first, const type & second) const { return GmpTraits::unsigned_number(first) __OP second; }; \
 			};
-		#define EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(__NAME, __OP) \
+		#define EI64ZDT_BINARY_OPERATORS_EI(__NAME, __OP) \
+			template<typename T_EXTENSION_TYPE> \
+			class __NAME { \
+			public: \
+				using type = T_EXTENSION_TYPE; \
+				inline auto operator()(const type & first, const type & second) const { return first __OP second; }; \
+				inline auto operator()(const type & first, int64_t second) const { return first __OP GmpTraits::signed_number(second); }; \
+				inline auto operator()(const type & first, uint64_t second) const { return first __OP GmpTraits::unsigned_number(second); }; \
+			};
+		#define EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(__NAME, __OP) \
 			template<typename T_EXTENSION_TYPE> \
 			class __NAME ## Assign: private Make<T_EXTENSION_TYPE> { \
 				using MyBase = Make<T_EXTENSION_TYPE>; \
 			public: \
 				using type = T_EXTENSION_TYPE; \
-				inline void operator()(type & first, const type & second) const { first __OP second; }; \
+				inline void operator()(type & first, const type & first) const { first __OP ## = second; }; \
+				inline void operator()(type & first, int64_t second) const { first __OP ## = GmpTraits::signed_number(second); }; \
+				inline void operator()(type & first, uint64_t second) const { first __OP ## = GmpTraits::unsigned_number(second); }; \
+			};
+		#define EI64ZDT_BINARY_ASSIGN_OPERATORS_EI(__NAME, __OP) \
+			template<typename T_EXTENSION_TYPE> \
+			class __NAME ## Assign: private Make<T_EXTENSION_TYPE> { \
+				using MyBase = Make<T_EXTENSION_TYPE>; \
+			public: \
+				using type = T_EXTENSION_TYPE; \
 				inline void operator()(type & first, int64_t second) const { first __OP ## = GmpTraits::signed_number(second); }; \
 				inline void operator()(type & first, uint64_t second) const { first __OP ## = GmpTraits::unsigned_number(second); }; \
 			};
 	#else
-		#define EI64ZDT_BINARY_OPERATORS_IMP(__NAME, __OP) \
+		#define EI64ZDT_BINARY_OPERATORS_EE_EI_IE(__NAME, __OP) \
 			template<typename T_EXTENSION_TYPE> \
 			struct __NAME { \
 				using type = T_EXTENSION_TYPE; \
@@ -75,7 +93,14 @@ namespace ExtendedInt64zTraits {
 				inline auto operator()(int64_t first, const type & second) const { return first __OP second; }; \
 				inline auto operator()(uint64_t first, const type & second) const { return first __OP second; }; \
 			};
-		#define EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(__NAME, __OP) \
+		#define EI64ZDT_BINARY_OPERATORS_EI(__NAME, __OP) \
+			template<typename T_EXTENSION_TYPE> \
+			struct __NAME { \
+				using type = T_EXTENSION_TYPE; \
+				inline auto operator()(const type & first, int64_t second) const { return first __OP second; }; \
+				inline auto operator()(const type & first, uint64_t second) const { return first __OP second; }; \
+			};
+		#define EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(__NAME, __OP) \
 			template<typename T_EXTENSION_TYPE> \
 			struct __NAME ## Assign { \
 				using type = T_EXTENSION_TYPE; \
@@ -83,9 +108,16 @@ namespace ExtendedInt64zTraits {
 				inline void operator()(type & first, int64_t second) const { first __OP ## = second; }; \
 				inline void operator()(type & first, uint64_t second) const { first __OP ## = second; }; \
 			};
+		#define EI64ZDT_BINARY_ASSIGN_OPERATORS_EI(__NAME, __OP) \
+			template<typename T_EXTENSION_TYPE> \
+			struct __NAME ## Assign { \
+				using type = T_EXTENSION_TYPE; \
+				inline void operator()(type & first, int64_t second) const { first __OP ## = second; }; \
+				inline void operator()(type & first, uint64_t second) const { first __OP ## = second; }; \
+			};
 	#endif
 #else
-	#define EI64ZDT_BINARY_OPERATORS_IMP(__NAME, __OP) \
+	#define EI64ZDT_BINARY_OPERATORS_EE_EI_IE(__NAME, __OP) \
 		template<typename T_EXTENSION_TYPE> \
 		class __NAME: Make<T_EXTENSION_TYPE> { \
 			using MyBase = Make<T_EXTENSION_TYPE>; \
@@ -97,7 +129,16 @@ namespace ExtendedInt64zTraits {
 			inline auto operator()(int64_t first, const type & second) const { return MyBase::operator()(first) __OP second; }; \
 			inline auto operator()(uint64_t first, const type & second) const { return MyBase::operator()(first) __OP second; }; \
 		};
-	#define EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(__NAME, __OP) \
+	#define EI64ZDT_BINARY_OPERATORS_EI(__NAME, __OP) \
+		template<typename T_EXTENSION_TYPE> \
+		class __NAME: Make<T_EXTENSION_TYPE> { \
+			using MyBase = Make<T_EXTENSION_TYPE>; \
+		public: \
+			using type = T_EXTENSION_TYPE; \
+			inline auto operator()(const type & first, int64_t second) const { return first __OP MyBase::operator()(second); }; \
+			inline auto operator()(const type & first, uint64_t second) const { return first __OP MyBase::operator()(second); }; \
+		};
+	#define EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(__NAME, __OP) \
 		template<typename T_EXTENSION_TYPE> \
 		class __NAME ## Assign: private Make<T_EXTENSION_TYPE> { \
 			using MyBase = Make<T_EXTENSION_TYPE>; \
@@ -107,35 +148,45 @@ namespace ExtendedInt64zTraits {
 			inline void operator()(type & first, int64_t second) const { first __OP ## = MyBase::operator()(second); }; \
 			inline void operator()(type & first, uint64_t second) const { first __OP ## = MyBase::operator()(second); }; \
 		};
+	#define EI64ZDT_BINARY_ASSIGN_OPERATORS_EI(__NAME, __OP) \
+		template<typename T_EXTENSION_TYPE> \
+		class __NAME ## Assign: private Make<T_EXTENSION_TYPE> { \
+			using MyBase = Make<T_EXTENSION_TYPE>; \
+		public: \
+			using type = T_EXTENSION_TYPE; \
+			inline void operator()(type & first, int64_t second) const { first __OP ## = MyBase::operator()(second); }; \
+			inline void operator()(type & first, uint64_t second) const { first __OP ## = MyBase::operator()(second); }; \
+		};
 #endif
 	
-	EI64ZDT_BINARY_OPERATORS_IMP(Equal, ==)
-	EI64ZDT_BINARY_OPERATORS_IMP(NotEqual, !=)
-	EI64ZDT_BINARY_OPERATORS_IMP(Less, <)
-	EI64ZDT_BINARY_OPERATORS_IMP(LessOrEqual, <=)
-	EI64ZDT_BINARY_OPERATORS_IMP(Greater, >)
-	EI64ZDT_BINARY_OPERATORS_IMP(GreaterOrEqual, >=)
-	EI64ZDT_BINARY_OPERATORS_IMP(Add, +)
-	EI64ZDT_BINARY_OPERATORS_IMP(Sub, -)
-	EI64ZDT_BINARY_OPERATORS_IMP(Mult, *)
-	EI64ZDT_BINARY_OPERATORS_IMP(Div, /)
-	EI64ZDT_BINARY_OPERATORS_IMP(Mod, %)
-	EI64ZDT_BINARY_OPERATORS_IMP(LShift, <<)
-	EI64ZDT_BINARY_OPERATORS_IMP(RShift, >>)
-	EI64ZDT_BINARY_OPERATORS_IMP(BitOr, |)
-	EI64ZDT_BINARY_OPERATORS_IMP(BitAnd, &)
-	EI64ZDT_BINARY_OPERATORS_IMP(BitXor, ^)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(Equal, ==)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(NotEqual, !=)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(Less, <)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(LessOrEqual, <=)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(Greater, >)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(GreaterOrEqual, >=)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(Add, +)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(Sub, -)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(Mult, *)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(Div, /)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(Mod, %)
+	EI64ZDT_BINARY_OPERATORS_EI(LShift, <<)
+	EI64ZDT_BINARY_OPERATORS_EI(RShift, >>)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(BitOr, |)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(BitAnd, &)
+	EI64ZDT_BINARY_OPERATORS_EE_EI_IE(BitXor, ^)
 	
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(Add, +)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(Sub, -)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(Mult, *)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(Div, /)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(Mod, %)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(LShift, <<)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(RShift, >>)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(BitOr, |)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(BitAnd, &)
-	EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP(BitXor, ^)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(Add, +)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(Sub, -)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(Mult, *)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(Div, /)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(Mod, %)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EI(LShift, <<)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EI(RShift, >>)
+	
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(BitOr, |)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(BitAnd, &)
+	EI64ZDT_BINARY_ASSIGN_OPERATORS_EE_EI(BitXor, ^)
 
 #undef EI64ZDT_BINARY_OPERATORS_IMP
 #undef EI64ZDT_BINARY_ASSIGN_OPERATORS_IMP
@@ -175,7 +226,43 @@ struct ToIntegral<CGAL::Gmpz, int64_t> {
 	using integral_type = int64_t;
 	integral_type operator()(const type & value) const;
 };
-//END
+
+#if not defined(__LP64__)
+	template<>
+	class LShift<CGAL::Gmpz>: private Make<CGAL::Gmpz> {
+		using MyBase = Make<CGAL::Gmpz>;
+	public:
+		using type = CGAL::Gmpz;
+		inline type operator()(const type & first, int64_t second) const {assert(uint32_t(second) == second); return first << int32_t(second);};
+		inline type operator()(const type & first, uint64_t second) const {assert(uint32_t(second) == second); return first << uint32_t(second); };
+	};
+	template<>
+	class RShift<CGAL::Gmpz>: private Make<CGAL::Gmpz> {
+		using MyBase = Make<CGAL::Gmpz>;
+	public:
+		using type = CGAL::Gmpz;
+		inline type operator()(const type & first, int64_t second) const {assert(uint32_t(second) == second); return first >> int32_t(second);};
+		inline type operator()(const type & first, uint64_t second) const {assert(uint32_t(second) == second); return first >> uint32_t(second); };
+	};
+	template<>
+	class LShiftAssign<CGAL::Gmpz>: private Make<CGAL::Gmpz> {
+		using MyBase = Make<CGAL::Gmpz>;
+	public:
+		using type = CGAL::Gmpz;
+		inline void operator()(type & first, int64_t second) const {assert(uint32_t(second) == second); first <<= int32_t(second);};
+		inline void operator()(type & first, uint64_t second) const {assert(uint32_t(second) == second); first <<= uint32_t(second); };
+	};
+	template<>
+	class RShiftAssign<CGAL::Gmpz>: private Make<CGAL::Gmpz> {
+		using MyBase = Make<CGAL::Gmpz>;
+	public:
+		using type = CGAL::Gmpz;
+		inline void operator()(type & first, int64_t second) const {assert(uint32_t(second) == second); first >>= int32_t(second);};
+		inline void operator()(type & first, uint64_t second) const {assert(uint32_t(second) == second); first >>= uint32_t(second); };
+	};
+#endif
+
+//END CGAL::Gmpz specializations
 //BEGIN boost_int1024 specializations
 template<>
 struct Make<boost_int1024> {
@@ -183,7 +270,7 @@ struct Make<boost_int1024> {
 	type operator()(int64_t v) const;
 	type operator()(uint64_t v) const;
 };
-//END
+//END boost_int1024 specializations
 
 }}
 
