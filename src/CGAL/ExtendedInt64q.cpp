@@ -36,13 +36,13 @@ ExtendedInt64qTraits<CGAL::Gmpq>::simplify(type & v)
 bool
 ExtendedInt64qTraits<CGAL::Gmpq>::fits_int64(const numerator_type & v)
 {
-	return ::mpz_fits_slong_p(v.mpz());
+	return internal::ExtendedInt64zTraits<numerator_type>().fits<int64_t>()(v);
 }
 
 
 int64_t
 ExtendedInt64qTraits<CGAL::Gmpq>::to_int64(const numerator_type & v) {
-	return ::mpz_get_si(v.mpz());
+	return internal::ExtendedInt64zTraits<numerator_type>().toIntegral<int64_t>()(v.mpz());
 }
 
 double
@@ -73,6 +73,40 @@ ExtendedInt64qTraits<CGAL::Gmpq>::num_bits(const numerator_type & v) {
 	return uint32_t(::mpz_sizeinbase(v.mpz(), 2));
 }
 
+#if  defined(__LP64__)
+	#if defined(__APPLE__)
+	ExtendedInt64qTraits<CGAL::Gmpq>::type
+	ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, base_type denominator) {
+		return type(LIB_RATSS_NAMESPACE::GmpTraits::signed_number(numerator), LIB_RATSS_NAMESPACE::GmpTraits::signed_number(denominator));
+	}
+
+	ExtendedInt64qTraits<CGAL::Gmpq>::type
+	ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, unsigned_base_type denominator) {
+		return type(LIB_RATSS_NAMESPACE::GmpTraits::signed_number(numerator), LIB_RATSS_NAMESPACE::GmpTraits::unsigned_number(denominator));
+	}
+	#else
+	ExtendedInt64qTraits<CGAL::Gmpq>::type
+	ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, base_type denominator) {
+		return type(numerator, denominator);
+	}
+
+	ExtendedInt64qTraits<CGAL::Gmpq>::type
+	ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, unsigned_base_type denominator) {
+		return type(numerator, denominator);
+	}
+	#endif
+#else
+	ExtendedInt64qTraits<CGAL::Gmpq>::type
+	ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, base_type denominator) {
+		auto traits = ;
+		return type(numerator, denominator);
+	}
+
+	ExtendedInt64qTraits<CGAL::Gmpq>::type
+	ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, unsigned_base_type denominator) {
+		return type(numerator, denominator);
+	}
+#endif
 ExtendedInt64qTraits<CGAL::Gmpq>::type
 ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, base_type denominator) {
 	return type(LIB_RATSS_NAMESPACE::GmpTraits::signed_number(numerator), LIB_RATSS_NAMESPACE::GmpTraits::signed_number(denominator));
