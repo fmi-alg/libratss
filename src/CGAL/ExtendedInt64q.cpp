@@ -107,15 +107,6 @@ ExtendedInt64qTraits<CGAL::Gmpq>::num_bits(const numerator_type & v) {
 		return type(numerator, denominator);
 	}
 #endif
-ExtendedInt64qTraits<CGAL::Gmpq>::type
-ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, base_type denominator) {
-	return type(LIB_RATSS_NAMESPACE::GmpTraits::signed_number(numerator), LIB_RATSS_NAMESPACE::GmpTraits::signed_number(denominator));
-}
-
-ExtendedInt64qTraits<CGAL::Gmpq>::type
-ExtendedInt64qTraits<CGAL::Gmpq>::make(base_type numerator, unsigned_base_type denominator) {
-	return type(LIB_RATSS_NAMESPACE::GmpTraits::signed_number(numerator), LIB_RATSS_NAMESPACE::GmpTraits::unsigned_number(denominator));
-}
 
 //BEGIN boost_int1024q
 void
