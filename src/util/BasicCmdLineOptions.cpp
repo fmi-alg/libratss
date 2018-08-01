@@ -54,6 +54,9 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if ( stStr == "jp") {
 					snapType |= ProjectSN::ST_JP;
 				}
+				else if ( stStr == "lll") {
+					snapType |= ProjectSN::ST_FPLLL;
+				}
 				else if (stStr == "ml" || stStr == "minlimb") {
 					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS;
 				}
@@ -241,7 +244,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-v\tverbose\n"
 		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
 		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (cf|fl|fx|jp)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
+		"\t-r (cf|fl|fx|jp|lll)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron,lll=LLL, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
 		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
 		"\t-n\tnormalize input to length 1\n"
 		"\t--progress\tprogress indicators\n"
@@ -266,6 +269,12 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	}
 	else if (snapType & ratss::ProjectSN::ST_FL) {
 		out << "floating point";
+	}
+	else if (snapType & ratss::ProjectSN::ST_JP) {
+		out << "jacobi-perron";
+	}
+	else if (snapType & ratss::ProjectSN::ST_FPLLL) {
+		out << "LLL";
 	}
 	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM) {
 		out << "minimize maximum denominator";

@@ -5,12 +5,16 @@
 #include <libratss/constants.h>
 #include <libratss/Conversion.h>
 
+#ifdef LIB_RATSS_WITH_FPLLL
+	#include <fplll.h>
+#endif
+
 namespace LIB_RATSS_NAMESPACE {
 
 class Calc {
 public:
 	///Values are compatible with the ones defined in ProjectSN::SnapType
-	typedef enum { ST_NONE=0x0, ST_CF=0x4, ST_FX=0x8, ST_FL=0x10, ST_JP=0x20 } SnapType;
+	typedef enum { ST_NONE=0x0, ST_CF=0x4, ST_FX=0x8, ST_FL=0x10, ST_JP=0x20, ST_} SnapType;
 public:
 	template<typename T_FT>
 	inline T_FT add(const T_FT & a, const T_FT & b) const { return a+b; }
@@ -71,6 +75,9 @@ public:
 	
 	void jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class& output2, int significands) const;
 	
+	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+	void lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const;
+	
 	mpq_class snap(const mpfr::mpreal & v, int st, int eps = -1) const;
 public:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
@@ -105,6 +112,57 @@ public:
 //definitions
 
 namespace LIB_RATSS_NAMESPACE {
+	
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const {
+#ifdef LIB_RATSS_WITH_FPLLL
+	using InputIterator = T_INPUT_ITERATOR;
+	using input_type = typename std::iterator_traits<InputIterator>::value_type;
+	using std::distance;
+	
+	using Matrix = fplll::IntMatrix;
+	
+	auto dim = distance(begin, end);
+	
+	if (dim < 2) {
+		throw std::runtime_error("Calc::lll: dimension has to be larger than 1");
+	}
+	
+	Matrix mtx(dim+1, dim+1);
+	{
+		auto it(begin);
+		for(uint32_t i(0); i < dim; ++i, ++it) {
+			auto x = Conversion<input_type>::toMpq(*it);
+			mtx(0, i+1) = x.get_num_mpz_t(); //numerator
+			mtx(i+1, i+1) = x.get_den_mpz_t(); //denominator
+		}
+	}
+	int status = fplll::lll_reduction(mtx);
+	
+	if (status != 0) {
+		throw std::runtime_error("Could not approximate input with LLL");
+	}
+	
+	common_denom = mpz_class( mtx(0, 0) );
+	
+	//common_denom now holds the correct denominator, calculate for each entry the best numerator ceil/floor
+	for(auto it(begin); it != end; ++it, ++out) { 
+		auto x = Conversion<input_type>::toMpq(*it);
+		mpz_class num = (x.get_num() * common_denom) / x.get_den();
+		mpz_class num1 = num+(x >= 0 ? 1 : -1);
+		//check which one is better
+		if (abs(x - mpq_class(num, common_denom)) < abs(x - mpq_class(num1, common_denom))) {
+			*out = num;
+		}
+		else {
+			*out = num1;
+		}
+	}
+#else
+	throw std::runtime_error("libratss was no compiled with support snapping using the lll algorithm");
+#endif
+}
+
 
 template<typename T_INPUT_ITERATOR>
 mpfr::mpreal Calc::squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const {
