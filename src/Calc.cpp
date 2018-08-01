@@ -86,6 +86,11 @@ mpfr::mpreal Calc::sub(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	return a-b;
 }
 
+
+int Calc::msb(const mpz_class & v) const {
+	return ::mpz_sizeinbase(v.mpz(), 2)-1;
+}
+
 /*
 mpfr has the following constraints:
 0.5 <= m < 1
