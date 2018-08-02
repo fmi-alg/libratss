@@ -78,7 +78,7 @@ public:
 	void jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class& output2, int significands) const;
 	
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-	void apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const mpz_class & common_denom);
+	void apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const mpz_class & common_denom) const;
 	///this will first set common_denom and the write all numerators to out
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const;
@@ -120,7 +120,7 @@ namespace LIB_RATSS_NAMESPACE {
 	
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-void apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const mpz_class & common_denom) {
+void Calc::apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const mpz_class & common_denom) const {
 	using InputIterator = T_INPUT_ITERATOR;
 	using input_type = typename std::iterator_traits<InputIterator>::value_type;
 	for(auto it(begin); it != end; ++it, ++out) {
@@ -141,8 +141,6 @@ void apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OU
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const {
 #ifdef LIB_RATSS_WITH_FPLLL
-	using InputIterator = T_INPUT_ITERATOR;
-	using input_type = typename std::iterator_traits<InputIterator>::value_type;
 	using std::distance;
 	
 	using Matrix = fplll::IntMatrix;
@@ -155,75 +153,67 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	
 	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands);
 	
-	mpz_class Q;
-	mpz_class V = 1; //either product or the common denominator for the input if available
-	mpz_class QV;
-	int jmax = dim+msb(QV)+1;
+	mpz_class N;
+	mpz_class B; //either product or the common denominator for the input if available
+	mpz_class NB;
 	
-	mpq_class best_mn;
+	mpq_class best_eta;
 	mpq_class best_common_denom;
-	std::vector<mpz_class> best_result(dim);
 	
-	mpq_class current_mn;
+	mpq_class current_eta;
 	mpz_class current_common_denom;
-	std::vector<mpz_class> current_result(dim);
 	
-	//init V, first check if all denominators of the input are equal
+	//init B, first check if all denominators of the input are equal
 	{
 		auto it(begin);
-		V = Conversion<input_type>::toMpq(*it).get_den();
+		B = it->get_den();
 		bool input_has_common_denom = true;
 		for(++it; it != end; ++it) {
-			if (it->get_den() != V) {
+			if (it->get_den() != B) {
 				input_has_common_denom = false;
 				break;
 			}
 		}
 		if (!input_has_common_denom) {
-			V = 1;
+			B = 1;
 			for(it = begin; it != end; ++it) {
-				V *= *it;
+				B *= *it;
 			}
 		}
 	}
 	
-	QV = Q*V;
-	best_common_denom = V;
-	best_mn = maxNorm(begin, end, current_result);
+	NB = N*B;
 	
-	for(int j(0); j < jmax; ++j) {
+	for(int j(0), s(dim+msb(NB)+1); j < s; ++j) {
 		Matrix mtx(dim+1, dim+1);
 		{
 			auto it(begin);
-			mpz_t num, den;
-			::mpz_init(num);
-			::mpz_init_set(num, qt.get_mpz_t());
 			for(uint32_t i(0); i < dim; ++i, ++it) {
-				mpq_class x = *it;
-				x *= QV;
-				::mpz_set(num, x.get_num_mpz_t());
-				mtx(0, i+1) = num;
-				mtx(i+1, i+1) = den;
+				mpq_class x = NB * (*it);
+				::mpz_set(mtx(i+1, i+1).get_data(), x.get_num_mpz_t());
+				::mpz_set(mtx(0, i+1).get_data(), NB.get_mpz_t());
 			}
-			::mpz_clear(num);
-			::mpz_clear(den);
 		}
 		int status = fplll::lll_reduction(mtx);
-		current_common_denom = mpz_class( mtx(0, 0) );
-		apply_common_denominator(begin, end, current_result.begin(), current_common_denom);
-		
-		current_mn = maxNorm(begin, end, current_result.begin());
-		if (current_mn < best_mn && common_denom < best_common_denom) {
-			best_mn = std::move(current_mn);
+		if (!status) {
+			throw std::runtime_error("LLL reduction failed");
+		}
+		current_common_denom = mpz_class( mtx(0, 0).get_data() );
+		current_eta = abs( mpz_class(mtx(0, 1).get_data()) );
+		for(int i(1); i < dim; ++i) {
+			mpz_class xi( abs(mpz_class(mtx(0, i+1).get_data()) ) );
+			if (xi > current_eta) {
+				current_eta = xi;
+			}
+		}
+		if (j == 0 || current_eta < best_eta) {
+			best_eta = std::move(current_eta);
 			best_common_denom = std::move(current_common_denom);
 		}
 	}
 	
-	common_denom = best_common_denom;
-	for(mpz_class & x : best_result) {
-		*out = std::move(x);
-		++out;
-	}
+	common_denom = std::move(best_common_denom);
+	apply_common_denominator(begin, end, out, common_denom);
 
 #else
 	throw std::bad_function_call("libratss was compiled without snapping using the lll algorithm");
@@ -298,9 +288,16 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 	}
 	else if (snapType & ST_FPLLL) {
 		using std::distance;
+		std::vector<mpq_class> tmp;
 		std::vector<mpz_class> numerators(distance(begin, end));
 		mpz_class common_denom;
-		lll(begin, end, numerators.begin(), common_denom, significands);
+		
+		tmp.reserve(numerators.size());
+		for(; begin != end; ++begin) {
+			tmp.emplace_back(Conversion<input_ft>::toMpq(*begin));
+		}
+		
+		lll(tmp.begin(), tmp.end(), numerators.begin(), common_denom, significands);
 		for(const mpz_class & x : numerators) {
 			*out = mpq_class(x, common_denom);
 			++out;

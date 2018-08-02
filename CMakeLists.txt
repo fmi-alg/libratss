@@ -31,7 +31,7 @@ find_package(CGALSimple)
 find_package(PkgConfig)
 
 if (PKGCONFIG_FOUND)
-	pkg_check_modules(FPLLL REQUIRED fplll)
+	pkg_search_module(FPLLL REQUIRED fplll)
 endif()
 
 if (LIBCGAL_FOUND)
@@ -68,7 +68,7 @@ set(LIBRATSS_LINK_LIBRARIES
 	${CMAKE_THREAD_LIBS_INIT}
 	${LIBGMPXX_LIBRARIES}
 	${LIBMPFR_LIBRARIES}
-	${FPLL_LIBRARIES}
+	${FPLLL_LIBRARIES}
 )
 
 set(LIB_SOURCES_CPP
