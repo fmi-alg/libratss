@@ -97,6 +97,14 @@ struct Conversion<CORE::BigRat> {
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };
 
+template<>
+struct Conversion<CORE::Real> {
+	using type = CORE::Real;
+	static type moveFrom(const mpq_class & v);
+	static mpq_class toMpq(const type & v);
+	static mpfr::mpreal toMpreal(const type & v, int precision);
+};
+
 #if CGAL_VERSION_NR >= 1041101000 && defined(CGAL_USE_GMPXX)
 
 template<>
