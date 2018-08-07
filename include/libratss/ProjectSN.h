@@ -133,8 +133,8 @@ PositionOnSphere ProjectSN::positionOnSphere(T_FT_ITERATOR begin, const T_FT_ITE
 	}
 	int posIndex = -1;
 	int posSign = 0;
-	value_type v( std::numeric_limits<uint32_t>::min() );
-	for(int p(1);begin != end; ++begin, ++p) {
+	value_type v( (unsigned int)(0) );
+	for(int p(1); begin != end; ++begin, ++p) {
 		if (*begin > v) { //base vector (0...,1,...0)
 			posIndex = p;
 			posSign = 1;
