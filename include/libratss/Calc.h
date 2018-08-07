@@ -138,6 +138,10 @@ void Calc::apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end
 }
 
 ///See Siam Journal on Computing: THE COMPUTATIONAL COMPLEXITY OF SIMULTANEOUS DIOPHANTINE APPROXIMATION PROBLEMS by J. C. LAGARIAS
+///How we set N:
+///Theorem Dirichlet:
+///for x, N exists q s.t. abs(x - p/q) <= 1/(q * sqrt(N))
+///
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const {
 #ifdef LIB_RATSS_WITH_FPLLL
@@ -151,9 +155,10 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 		throw std::domain_error("Calc::lll: dimension has to be larger than 1");
 	}
 	
-	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands);
+	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands); //input eps
+	eps = (eps / dim) * mpq_class(mpz_class(1), mpz_class(1) << (dim/2+3)); //our eps
 	
-	mpz_class N;
+	mpz_class N = (eps.get_den() / eps.get_num()) + 1; // 1/eps
 	mpz_class B; //either product or the common denominator for the input if available
 	mpz_class NB;
 	
