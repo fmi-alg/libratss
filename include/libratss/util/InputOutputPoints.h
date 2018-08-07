@@ -45,7 +45,11 @@ struct RationalPoint: PointBase {
 	std::vector<mpq_class> coords;
 	RationalPoint();
 	template<typename T_ITERATOR>
-	RationalPoint(const T_ITERATOR & begin, const T_ITERATOR & end) : coords(begin, end) {}
+	RationalPoint(T_ITERATOR begin, const T_ITERATOR & end) {
+		for(; begin != end; ++begin) {
+			coords.emplace_back(convert<mpq_class>(*begin));
+		}
+	}
 	template<typename T_VALUE>
 	RationalPoint(const std::initializer_list<T_VALUE> & il) : coords(il.begin(), il.end()) {}
 	template<typename... TArgs>
