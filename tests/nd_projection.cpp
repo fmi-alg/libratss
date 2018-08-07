@@ -20,11 +20,14 @@ CPPUNIT_TEST( snapFlSphere );
 CPPUNIT_TEST( snapFxSphere );
 CPPUNIT_TEST( snapCfSphere );
 // CPPUNIT_TEST( snapJpSphere );
+CPPUNIT_TEST( snapSpecial );
+CPPUNIT_TEST( snapRandomCore );
 CPPUNIT_TEST_SUITE_END();
 public:
 	using Projector = ProjectSN;
 public:
 	static std::size_t num_random_test_points;
+	static constexpr std::array<int, 10> significands = {2, 3, 4, 8, 16, 23, 32, 53, 64, 128};
 public:
 	virtual void setUp() {
 		coords = getRandomPolarPoints(num_random_test_points);
@@ -40,13 +43,18 @@ public:
 	void snapFxSphere() { snapRandom({ProjectSN::ST_FX}, {ProjectSN::ST_SPHERE}); }
 	void snapCfSphere() { snapRandom({ProjectSN::ST_CF}, {ProjectSN::ST_SPHERE}); }
 // 	void snaJpSphere() { snapRandom({ProjectSN::ST_JP}, {ProjectSN::ST_SPHERE}); }
+public:
+	void snapSpecial();
+	void snapRandomCore();
 protected:
+	void snapCore(const RationalPoint & pt, int significands);
 	void snapRandom(const std::vector<int> & snapMethod, const std::vector<int> & snapLocation);
 private:
 	std::vector<SphericalCoord> coords;
 };
 
 std::size_t NDProjectionTest::num_random_test_points;
+constexpr std::array<int, 10> NDProjectionTest::significands;
 
 }} // end namespace ratss::tests
 
@@ -65,9 +73,6 @@ namespace LIB_RATSS_NAMESPACE {
 namespace tests {
 
 void NDProjectionTest::snapRandom(const std::vector<int> & snapMethod, const std::vector<int> & snapLocation) {
-	std::array<int, 10> significands = {2, 3, 4, 8, 16, 23, 32, 53, 64, 128};
-// 	std::array<int, 5> significands = {23, 32, 53, 64, 128};
-
 	Projector p;
 	GeoCalc gc;
 	
@@ -93,11 +98,13 @@ void NDProjectionTest::snapRandom(const std::vector<int> & snapMethod, const std
 				for(const mpq_class & x : inputRational) {
 					sqLenInput += x*x;
 				}
-				std::stringstream ss;
-				ss << "Input points are too far away: (squared-length - 1) =";
-				ss << Conversion<mpq_class>::toMpreal(sqLenInput, 128);
-				ss << " ~ " << Conversion<mpq_class>::toMpreal((sqLenInput-1)/eps, 53) << "eps";
-				CPPUNIT_ASSERT_MESSAGE(ss.str(), sqLenInput < maxSqLen);
+				if (sqLenInput < maxSqLen) {
+					std::stringstream ss;
+					ss << "Input points are too far away: (squared-length - 1) =";
+					ss << Conversion<mpq_class>::toMpreal(sqLenInput, 128);
+					ss << " ~ " << Conversion<mpq_class>::toMpreal((sqLenInput-1)/eps, 53) << "eps";
+					CPPUNIT_ASSERT_MESSAGE(ss.str(), sqLenInput < maxSqLen);
+				}
 			}
 
 			for(int sm : snapMethod) {
@@ -112,17 +119,100 @@ void NDProjectionTest::snapRandom(const std::vector<int> & snapMethod, const std
 					for(int i(0); i < 3; ++i) {
 						using std::abs;
 						mpq_class dist = abs(inputRational[i]-output[i]);
-						std::stringstream ss;
-						ss << "Snapped point with " << sig << "significands and snap-type " << ProjectSN::toString((ProjectSN::SnapType) snapType) << " is too far away: "
-							<< Conversion<mpq_class>::toMpreal(dist/eps, 53) << '=' << dist<< "eps !< " << projEps << '\n';
-						ss << "P(";
-						RationalPoint(inputRational.begin(), inputRational.end()).print(ss, RationalPoint::FM_FLOAT128);
-						ss << ") -> ";
-						RationalPoint(output.begin(), output.end()).print(ss, RationalPoint::FM_FLOAT128);
-						CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= projEps);
+						if (dist > projEps) {
+							std::stringstream ss;
+							ss << "Snapped point with " << sig << " significands and snap-type " << ProjectSN::toString((ProjectSN::SnapType) snapType) << " is too far away: "
+								<< Conversion<mpq_class>::toMpreal(dist/eps, 53) << "eps with dist=" << dist << " !< eps=" << projEps << '\n';
+							ss << "Input=(";
+							RationalPoint(inputRational.begin(), inputRational.end()).print(ss, RationalPoint::FM_FLOAT128);
+							ss << ")\n=(";
+							RationalPoint(inputRational.begin(), inputRational.end()).print(ss, RationalPoint::FM_CARTESIAN_RATIONAL);
+							ss << ")\n";
+							ss << "Output=";
+							RationalPoint(output.begin(), output.end()).print(ss, RationalPoint::FM_FLOAT128);
+							CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= projEps);
+						}
 					}
 				}
 			}
+		}
+	}
+}
+
+void NDProjectionTest::snapSpecial() {
+	RationalPoint pt("-3649441408934921/4503599627370496 336527806092069/2251799813685248 38022739/67108864", RationalPoint::FM_CARTESIAN_RATIONAL);
+	snapCore(pt, 2);
+}
+
+void NDProjectionTest::snapRandomCore() {
+	RationalPoint pt(3);
+	for(int significand : NDProjectionTest::significands) {
+		for(const SphericalCoord & c : coords) {
+			mpfr::mpreal x, y, z;
+			pt.c.cartesianFromSpherical(mpfr::mpreal(c.theta), mpfr::mpreal(c.phi), x, y, z);
+			pt.coords[0] = Conversion<mpfr::mpreal>::toMpq(x);
+			pt.coords[1] = Conversion<mpfr::mpreal>::toMpq(y);
+			pt.coords[2] = Conversion<mpfr::mpreal>::toMpq(z);
+			snapCore(pt, significand);
+		}
+	}
+}
+
+void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
+	Projector p;
+	GeoCalc gc;
+	std::vector<CORE::Expr> ptc(pt.coords.size());
+	std::transform(pt.coords.begin(), pt.coords.end(), ptc.begin(), [](auto x) -> CORE::Expr { return Conversion<CORE::Expr>::moveFrom(x); });
+	
+	std::vector<CORE::Expr> ptc_norm(ptc.begin(), ptc.end());
+	{
+		CORE::Expr len{0};
+		for(auto & x : ptc_norm) {
+			len += x*x;
+		}
+		len = sqrt(len);
+		for(auto & x : ptc_norm) {
+			x /= len;
+		}
+	}
+	
+	std::vector<CORE::Expr> ptc_plane(ptc.size());
+	
+	auto pos = p.positionOnSphere(ptc_norm.begin(), ptc_norm.end());
+	pos = p.sphere2Plane(ptc_norm.begin(), ptc_norm.end(), ptc_plane.begin(), pos);
+	//now snap
+	std::vector<mpq_class> pt_snap_plane(ptc.size());
+	std::transform(ptc_plane.begin(), ptc_plane.end(), pt_snap_plane.begin(), [significand](auto x) -> mpq_class {
+		return Conversion<CORE::Real>::toMpq( x.approx(significand, significand) );
+	});
+	
+	//go back to 3d coords
+	std::vector<mpq_class> pt_snap_sphere(ptc.size());
+	p.plane2Sphere(pt_snap_plane.begin(), pt_snap_plane.end(), pos, pt_snap_sphere.begin());
+	
+	//convert to core
+	std::vector<CORE::Expr> ptc_snap_sphere(ptc.size());
+	std::transform(pt_snap_sphere.begin(), pt_snap_sphere.end(), ptc_snap_sphere.begin(), [](auto x) -> CORE::Expr {
+		return Conversion<CORE::Expr>::moveFrom(x);
+	});
+	
+	//check eps
+	mpq_class eps(mpz_class(1), mpz_class(1) << significand);
+	CORE::Expr epsc = Conversion<CORE::Expr>::moveFrom(eps);
+	CORE::Expr projEpsc = 2*epsc;
+	for(std::size_t i(0); i < ptc.size(); ++i) {
+		auto dist = ptc_norm[i] - ptc_snap_sphere[i];
+		if ( dist > projEpsc ) {
+			std::stringstream ss;
+			ss << "Significands: " << significand << '\n';
+			ss << "Input=";
+			pt.print(ss, RationalPoint::FM_CARTESIAN_FLOAT128);
+			ss << '\n';
+			ss << "Output=";
+			RationalPoint(pt_snap_sphere.begin(), pt_snap_sphere.end()).print(ss, RationalPoint::FM_CARTESIAN_FLOAT128);
+			ss << '\n';
+			ss << "dist=" << Conversion<CORE::Expr>::toMpreal(dist/projEpsc, 5) << "eps\n";
+			CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= projEpsc);
 		}
 	}
 }
