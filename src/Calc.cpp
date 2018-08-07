@@ -114,8 +114,8 @@ void Calc::makeFixpoint(mpfr::mpreal& v, int significands) const {
 			//this means that there are leading zeros,
 			//thus we need to cut off as many bits at the end as we have leading zeros
 			auto new_prec = prec + exp;
-			if (new_prec < 2) {
-				v = 0;
+			if (new_prec < 2) { //this should only happen if prec=2 and exp={1,2}
+				assert(prec==2);
 				v.setPrecision(2, MPFR_RNDZ);
 			}
 			else {
