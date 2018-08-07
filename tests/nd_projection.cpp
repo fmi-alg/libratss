@@ -182,8 +182,9 @@ void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
 	pos = p.sphere2Plane(ptc_norm.begin(), ptc_norm.end(), ptc_plane.begin(), pos);
 	//now snap
 	std::vector<mpq_class> pt_snap_plane(ptc.size());
-	std::transform(ptc_plane.begin(), ptc_plane.end(), pt_snap_plane.begin(), [significand](auto x) -> mpq_class {
-		return Conversion<CORE::Real>::toMpq( x.approx(significand, significand) );
+	std::transform(ptc_plane.begin(), ptc_plane.end(), pt_snap_plane.begin(), [significand, &gc](auto x) -> mpq_class {
+		auto xreal = Conversion<CORE::Real>::toMpreal( x.approx(significand, significand), 2*significand);
+		return gc.snap(xreal, gc.ST_CF, significand);
 	});
 	
 	//go back to 3d coords
@@ -198,20 +199,33 @@ void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
 	
 	//check eps
 	mpq_class eps(mpz_class(1), mpz_class(1) << significand);
+	int max_denom_bits = 2*significand+6; //ceil(log_2(32*(d-1)/eps^2)) = ceil(5+1+2*significand)
 	CORE::Expr epsc = Conversion<CORE::Expr>::moveFrom(eps);
 	CORE::Expr projEpsc = 2*epsc;
 	for(std::size_t i(0); i < ptc.size(); ++i) {
 		auto dist = ptc_norm[i] - ptc_snap_sphere[i];
-		if ( dist > projEpsc ) {
+		auto bits = ::mpz_sizeinbase(pt_snap_sphere[i].get_den_mpz_t(), 2);
+		auto bits_plane = ::mpz_sizeinbase(pt_snap_plane[i].get_den_mpz_t(), 2);
+		if ( dist > projEpsc || bits > max_denom_bits || bits_plane > significand) {
 			std::stringstream ss;
 			ss << "Significands: " << significand << '\n';
+			ss << "log_2(denom): " << bits << '\n';
+			ss << "eps: " << eps << '\n';
 			ss << "Input=";
-			pt.print(ss, RationalPoint::FM_CARTESIAN_FLOAT128);
+			pt.print(ss, RationalPoint::FM_CARTESIAN_FLOAT);
+			ss << '\n';
+			ss << "On plane=";
+			RationalPoint(ptc_plane.begin(), ptc_plane.end()).print(ss, RationalPoint::FM_CARTESIAN_FLOAT);
+			ss << '\n';
+			ss << "Snap on plane=";
+			RationalPoint(pt_snap_plane.begin(), pt_snap_plane.end()).print(ss, RationalPoint::FM_CARTESIAN_RATIONAL);
 			ss << '\n';
 			ss << "Output=";
-			RationalPoint(pt_snap_sphere.begin(), pt_snap_sphere.end()).print(ss, RationalPoint::FM_CARTESIAN_FLOAT128);
+			RationalPoint(pt_snap_sphere.begin(), pt_snap_sphere.end()).print(ss, RationalPoint::FM_CARTESIAN_RATIONAL);
 			ss << '\n';
-			ss << "dist=" << Conversion<CORE::Expr>::toMpreal(dist/projEpsc, 5) << "eps\n";
+			ss << "dist=" << Conversion<CORE::Expr>::toMpreal(dist/epsc, 5) << "eps\n";
+			CPPUNIT_ASSERT_MESSAGE(ss.str(), bits_plane <= significand);
+			CPPUNIT_ASSERT_MESSAGE(ss.str(), bits <= max_denom_bits);
 			CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= projEpsc);
 		}
 	}
