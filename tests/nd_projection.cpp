@@ -19,6 +19,8 @@ CPPUNIT_TEST( snapJpPlane );
 CPPUNIT_TEST( snapFlSphere );
 CPPUNIT_TEST( snapFxSphere );
 CPPUNIT_TEST( snapCfSphere );
+CPPUNIT_TEST( snaplllPlane );
+CPPUNIT_TEST( snaplllSphere );
 // CPPUNIT_TEST( snapJpSphere );
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -36,10 +38,12 @@ public:
 	void snapFxPlane() { snapRandom({ProjectSN::ST_FX}, {ProjectSN::ST_PLANE}); }
 	void snapCfPlane() { snapRandom({ProjectSN::ST_CF}, {ProjectSN::ST_PLANE}); }
 	void snapJpPlane() { snapRandom({ProjectSN::ST_JP}, {ProjectSN::ST_PLANE}); }
+	void snaplllPlane() { snapRandom({ProjectSN::ST_FPLLL}, {ProjectSN::ST_PLANE}); }
 	void snapFlSphere() { snapRandom({ProjectSN::ST_FL}, {ProjectSN::ST_SPHERE}); }
 	void snapFxSphere() { snapRandom({ProjectSN::ST_FX}, {ProjectSN::ST_SPHERE}); }
 	void snapCfSphere() { snapRandom({ProjectSN::ST_CF}, {ProjectSN::ST_SPHERE}); }
 // 	void snaJpSphere() { snapRandom({ProjectSN::ST_JP}, {ProjectSN::ST_SPHERE}); }
+	void snaplllSphere() { snapRandom({ProjectSN::ST_FPLLL}, {ProjectSN::ST_SPHERE}); }
 protected:
 	void snapRandom(const std::vector<int> & snapMethod, const std::vector<int> & snapLocation);
 private:
