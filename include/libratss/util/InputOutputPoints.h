@@ -48,7 +48,11 @@ struct RationalPoint: PointBase {
 	RationalPoint(const T_ITERATOR & begin, const T_ITERATOR & end) : coords(begin, end) {}
 	template<typename T_VALUE>
 	RationalPoint(const std::initializer_list<T_VALUE> & il) : coords(il.begin(), il.end()) {}
+	template<typename... TArgs>
+	RationalPoint(TArgs... args) : coords{args...} {}
 	RationalPoint(int dimension);
+	RationalPoint(const std::string & str, Format fmt, int dimension = -1);
+	RationalPoint(const char * str, Format fmt, int dimension = -1) : RationalPoint(std::string(str), fmt, dimension) {}
 	RationalPoint(const RationalPoint & other);
 	RationalPoint(RationalPoint && other);
 	RationalPoint & operator=(const RationalPoint & other);

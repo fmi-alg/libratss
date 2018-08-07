@@ -86,6 +86,12 @@ RationalPoint::RationalPoint() {}
 
 RationalPoint::RationalPoint(int dimension) : coords(dimension) {}
 
+RationalPoint::RationalPoint(const std::string & str, Format fmt, int dimension) {
+	std::stringstream ss;
+	ss << str;
+	assign(ss, fmt, 0, dimension);
+}
+
 RationalPoint::RationalPoint(const RationalPoint & other) : coords(other.coords) {}
 
 RationalPoint::RationalPoint(RationalPoint && other) : coords(std::move(other.coords)) {}
