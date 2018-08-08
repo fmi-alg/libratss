@@ -255,11 +255,12 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	}
 	mpz_class epsDenom(1);
 	epsDenom <<= significands;
+	mpq_class eps{mpz_class(1), epsDenom};
 	
 	if (value >= 1) {
 		mpz_class intPart = value.get_num() / value.get_den();
 		mpq_class remainder = value - intPart;
-		if (remainder < mpq_class(mpz_class(1), epsDenom)) {
+		if (remainder < eps) {
 			return mpq_class(intPart);
 		}
 		return intPart + contFrac(remainder, significands);
@@ -276,17 +277,21 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	intPart = tmp.get_num() / tmp.get_den();
 	tmp -= intPart;
 	
-	if (tmp < epsDenom) { //distance to real value is smaller than eps
-		return mpq_class(mpz_class(1), mpz_class(intPart));
+	if (tmp < eps) { //distance to real value is smaller than eps
+		if (intPart == 0) {
+			return mpq_class(0);
+		}
+		else {
+			return mpq_class(mpz_class(1), mpz_class(intPart));
+		}
 	}
 	
 	cf.emplace_back( std::move(intPart) );
-	tmp = 1 / tmp;
-
 	//a_1 is now in cf, calculate a_2...
 	//eps is of the form 1/number, our bound is
 	//abs(value-p_n/q_n) < 1/(a_(n+1) * q_n**2 )
-	while(true) {
+	while(tmp > 0) {
+		tmp = 1 / tmp;
 		intPart = tmp.get_num() / tmp.get_den();
 		mpz_class qsq = cf.back()*cf.back();
 		distUpperBoundDenom = (intPart) * qsq;
@@ -296,7 +301,6 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 		}
 		
 		tmp -= intPart;
-		tmp = 1 / tmp;
 		
 		cf.emplace_back( std::move(intPart) );
 	}
@@ -427,6 +431,7 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 	if (st & ST_CF) {
 		if (significands < 0) {
 			mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
+			return contFrac(rat, significands);
 			mpz_class tmp(1);
 			tmp <<= v.getPrecision();
 			mpq_class eps = mpq_class(mpz_class(1), tmp)/2;
@@ -445,6 +450,7 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 		}
 		else {
 			mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
+			return contFrac(rat, significands);
 			mpq_class precEps = 0; //mpq_class(mpz_class(1), rat.get_den());
 			mpz_class tmp(1);
 			tmp <<= significands;
