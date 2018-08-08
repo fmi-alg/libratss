@@ -142,6 +142,8 @@ void NDProjectionTest::snapRandom(const std::vector<int> & snapMethod, const std
 void NDProjectionTest::snapSpecial() {
 	RationalPoint pt("-3649441408934921/4503599627370496 336527806092069/2251799813685248 38022739/67108864", RationalPoint::FM_CARTESIAN_RATIONAL);
 	snapCore(pt, 2);
+	pt = RationalPoint("0.7368801747264132 -0.2332506128169909 0.6345090698450804", RationalPoint::FM_FLOAT128);
+	snapCore(pt, 2);
 }
 
 void NDProjectionTest::snapRandomCore() {
@@ -186,6 +188,15 @@ void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
 		auto xreal = Conversion<CORE::Real>::toMpreal( x.approx(significand, significand), 2*significand);
 		return gc.snap(xreal, gc.ST_CF, significand);
 	});
+	
+	for(mpq_class & x : pt_snap_plane) {
+		if (x > 1) {
+			std::stringstream ss;
+			ss << "value=";
+			ss << x;
+			CPPUNIT_ASSERT_MESSAGE(ss.str(), x <= 1);
+		}
+	}
 	
 	//go back to 3d coords
 	std::vector<mpq_class> pt_snap_sphere(ptc.size());
