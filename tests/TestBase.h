@@ -8,6 +8,14 @@
 #include <cppunit/TestResult.h>
 
 #include <libratss/constants.h>
+#include <gmpxx.h>
+#include <libratss/mpreal.h>
+
+extern "C" {
+	void debug_print_mpreal(const mpfr::mpreal & v);
+	void debug_print_mpq_class(const mpq_class & v);
+	void debug_print_mpz_class(const mpz_class & v);
+}
 
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {

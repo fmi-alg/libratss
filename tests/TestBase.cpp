@@ -1,5 +1,23 @@
 #include "TestBase.h"
 
+
+extern "C" {
+	
+void debug_print_mpreal(const mpfr::mpreal & v) {
+	std::cerr << v << std::endl;
+}
+
+void debug_print_mpq_class(const mpq_class & v) {
+	std::cerr << v << std::endl;
+}
+
+void debug_print_mpz_class(const mpz_class & v) {
+	std::cerr << v << std::endl;
+}
+
+}
+
+
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
 
