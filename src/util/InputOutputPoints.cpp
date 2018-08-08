@@ -13,7 +13,7 @@ void FloatPoint::setPrecision(int precision) {
 }
 void FloatPoint::assign(std::istream & is, Format fmt, int precision, int dimension) {
 	coords.clear();
-	if (fmt == FM_CARTESIAN_FLOAT) {
+	if (fmt == FM_CARTESIAN_FLOAT || fmt == FM_CARTESIAN_FLOAT128) {
 		while (is.good() && is.peek() != '\n' && (int) coords.size() != dimension) {
 			mpfr::mpreal tmp;
 			is >> tmp;
@@ -115,7 +115,7 @@ void RationalPoint::resize(std::size_t _n) {
 }
 
 
-void RationalPoint::assign(std::istream & is, Format fmt, int /*precision*/, int dimension) {
+void RationalPoint::assign(std::istream & is, Format fmt, int precision, int dimension) {
 	coords.clear();
 	if (fmt == FM_CARTESIAN_RATIONAL) {
 		
@@ -134,7 +134,17 @@ void RationalPoint::assign(std::istream & is, Format fmt, int /*precision*/, int
 		}
 	}
 	else {
-		throw std::runtime_error("ratss::RationalPoint: unsupported format");
+		FloatPoint fp;
+		try {
+			fp.assign(is, fmt, precision, dimension);
+		}
+		catch(std::runtime_error & e) {
+			throw std::runtime_error("ratss::RationalPoint: unsupported format");
+		}
+		coords.resize(fp.coords.size());
+		for(std::size_t i(0), s(fp.coords.size()); i < s; ++i) {
+			coords[i] = Conversion<mpfr::mpreal>::toMpq(fp.coords[i]);
+		}
 	}
 }
 
