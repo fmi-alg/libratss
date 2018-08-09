@@ -20,29 +20,31 @@ public:
 		ST_NONE=0x0,
 		
 		ST_SPHERE=0x1, //snap point on sphere
-		ST_PLANE=0x2, //snap point on plane
+		ST_PLANE=0x1*2, //snap point on plane
 		
-		ST_CF=0x4, //snap by continous fraction
-		ST_FX=0x8, //snap by fix point
-		ST_FL=0x10, //snap by floating point
-		ST_JP=0x20, // jacobi perron
+		ST_CF=0x4, //snap by continous fraction, compatible with values defined in Calc
+		ST_FX=ST_CF*2, //snap by fix point
+		ST_FL=ST_FX*2, //snap by floating point
+		ST_JP=ST_FL*2, // jacobi perron
+		ST_FPLLL=ST_JP*2,
 
-		ST_AUTO_CF=0x40, //add cf to auto snapping
-		ST_AUTO_FX=0x80, //add fx to auto snapping
-		ST_AUTO_FL=0x100, //add fl to auto snapping
-		ST_AUTO_JP=0x200, //add jp to auto snapping
-		ST_AUTO=0x400, //select snapping that produces the smallest denominators
-		ST_AUTO_ALL=ST_AUTO|ST_AUTO_CF|ST_AUTO_FX|ST_AUTO_JP, //try all snappings and use the best one
+		ST_AUTO_CF=ST_FPLLL*2, //add cf to auto snapping
+		ST_AUTO_FX=ST_AUTO_CF*2, //add fx to auto snapping
+		ST_AUTO_FL=ST_AUTO_FX*2, //add fl to auto snapping
+		ST_AUTO_JP=ST_AUTO_FL*2, //add jp to auto snapping
+		ST_AUTO_FPLLL=ST_AUTO_JP*2, //add fpll to auto snapping
+		ST_AUTO=ST_AUTO_FPLLL*2, //select snapping that produces the smallest denominators
+		ST_AUTO_ALL=ST_AUTO|ST_AUTO_CF|ST_AUTO_FX|ST_AUTO_JP|ST_AUTO_FPLLL, //try all snappings and use the best one
 		
-		ST_AUTO_POLICY_MIN_SUM_DENOM=0x1000,
-		ST_AUTO_POLICY_MIN_MAX_DENOM=0x2000,
-		ST_AUTO_POLICY_MIN_TOTAL_LIMBS=0x4000,
-		ST_AUTO_POLICY_MIN_SQUARED_DISTANCE=0x8000,
-		ST_AUTO_POLICY_MIN_MAX_NORM=0x10000,
+		ST_AUTO_POLICY_MIN_SUM_DENOM=ST_AUTO*2,
+		ST_AUTO_POLICY_MIN_MAX_DENOM=ST_AUTO_POLICY_MIN_SUM_DENOM*2,
+		ST_AUTO_POLICY_MIN_TOTAL_LIMBS=ST_AUTO_POLICY_MIN_MAX_DENOM*2,
+		ST_AUTO_POLICY_MIN_SQUARED_DISTANCE=ST_AUTO_POLICY_MIN_TOTAL_LIMBS*2,
+		ST_AUTO_POLICY_MIN_MAX_NORM=ST_AUTO_POLICY_MIN_SQUARED_DISTANCE*2,
 		
-		ST_NORMALIZE=0x100000,
+		ST_NORMALIZE=ST_AUTO_POLICY_MIN_MAX_NORM*2,
 		//Do not use the values below!
-		ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES=4, //this effecivly defines the shift to get from ST_* to ST_AUTO_*
+		ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES=5, //this effecivly defines the shift to get from ST_* to ST_AUTO_*
 		ST__INTERNAL_AUTO_POLICIES=ST_AUTO_POLICY_MIN_SUM_DENOM|ST_AUTO_POLICY_MIN_MAX_DENOM|ST_AUTO_POLICY_MIN_TOTAL_LIMBS|ST_AUTO_POLICY_MIN_SQUARED_DISTANCE|ST_AUTO_POLICY_MIN_MAX_NORM,
 		ST__INTERNAL_AUTO_ALL_WITH_POLICY=ST_AUTO_ALL|ST__INTERNAL_AUTO_POLICIES
 	} SnapType;
@@ -331,7 +333,7 @@ template<typename GRADE_TYPE, int POLICY>
 template<typename T_ITERATOR>
 int
 ProjectSN::StOptimizer<GRADE_TYPE, POLICY>::best(const T_ITERATOR & begin, const T_ITERATOR & end) const {
-	constexpr std::array<int, ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES> snappingType = {{ST_FL, ST_FX, ST_CF, ST_JP}};
+	constexpr std::array<int, ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES> snappingType = {{ST_FL, ST_FX, ST_CF, ST_JP, ST_FPLLL}};
 	std::vector<mpq_class> tmp(dims);
 	GRADE_TYPE bestGrade = GRADE_TYPE(std::numeric_limits<std::size_t>::max());
 	int bestType = ST_FX;

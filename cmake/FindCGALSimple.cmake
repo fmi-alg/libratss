@@ -59,8 +59,6 @@ if( ${Boost_THREAD_FOUND} AND ${Boost_SYSTEM_FOUND} AND ${CGAL_FOUND})
 			FORCE
 		)
 		
-		message(STATUS "CGAL include dirs: ${LIBCGAL_INCLUDE_DIR}")
-		message(STATUS "CGAL libraries: ${LIBCGAL_LIBRARIES}")
 		message(STATUS "CGAL may need specific compiler options like -frounding-math which have to be added by the caller if you are not using imported targets")
 		
 		if (NOT TARGET CGALSimple::CGAL)
