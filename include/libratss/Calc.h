@@ -14,7 +14,13 @@ namespace LIB_RATSS_NAMESPACE {
 class Calc {
 public:
 	///Values are compatible with the ones defined in ProjectSN::SnapType
-	typedef enum { ST_NONE=0x0, ST_CF=0x4, ST_FX=0x8, ST_FL=0x10, ST_JP=0x20, ST_FPLLL=0x40 } SnapType;
+	typedef enum { ST_NONE=0x0, 
+		ST_CF=0x8, //snap by continous fraction
+		ST_FX=ST_CF*2, //snap by fix point
+		ST_FL=ST_FX*2, //snap by floating point
+		ST_JP=ST_FL*2, // jacobi perron
+		ST_FPLLL=ST_JP*2,
+	} SnapType;
 public:
 	template<typename T_FT>
 	inline T_FT add(const T_FT & a, const T_FT & b) const { return a+b; }
@@ -84,6 +90,8 @@ public:
 	void lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const;
 	
 	mpq_class snap(const mpfr::mpreal & v, int st, int eps = -1) const;
+	mpq_class snap(const mpq_class & v, int st, int eps = -1) const;
+	mpq_class snap(const mpq_class & v, int st, const mpq_class & eps) const;
 public:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	typename std::enable_if<

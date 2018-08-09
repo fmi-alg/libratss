@@ -5,6 +5,7 @@
 #include <libratss/constants.h>
 #include <libratss/Calc.h>
 #include <libratss/enum.h>
+#include <libratss/Conversion.h>
 
 #include "internal/SkipIterator.h"
 
@@ -20,9 +21,10 @@ public:
 		ST_NONE=0x0,
 		
 		ST_SPHERE=0x1, //snap point on sphere
-		ST_PLANE=0x1*2, //snap point on plane
+		ST_PLANE=ST_SPHERE*2, //snap point on plane
+		ST_PAPER=ST_PLANE*2, //snap point on the plane based on a normalized version of the input point, computed using CORE
 		
-		ST_CF=0x4, //snap by continous fraction, compatible with values defined in Calc
+		ST_CF=0x8, //snap by continous fraction, compatible with values defined in Calc
 		ST_FX=ST_CF*2, //snap by fix point
 		ST_FL=ST_FX*2, //snap by floating point
 		ST_JP=ST_FL*2, // jacobi perron
@@ -72,6 +74,7 @@ public:
 	
 	///Projects the coordinates of begin->end onto new coordinates such that one coordinate is zero
 	///If you want to reproject onto the sphere, then you need to store the return value
+	///[begin, end) may point to the same storage as out
 	template<typename T_FT_INPUT_ITERATOR, typename T_FT_OUTPUT_ITERATOR>
 	PositionOnSphere sphere2Plane(T_FT_INPUT_ITERATOR begin, const T_FT_INPUT_ITERATOR & end, T_FT_OUTPUT_ITERATOR out, PositionOnSphere pos = SP_INVALID) const WARN_UNUSED_RESULT;
 	
@@ -236,41 +239,71 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 	using std::distance;
 	std::size_t dims = distance(begin, end);
 	
-	if (snapType & ST_NORMALIZE) {
-		std::vector<input_ft> normalized(dims);
-		calc().normalize(begin, end, normalized.begin());
-		snap(normalized.begin(), normalized.end(), out, snapType & ~ST_NORMALIZE, significands);
-		return;
-	}
-	if (snapType & ST_AUTO) {
-		int bestType = ST_FX;
-		if (snapType & ST_AUTO_POLICY_MIN_MAX_DENOM) {
-			StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_MAX_DENOM> optimizer(this, snapType, significands, dims);
-			bestType = optimizer.best(begin, end);
+	if (snapType & ST_PAPER) {
+		std::vector<CORE::Expr> ptc(dims);
+		std::vector<mpq_class> pt_snap_plane(dims);
+		
+		std::transform(begin, end, ptc.begin(), [](auto x) -> CORE::Expr { return convert<CORE::Expr>(x); });
+		
+		//normalize input
+		{
+			CORE::Expr len{0};
+			for(auto & x : ptc) {
+				len += x*x;
+			}
+			len = sqrt(len);
+			for(auto & x : ptc) {
+				x /= len;
+			}
 		}
-		else if (snapType & ST_AUTO_POLICY_MIN_SUM_DENOM) {
-			StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_SUM_DENOM> optimizer(this, snapType, significands, dims);
-			bestType = optimizer.best(begin, end);
-		}
-		else if (snapType & ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
-			StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_TOTAL_LIMBS> optimizer(this, snapType, significands, dims);
-			bestType = optimizer.best(begin, end);
-		}
-		else if (snapType & ST_AUTO_POLICY_MIN_MAX_NORM) {
-			StOptimizer<mpq_class, ST_AUTO_POLICY_MIN_MAX_NORM> optimizer(this, snapType, significands, dims);
-			bestType = optimizer.best(begin, end);
-		}
-		else if (snapType & ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
-			StOptimizer<mpq_class, ST_AUTO_POLICY_MIN_SQUARED_DISTANCE> optimizer(this, snapType, significands, dims);
-			bestType = optimizer.best(begin, end);
-		}
-		else {
-			throw std::runtime_error("ratss::ProjectSN::snap: auto snapping requested, but no policy was set");
-		}
-		snapNormalized(begin, end, out, (snapType & ~ST__INTERNAL_AUTO_ALL_WITH_POLICY) | bestType, significands, dims);
+		
+		auto pos = this->sphere2Plane(ptc.begin(), ptc.end(), ptc.begin());
+		
+		//snap points
+		std::transform(ptc.begin(), ptc.end(), pt_snap_plane.begin(), [snapType, significands, this](auto x) -> mpq_class {
+			mpq_class apx = convert<mpq_class>( x.approx(2*significands, 2*significands) );
+			return this->calc().snap(apx, snapType, significands);
+		});
+
+		this->plane2Sphere(pt_snap_plane.begin(), pt_snap_plane.end(), pos, out);
 	}
 	else {
-		snapNormalized(begin, end, out, snapType, significands, dims);
+		if (snapType & ST_NORMALIZE) {
+			std::vector<input_ft> normalized(dims);
+			calc().normalize(begin, end, normalized.begin());
+			snap(normalized.begin(), normalized.end(), out, snapType & ~ST_NORMALIZE, significands);
+			return;
+		}
+		if (snapType & ST_AUTO) {
+			int bestType = ST_FX;
+			if (snapType & ST_AUTO_POLICY_MIN_MAX_DENOM) {
+				StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_MAX_DENOM> optimizer(this, snapType, significands, dims);
+				bestType = optimizer.best(begin, end);
+			}
+			else if (snapType & ST_AUTO_POLICY_MIN_SUM_DENOM) {
+				StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_SUM_DENOM> optimizer(this, snapType, significands, dims);
+				bestType = optimizer.best(begin, end);
+			}
+			else if (snapType & ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
+				StOptimizer<std::size_t, ST_AUTO_POLICY_MIN_TOTAL_LIMBS> optimizer(this, snapType, significands, dims);
+				bestType = optimizer.best(begin, end);
+			}
+			else if (snapType & ST_AUTO_POLICY_MIN_MAX_NORM) {
+				StOptimizer<mpq_class, ST_AUTO_POLICY_MIN_MAX_NORM> optimizer(this, snapType, significands, dims);
+				bestType = optimizer.best(begin, end);
+			}
+			else if (snapType & ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
+				StOptimizer<mpq_class, ST_AUTO_POLICY_MIN_SQUARED_DISTANCE> optimizer(this, snapType, significands, dims);
+				bestType = optimizer.best(begin, end);
+			}
+			else {
+				throw std::runtime_error("ratss::ProjectSN::snap: auto snapping requested, but no policy was set");
+			}
+			snapNormalized(begin, end, out, (snapType & ~ST__INTERNAL_AUTO_ALL_WITH_POLICY) | bestType, significands, dims);
+		}
+		else {
+			snapNormalized(begin, end, out, snapType, significands, dims);
+		}
 	}
 }
 
