@@ -144,6 +144,9 @@ void NDProjectionTest::snapSpecial() {
 	snapCore(pt, 2);
 	pt = RationalPoint("0.7368801747264132 -0.2332506128169909 0.6345090698450804", RationalPoint::FM_FLOAT128);
 	snapCore(pt, 2);
+	
+	pt = RationalPoint("0.3870968814030483 0.7964533349865471 0.4645622558891773", RationalPoint::FM_FLOAT128);
+	snapCore(pt, 2);
 }
 
 void NDProjectionTest::snapRandomCore() {
@@ -185,8 +188,12 @@ void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
 	//now snap
 	std::vector<mpq_class> pt_snap_plane(ptc.size());
 	std::transform(ptc_plane.begin(), ptc_plane.end(), pt_snap_plane.begin(), [significand, &gc](auto x) -> mpq_class {
-		auto xreal = Conversion<CORE::Real>::toMpreal( x.approx(significand, significand), 2*significand);
-		return gc.snap(xreal, gc.ST_CF, significand);
+		auto xreal = Conversion<CORE::Real>::toMpreal( x.approx(2*significand, 2*significand), 2*significand);
+		//if ST_FX, then we can snap exactly to the signifcand since ST_FX cuts the all bits down to significand bits
+		//any other snappin method does not work like that
+		//As input we get a value that has an eps of 1/(k*significand)
+		//Hence if we only snap with signifcand, then we may overshoot by this quantity -> we would need to have an eps of 1/2^significand - 1(k*signifcand)
+		return gc.snap(xreal, gc.ST_FX, significand);
 	});
 	
 	for(mpq_class & x : pt_snap_plane) {
