@@ -266,9 +266,10 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 		return intPart + contFrac(remainder, significands);
 	}
 	//we now know that 0 < value < 1
-		
-	std::vector<mpz_class> cf;
 	
+#ifndef NDEBUG
+	std::vector<mpz_class> cf;
+#endif
 	mpz_class distUpperBoundDenom;
 	mpz_class intPart;
 	mpq_class tmp(value);
@@ -286,10 +287,22 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 		}
 	}
 	
+#ifndef NDEBUG
 	cf.emplace_back( std::move(intPart) );
+#endif
 	//a_1 is now in cf, calculate a_2...
 	//eps is of the form 1/number, our bound is
 	//abs(value-p_n/q_n) < 1/(a_(n+1) * q_n**2 )
+	
+	//we have to calculate our continuous fraction on the fly in order to obey our significand as good as possible
+	#ifndef NDEBUG
+	mpz_class pn(cf.front());
+	#else
+	mpz_class pn(std::move(intPart));
+	#endif
+	mpz_class pn1(1), pn2(0);
+	mpz_class qn(1), qn1(0), qn2(1);
+
 	while(tmp > 0) {
 		tmp = 1 / tmp;
 		intPart = tmp.get_num() / tmp.get_den();
@@ -301,10 +314,27 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 		}
 		
 		tmp -= intPart;
-		
+		#ifndef NDEBUG
 		cf.emplace_back( std::move(intPart) );
+		const mpz_class & a_i = cf.back();
+		#else
+		const mpz_class & a_i = intPart;
+		#endif
+		pn = a_i * pn1 + pn2;
+		pn2 = pn1;
+		pn1 = pn;
+		
+		qn = a_i * qn1 + qn2;
+		qn2 = qn1;
+		qn1 = qn;
+		assert(fromRegContFrac(cf) == mpq_class(qn, pn));
+		if (mpq_class(qn, pn) - value < eps) {
+			break;
+		}
 	}
-	mpq_class result = fromRegContFrac(cf);
+	mpq_class result(qn,pn);
+	result.canonicalize();
+	assert(fromRegContFrac(cf) == result);
 	
 	using std::abs;
 	assert( abs(result-value) <= mpq_class(mpz_class(1), epsDenom) );
