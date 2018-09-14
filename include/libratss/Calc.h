@@ -229,7 +229,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	apply_common_denominator(begin, end, out, common_denom);
 
 #else
-	throw std::bad_function_call("libratss was compiled without snapping using the lll algorithm");
+	throw std::runtime_error("libratss was compiled without snapping using the lll algorithm");
 #endif
 }
 
