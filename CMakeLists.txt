@@ -31,7 +31,7 @@ find_package(CGALSimple)
 find_package(PkgConfig)
 
 if (PKGCONFIG_FOUND)
-	pkg_search_module(FPLLL REQUIRED fplll)
+	pkg_search_module(FPLLL fplll)
 endif()
 
 if (LIBCGAL_FOUND)
