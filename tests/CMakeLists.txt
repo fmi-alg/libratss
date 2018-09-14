@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
 project(ratsstests)
-find_package(CPPUNIT REQUIRED)
+find_package(CPPUNIT)
+
+if (CPPUNIT_FOUND)
 
 set(TEST_LIB_SOURCES_CPP
 	TestBase.cpp
@@ -19,3 +21,7 @@ ADD_TEST_TARGET_SINGLE(projection)
 ADD_TEST_TARGET_SINGLE(nd_projection)
 ADD_TEST_TARGET_SINGLE(calc)
 ADD_TEST_TARGET_SINGLE(compilation)
+
+else()
+	message(WARNING "Could not find cppunit library needed to compile the tests")
+endif()
