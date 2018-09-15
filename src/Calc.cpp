@@ -274,6 +274,8 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	
 #ifndef NDEBUG
 	std::vector<mpz_class> cf;
+#else
+	mpz_class cfBack;
 #endif
 	mpz_class distUpperBoundDenom;
 	mpz_class intPart;
@@ -294,6 +296,8 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	
 #ifndef NDEBUG
 	cf.emplace_back( std::move(intPart) );
+#else
+	cfBack = std::move(intPart);
 #endif
 	//a_1 is now in cf, calculate a_2...
 	//eps is of the form 1/number, our bound is
@@ -301,9 +305,9 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	
 	//we have to calculate our continuous fraction on the fly in order to obey our significand as good as possible
 	#ifndef NDEBUG
-	mpz_class pn(cf.front());
+	mpz_class pn(cf.back());
 	#else
-	mpz_class pn(std::move(intPart));
+	mpz_class pn(cfBack);
 	#endif
 	mpz_class pn1(1), pn2(0);
 	mpz_class qn(1), qn1(0), qn2(1);
@@ -311,7 +315,11 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	while(tmp > 0) {
 		tmp = 1 / tmp;
 		intPart = tmp.get_num() / tmp.get_den();
+		#ifndef NDEBUG
 		mpz_class qsq = cf.back()*cf.back();
+		#else
+		mpz_class qsq = cfBack*cfBack;
+		#endif
 		distUpperBoundDenom = (intPart) * qsq;
 		
 		if (distUpperBoundDenom > epsDenom) {
@@ -323,7 +331,8 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 		cf.emplace_back( std::move(intPart) );
 		const mpz_class & a_i = cf.back();
 		#else
-		const mpz_class & a_i = intPart;
+		cfBack = std::move(intPart);
+		const mpz_class & a_i = cfBack;
 		#endif
 		pn = a_i * pn1 + pn2;
 		pn2 = pn1;
