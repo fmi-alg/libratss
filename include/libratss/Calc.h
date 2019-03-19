@@ -150,9 +150,9 @@ void Calc::apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end
 ///Theorem Dirichlet:
 ///for x, N exists q s.t. abs(x - p/q) <= 1/(q * sqrt(N))
 ///
+#ifdef LIB_RATSS_WITH_FPLLL
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const {
-#ifdef LIB_RATSS_WITH_FPLLL
 	using std::distance;
 	
 	using Matrix = fplll::IntMatrix;
@@ -227,11 +227,13 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	
 	common_denom = std::move(best_common_denom);
 	apply_common_denominator(begin, end, out, common_denom);
-
-#else
-	throw std::runtime_error("libratss was compiled without snapping using the lll algorithm");
-#endif
 }
+#else
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void Calc::lll(T_INPUT_ITERATOR, T_INPUT_ITERATOR, T_OUTPUT_ITERATOR, mpz_class &, int) const {
+	throw std::runtime_error("libratss was compiled without snapping using the lll algorithm");
+}
+#endif
 
 
 template<typename T_INPUT_ITERATOR>
