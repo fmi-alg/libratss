@@ -523,6 +523,20 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 	}
 }
 
+mpq_class
+Calc::snap(const mpq_class & v, int st, int eps) const {
+	throw std::runtime_error("Function not implemented");
+	//This should do something sensible. Dunno what...
+	return v;
+}
+
+mpq_class
+Calc::snap(const mpq_class & v, int st, const mpq_class & eps) const {
+	throw std::runtime_error("Function not implemented");
+	//This should do something sensible. Dunno what...
+	return v;
+}
+
 std::size_t Calc::maxBitCount(const mpq_class &v) const {
 	std::size_t sizeNum = mpz_sizeinbase(v.get_num().get_mpz_t(), 2);
 	std::size_t sizeDenom = mpz_sizeinbase(v.get_den().get_mpz_t(), 2);
