@@ -524,14 +524,14 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 }
 
 mpq_class
-Calc::snap(const mpq_class & v, int st, int eps) const {
+Calc::snap(const mpq_class & v, int /*st*/, int /*eps*/) const {
 	throw std::runtime_error("Function not implemented");
 	//This should do something sensible. Dunno what...
 	return v;
 }
 
 mpq_class
-Calc::snap(const mpq_class & v, int st, const mpq_class & eps) const {
+Calc::snap(const mpq_class & v, int /*st*/, const mpq_class & /*eps*/) const {
 	throw std::runtime_error("Function not implemented");
 	//This should do something sensible. Dunno what...
 	return v;
