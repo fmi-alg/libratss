@@ -14,6 +14,23 @@
 #include <gmpxx.h>
 
 namespace LIB_RATSS_NAMESPACE {
+	
+template<typename EFT>
+struct Conversion<
+	CGAL::Lazy_exact_nt<EFT>
+>
+{
+	using type = CGAL::Lazy_exact_nt<EFT>;
+	static type moveFrom(const mpq_class & v) {
+		return type( Conversion<EFT>::moveFrom(v) );
+	}
+	static mpq_class toMpq(const type & v) {
+		return Conversion<EFT>::toMpq( v.exact() );
+	}
+	static mpfr::mpreal toMpreal(const type & v, int precision) {
+		return Conversion<EFT>::toMpreal(v.exact(), precision);
+	}
+};
 
 template<>
 struct Conversion< CGAL::internal::boost_int1024q > {
@@ -32,34 +49,8 @@ struct Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> > {
 };
 
 template<>
-struct Conversion<
-	CGAL::Lazy_exact_nt<
-		CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>
-	>
->
-{
-	using type = CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >;
-	static type moveFrom(const mpq_class & v);
-	static mpq_class toMpq(const type & v);
-	static mpfr::mpreal toMpreal(const type & v, int precision);
-};
-
-template<>
 struct Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> > {
 	using type = CGAL::ExtendedInt64q<CGAL::Gmpq>;
-	static type moveFrom(const mpq_class & v);
-	static mpq_class toMpq(const type & v);
-	static mpfr::mpreal toMpreal(const type & v, int precision);
-};
-
-template<>
-struct Conversion<
-	CGAL::Lazy_exact_nt<
-		CGAL::ExtendedInt64q<CGAL::Gmpq>
-	>
->
-{
-	using type = CGAL::Lazy_exact_nt< CGAL::ExtendedInt64q<CGAL::Gmpq> >;
 	static type moveFrom(const mpq_class & v);
 	static mpq_class toMpq(const type & v);
 	static mpfr::mpreal toMpreal(const type & v, int precision);
