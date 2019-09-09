@@ -12,6 +12,7 @@
 #include <CGAL/Lazy_exact_nt.h>
 #include <libratss/CGAL/ExtendedInt64q.h>
 #include <gmpxx.h>
+#include <boost/multiprecision/gmp.hpp>
 
 namespace LIB_RATSS_NAMESPACE {
 	
@@ -65,8 +66,8 @@ struct Conversion<CGAL::Gmpq> {
 };
 
 template<>
-struct Conversion< CGAL::Lazy_exact_nt<CGAL::Gmpq> > {
-	using type = CGAL::Lazy_exact_nt<CGAL::Gmpq>;
+struct Conversion< boost::multiprecision::number<boost::multiprecision::backends::gmp_rational> > {
+	using type = boost::multiprecision::number<boost::multiprecision::backends::gmp_rational>;
 	static type moveFrom(const mpq_class & v);
 	static mpq_class toMpq(const type & v);
 	static mpfr::mpreal toMpreal(const type & v, int precision);

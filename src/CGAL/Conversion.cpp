@@ -22,6 +22,26 @@ Conversion<CGAL::internal::boost_int1024q>::toMpreal(const type & v, int precisi
 }
 
 //END CGAL::internal::boost_int1024q specilizations
+
+//BEGIN boost::multiprecision::number<boost::multiprecision::backends::gmp_rational> specilizations
+
+Conversion<boost::multiprecision::number<boost::multiprecision::backends::gmp_rational>>::type
+Conversion<boost::multiprecision::number<boost::multiprecision::backends::gmp_rational>>::moveFrom(const mpq_class & v) {
+	return type( v.get_mpq_t() );
+}
+
+mpq_class
+Conversion<boost::multiprecision::number<boost::multiprecision::backends::gmp_rational>>::toMpq(const type & v) {
+	return mpq_class( v.backend().data() );
+}
+
+mpfr::mpreal
+Conversion<boost::multiprecision::number<boost::multiprecision::backends::gmp_rational>>::toMpreal(const type & v, int precision) {
+	return Conversion<mpq_class>::toMpreal( toMpq(v), precision );
+}
+
+//END boost::multiprecision::number<boost::multiprecision::backends::gmp_rational> specilizations
+
 //BEGIN CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> specilizations
 
 Conversion<CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>>::type
