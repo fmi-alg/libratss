@@ -155,7 +155,7 @@ template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const {
 	using std::distance;
 	
-	using Matrix = fplll::IntMatrix;
+	using Matrix = fplll::ZZ_mat<mpz_t>;
 	
 	auto dim = distance(begin, end);
 	
