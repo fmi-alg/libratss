@@ -524,17 +524,25 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 }
 
 mpq_class
-Calc::snap(const mpq_class & v, int /*st*/, int /*eps*/) const {
-	throw std::runtime_error("Function not implemented");
-	//This should do something sensible. Dunno what...
-	return v;
+Calc::snap(const mpq_class & v, int st, int eps) const {
+	auto result = snap(Conversion<mpq_class>::toMpreal(v, eps+2), st, eps);
+	assert(abs(result - v) <= (mpq_class(mpz_class(1), mpz_class(1) << eps)));
+	return result;
 }
 
 mpq_class
-Calc::snap(const mpq_class & v, int /*st*/, const mpq_class & /*eps*/) const {
-	throw std::runtime_error("Function not implemented");
-	//This should do something sensible. Dunno what...
-	return v;
+Calc::snap(const mpq_class & v, int st, const mpq_class & eps) const {
+	if (st & ST_CF) {
+		mpq_class lower = v - eps;
+		mpq_class upper = v + eps;
+		return within(lower, upper);
+	}
+	else {
+		mpz_class tmp(1/eps);
+		tmp += 1;
+		int epsBits = mpz_sizeinbase(tmp.get_mpz_t(), 2);
+		return snap(v, st, epsBits);
+	}
 }
 
 std::size_t Calc::maxBitCount(const mpq_class &v) const {
