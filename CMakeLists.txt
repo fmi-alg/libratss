@@ -30,10 +30,6 @@ find_package(LIBMPFR REQUIRED)
 find_package(CGALSimple)
 find_package(PkgConfig)
 
-if (PKGCONFIG_FOUND)
-	pkg_search_module(FPLLL fplll)
-endif()
-
 if (LIBCGAL_FOUND)
 	set(LIBRATSS_CGAL_LINK_LIBRARIES
 		CGALSimple::CGAL
@@ -44,6 +40,10 @@ if (LIBCGAL_FOUND)
 	)
 endif(LIBCGAL_FOUND)
 
+if (PKGCONFIG_FOUND)
+	pkg_search_module(FPLLL fplll)
+endif()
+
 if (FPLLL_FOUND)
 	set(LIBRATSS_COMPILE_DEFINITIONS
 		${LIBRATSS_COMPILE_DEFINITIONS}
@@ -53,6 +53,8 @@ if (FPLLL_FOUND)
 		${LIBRATSS_COMPILE_OPTIONS}
 		${FPLLL_CFLAGS_OTHER}
 	)
+else(FPLLL_FOUND)
+	message(STATUS "Disabling support for fplll")
 endif(FPLLL_FOUND)
 
 set(LIBRATSS_INCLUDE_DIR
