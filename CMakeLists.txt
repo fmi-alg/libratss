@@ -53,6 +53,7 @@ if (FPLLL_FOUND)
 		${LIBRATSS_COMPILE_OPTIONS}
 		${FPLLL_CFLAGS_OTHER}
 	)
+	message(STATUS "Enabling support for fplll")
 else(FPLLL_FOUND)
 	message(STATUS "Disabling support for fplll")
 endif(FPLLL_FOUND)
