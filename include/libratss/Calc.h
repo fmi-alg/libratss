@@ -88,6 +88,8 @@ public:
 	///this will first set common_denom and the write all numerators to out
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const;
+	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+	void lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, mpq_class epsilon) const;
 	
 	mpq_class snap(const mpfr::mpreal & v, int st, int eps = -1) const;
 	mpq_class snap(const mpq_class & v, int st, int eps = -1) const;
@@ -153,20 +155,47 @@ void Calc::apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end
 #ifdef LIB_RATSS_WITH_FPLLL
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, int significands) const {
+	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands); //input eps
+	lll(
+		std::forward<T_INPUT_ITERATOR>(begin),
+		std::forward<T_INPUT_ITERATOR>(end),
+		std::forward<T_OUTPUT_ITERATOR>(out),
+		common_denom,
+		eps
+	);
+}
+
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, mpq_class eps) const {
 	using std::distance;
 	
 	using Matrix = fplll::ZZ_mat<mpz_t>;
 	
 	auto dim = distance(begin, end);
 	
+	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		std::cerr << "LLL with " << dim << " dimensions" << std::endl;
+		std::cerr << "Input=";
+		for(auto it(begin); it != end; ++it) {
+			mpq_class tmp(*it);
+			tmp.canonicalize();
+			std::cerr << tmp << " ";
+		}
+		std::cerr << std::endl;
+	#endif
+	
 	if (dim < 2) {
-		throw std::domain_error("Calc::lll: dimension has to be larger than 1");
+		throw std::domain_error("ratss::Calc::lll: dimension has to be larger than 1");
 	}
+	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		std::cerr << "Input eps: " << eps << std::endl;
+	#endif
+// 	eps = (eps / dim) * mpq_class(mpz_class(1), mpz_class(1) << (dim/2+3)); //our eps
+	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		std::cerr << "Our eps: " << eps << std::endl;
+	#endif
 	
-	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands); //input eps
-	eps = (eps / dim) * mpq_class(mpz_class(1), mpz_class(1) << (dim/2+3)); //our eps
-	
-	mpz_class N = (eps.get_den() / eps.get_num()) + 1; // 1/eps
+	mpz_class N = (eps.get_den() / eps.get_num()) + int( eps.get_den() % eps.get_num() != 0 ); // 1/eps
 	mpz_class B; //either product or the common denominator for the input if available
 	mpz_class NB;
 	
@@ -175,6 +204,11 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	
 	mpq_class current_eta;
 	mpz_class current_common_denom;
+	
+	
+	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		std::cerr << "N=" << N << std::endl;
+	#endif
 	
 	//init B, first check if all denominators of the input are equal
 	{
@@ -190,28 +224,65 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 		if (!input_has_common_denom) {
 			B = 1;
 			for(it = begin; it != end; ++it) {
-				B *= *it;
+				B *= it->get_den();
 			}
 		}
+		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+			if (input_has_common_denom) {
+				std::cerr << "Input has common denominator" << std::endl;
+			}
+			else {
+				std::cerr << "Input does not have a common denominator" << std::endl;
+			}
+		#endif
 	}
+	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		std::cerr << "B=" << B << std::endl;
+	#endif
 	
 	NB = N*B;
 	
+	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		std::cerr << "NB=" << NB << std::endl;
+	#endif
+	
 	for(int j(0), s(dim+msb(NB)+1); j < s; ++j) {
+		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+			std::cerr << "Checking matrix for j=" << j << std::endl;
+		#endif
+		mpz_class w;
+		if (j == 0) {
+			w = 1;
+		}
+		else {
+			w = mpz_class(2) << j;
+		}
+		
 		Matrix mtx(dim+1, dim+1);
+		mtx.gen_zero(dim+1, dim+1);
+		
+		::mpz_set(mtx(0, 0).get_data(), w.get_mpz_t());
+		
 		{
 			auto it(begin);
 			for(uint32_t i(0); i < dim; ++i, ++it) {
 				mpq_class x = NB * (*it);
-				::mpz_set(mtx(i+1, i+1).get_data(), x.get_num_mpz_t());
-				::mpz_set(mtx(0, i+1).get_data(), NB.get_mpz_t());
+				::mpz_set(mtx(0, i+1).get_data(), x.get_num_mpz_t());
+				::mpz_set(mtx(i+1, i+1).get_data(), NB.get_mpz_t());
 			}
 		}
+		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+			std::cerr << mtx << std::endl;
+		#endif
 		int status = fplll::lll_reduction(mtx);
-		if (!status) {
-			throw std::runtime_error("LLL reduction failed");
+		if (status != fplll::RedStatus::RED_SUCCESS) {
+			throw std::runtime_error("ratss::Calc::lll: LLL reduction failed with status=" + std::to_string(status));
 		}
-		current_common_denom = mpz_class( mtx(0, 0).get_data() );
+		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+			std::cerr << "=>" << std::endl;
+			std::cerr << mtx << std::endl;
+		#endif
+		current_common_denom = abs( mpz_class( mtx(0, 0).get_data() ) );
 		current_eta = abs( mpz_class(mtx(0, 1).get_data()) );
 		for(int i(1); i < dim; ++i) {
 			mpz_class xi( abs(mpz_class(mtx(0, i+1).get_data()) ) );
@@ -219,11 +290,23 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 				current_eta = xi;
 			}
 		}
+		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+			std::cerr << "Current eta: " << current_eta << std::endl;
+			std::cerr << "Best eta: " << best_eta << std::endl;
+			std::cerr << "Current common denom: " << current_common_denom << std::endl;
+			std::cerr << "Best common denom: " << best_common_denom << std::endl;
+			std::cerr << std::endl;
+		#endif
 		if (j == 0 || current_eta < best_eta) {
 			best_eta = std::move(current_eta);
 			best_common_denom = std::move(current_common_denom);
 		}
 	}
+	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		std::cerr << "Finished reductions" << std::endl;
+		std::cerr << "Best eta: " << best_eta << std::endl;
+		std::cerr << "Best common denom: " << best_common_denom << std::endl;
+	#endif
 	
 	common_denom = std::move(best_common_denom);
 	apply_common_denominator(begin, end, out, common_denom);
@@ -231,6 +314,10 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 #else
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::lll(T_INPUT_ITERATOR, T_INPUT_ITERATOR, T_OUTPUT_ITERATOR, mpz_class &, int) const {
+	throw std::runtime_error("libratss was compiled without snapping using the lll algorithm");
+}
+template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
+void Calc::lll(T_INPUT_ITERATOR, T_INPUT_ITERATOR, T_OUTPUT_ITERATOR, mpz_class &, mpq_class) const {
 	throw std::runtime_error("libratss was compiled without snapping using the lll algorithm");
 }
 #endif
