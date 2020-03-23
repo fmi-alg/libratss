@@ -22,5 +22,6 @@ MACRO(ADD_TOOLS_TARGET _name _sourcefiles)
 ENDMACRO(ADD_TOOLS_TARGET)
 
 ADD_TOOLS_TARGET(proj proj.cpp)
+ADD_TOOLS_TARGET(ratapx ratapx.cpp)
 ADD_TOOLS_TARGET(rndpoints rndpoints.cpp)
 ADD_TOOLS_TARGET(snap_poles snap_poles.cpp)
