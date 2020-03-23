@@ -270,7 +270,7 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		}
 	}
 	else {
-		throw std::runtime_error("Unsupported options: toRational with rational and eps");
+		throw std::runtime_error("ratss::Calc::toRational: Input is invalid since it is a rational already");
 	}
 }
 
@@ -289,7 +289,7 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 	if (snapType & ST_JP) {
 		using std::distance;
 		if (distance(begin, end) != 2) {
-			throw std::domain_error("Calc::toRational: Snapping with jacobiPerron only supports dimension 2");
+			throw std::domain_error("ratss::Calc::toRational: Snapping with jacobiPerron only supports dimension 2");
 		}
 		mpq_class input1( Conversion<input_ft>::toMpq(*begin) );
 		++begin;
