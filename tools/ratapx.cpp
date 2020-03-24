@@ -116,7 +116,7 @@ int main(int argc, char ** argv) {
 		}
 		if (cfg.check) {
 			auto mn = proj.calc().maxNorm(ip.coords.begin(), ip.coords.end(), op.coords.begin());
-			mpq_class eps(mpz_class(1), mpz_class(2) << cfg.significands);
+			mpq_class eps(mpz_class(1), mpz_class(1) << cfg.significands);
 			if (mn > eps) {
 				io.info() << "Invalid approximation for point ";
 				ip.print(io.info(), cfg.outFormat);
