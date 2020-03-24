@@ -17,18 +17,22 @@ set(CMAKE_MODULE_PATH
 find_package(Threads)
 find_package(LIBGMPXX REQUIRED)
 find_package(LIBMPFR REQUIRED)
-find_package(CGALSimple)
+find_package(CGAL COMPONENTS Core)
 find_package(PkgConfig)
 
-if (LIBCGAL_FOUND)
+if (CGAL_FOUND AND CGAL_Core_FOUND)
 	set(LIBRATSS_CGAL_LINK_LIBRARIES
-		CGALSimple::CGAL
+		CGAL::CGAL
+		CGAL::CGAL_Core
 	)
 	set(LIBRATSS_COMPILE_DEFINITIONS
 		${LIBRATSS_COMPILE_DEFINITIONS}
 		"LIB_RATSS_WITH_CGAL=1"
 	)
-endif(LIBCGAL_FOUND)
+	message(STATUS "Enabling support for CGAL")
+else()
+	message(STATUS "Disabling support for CGAL")
+endif()
 
 if (PKGCONFIG_FOUND)
 	pkg_search_module(FPLLL fplll)
