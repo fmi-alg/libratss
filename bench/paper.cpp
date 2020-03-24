@@ -45,13 +45,16 @@ std::string ec2Str(const EntryConfig & ec) {
 	else if (ec.first & ProjectSN::ST_JP) {
 		ret = "jp";
 	}
+	else if (ec.first & ProjectSN::ST_FPLLL) {
+		ret = "lll";
+	}
 	else {
 		throw std::runtime_error("Invalid EntryConfig");
 	}
 	return ret + ":" + std::to_string(ec.second);
 }
 
-constexpr std::size_t num_entries = 16;
+constexpr std::size_t num_entries = 20;
 
 std::array<EntryConfig, num_entries> entryConfigs{{
 // 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 4),
@@ -83,6 +86,11 @@ std::array<EntryConfig, num_entries> entryConfigs{{
 	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 12),
 	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 20),
 	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 30),
+	
+	EntryConfig(ProjectSN::ST_FPLLL | ProjectSN::ST_PLANE, 4),
+	EntryConfig(ProjectSN::ST_FPLLL | ProjectSN::ST_PLANE, 12),
+	EntryConfig(ProjectSN::ST_FPLLL | ProjectSN::ST_PLANE, 20),
+	EntryConfig(ProjectSN::ST_FPLLL | ProjectSN::ST_PLANE, 30),
 	
 	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 4),
 	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 12),

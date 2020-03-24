@@ -126,6 +126,9 @@ std::string ec2Str(int significand, int st) {
 	else if (st & ProjectSN::ST_JP) {
 		ret = "jp";
 	}
+	else if (st & ProjectSN::ST_FPLLL) {
+		ret = "lll";
+	}
 	else {
 		throw std::runtime_error("Invalid EntryConfig");
 	}
@@ -218,6 +221,7 @@ int main(int argc, char ** argv) {
 			ProjectSN::ST_FX,
 			ProjectSN::ST_CF,
 			ProjectSN::ST_JP,
+			ProjectSN::ST_FPLLL,
 			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM,
 			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS,
 			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM,
@@ -229,6 +233,7 @@ int main(int argc, char ** argv) {
 		snappingTypes = {{
 			ProjectSN::ST_FX,
 			ProjectSN::ST_CF,
+			ProjectSN::ST_FPLLL,
 // 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM) - ProjectSN::ST_AUTO_JP,
 // 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) - ProjectSN::ST_AUTO_JP,
 // 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM) - ProjectSN::ST_AUTO_JP,
