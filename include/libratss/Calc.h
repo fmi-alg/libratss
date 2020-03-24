@@ -147,10 +147,11 @@ void Calc::apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end
 	}
 }
 
+#define LIBRATSS_DEBUG_LLL_VERBOSE
+
 ///See Siam Journal on Computing: THE COMPUTATIONAL COMPLEXITY OF SIMULTANEOUS DIOPHANTINE APPROXIMATION PROBLEMS by J. C. LAGARIAS
-///How we set N:
-///Theorem Dirichlet:
-///for x, N exists q s.t. abs(x - p/q) <= 1/(q * sqrt(N))
+///A short description can be found in Gathen, Joachim & Gerhard, Jürgen. (2003). Modern computer algebra (2. ed.) Chapter 17.3 Simultaneous Diophantine approximation
+///We choose our Q such that the algorithm guarantees the target epsilon
 ///
 #ifdef LIB_RATSS_WITH_FPLLL
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
@@ -190,12 +191,22 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
 		std::cerr << "Input eps: " << eps << std::endl;
 	#endif
-// 	eps = (eps / dim) * mpq_class(mpz_class(1), mpz_class(1) << (dim/2+3)); //our eps
-	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
-		std::cerr << "Our eps: " << eps << std::endl;
-	#endif
 	
-	mpz_class N = (eps.get_den() / eps.get_num()) + int( eps.get_den() % eps.get_num() != 0 ); // 1/eps
+	//let d=dim
+	//Let b_i=*(it+i)=u_i/v_i and hence b=(b_0,...b_d)
+	//Let {{bq}} = min_{p_i in Z} max_{b_i in b} abs{u_i/v_i - p_i/q}
+	//where p_i is computed using the apply_common_denominator function which takes a p_i such that abs{u_i/v_i - p_i/q} is minimal
+	//For N=eps^(-d) and B=prod v_i the algorithm produces
+	//1 <= q <= 2^(d/2) N * B with
+	//{{bq}} <= \sqrt(5*d) * 2^((d-1)/2) * eps
+	//
+	//In order to guarantee our target epsilon we use our own epsilon to choose N:
+	//eps = \sqrt(5*d) * 2^((d-1)/2) * eps_o
+	//eps_o = eps/(sqrt(5*d) * 2^((d-1)/2))
+	//N = 1/eps_o^d
+	//N = (5d)^(d/2) * 2^((d^2-d)/2) * 1/eps^d
+	
+	mpz_class N;
 	mpz_class B; //either product or the common denominator for the input if available
 	mpz_class NB;
 	
@@ -205,6 +216,39 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	mpq_class current_eta;
 	mpz_class current_common_denom;
 	
+	{
+		//Let a = (5d)^(d/2), b = 2^((d-1)*d/2), c = eps^d
+		//Then N = a*b/c
+		mpz_class a, b;
+		mpq_class c;
+		//Compute a
+		if (dim % 2 == 1) {
+			mpz_class tmp;
+			mpz_ui_pow_ui(tmp.get_mpz_t(), 5*dim, dim);
+			int exact = mpz_root(a.get_mpz_t(), tmp.get_mpz_t(), 2);
+			a += int(exact != 0);
+		}
+		else {
+			mpz_ui_pow_ui(a.get_mpz_t(), 5*dim, dim/2);
+		}
+		//Compute b:
+		//If d=2k even then b=(2k-1)*2k/2=(2k-1)*k
+		//If d=2k+1 odd then b=(2k+1-1)*(2k+1)/2=2k*(2k+1)/2=k*(2k+1)
+		mpz_ui_pow_ui(b.get_mpz_t(), 2, ((dim-1)*dim)/2);
+		
+		//Compute c:
+		{
+			mpz_class tmp_num = eps.get_num();
+			mpz_class tmp_den = eps.get_den();
+			mpz_class c_num, c_den;
+			mpz_pow_ui(c_num.get_mpz_t(), tmp_num.get_mpz_t(), dim);
+			mpz_pow_ui(c_den.get_mpz_t(), tmp_den.get_mpz_t(), dim);
+			c = mpq_class(c_num, c_den);
+		}
+		mpq_class N_r = (a*b)/c;
+		
+		N = (N_r.get_den() / N_r.get_num()) + int( N_r.get_den() % N_r.get_num() != 0 );
+	}
 	
 	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
 		std::cerr << "N=" << N << std::endl;
@@ -297,7 +341,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 			std::cerr << "Best common denom: " << best_common_denom << std::endl;
 			std::cerr << std::endl;
 		#endif
-		if (j == 0 || current_eta < best_eta) {
+		if (j == 0 || current_eta < best_eta || (current_eta == best_eta && current_common_denom < best_common_denom)) {
 			best_eta = std::move(current_eta);
 			best_common_denom = std::move(current_common_denom);
 		}
