@@ -13,6 +13,7 @@ set(CMAKE_MODULE_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake
 )
 
+include(add_buildtype_lto)
 
 find_package(Threads)
 find_package(LIBGMPXX REQUIRED)
