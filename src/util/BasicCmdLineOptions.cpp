@@ -93,6 +93,10 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 					snapType |= ProjectSN::ST_SPHERE;
 					snapType &= ~ProjectSN::ST_PLANE;
 				}
+				else if (stStr == "paper") {
+					snapType |= ProjectSN::ST_PAPER;
+					snapType &= ~ProjectSN::ST_PAPER;
+				}
 				else {
 					std::cerr << "Unrecognized snap location: " << stStr << std::endl;
 					return -1;
@@ -212,6 +216,11 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		++numParsedOpts;
 	}
 	
+	if (snapType & ProjectSN::ST_PAPER && normalize) {
+		std::cerr << "Requesting normaliziation of input with paper snapping is of no use." << std::endl;
+		return -1;
+	}
+	
 	if (precision < 0) {
 		precision = 53;
 	}
@@ -245,7 +254,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
 		"\t-p num\tset the precision of the input in bits\n"
 		"\t-r (cf|fl|fx|jp|lll)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron,lll=LLL, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
-		"\t-s (s|sphere|p|plane)\tset where the float->rational conversion should take place\n"
+		"\t-s (s=sphere|p=plane|paper)\tset where the float->rational conversion should take place.\n"
 		"\t-n\tnormalize input to length 1\n"
 		"\t--progress\tprogress indicators\n"
 		"\t--rational-pass-through\t don't snap rational input coordinates\n"
