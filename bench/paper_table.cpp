@@ -251,7 +251,7 @@ int main(int argc, char ** argv) {
 
 	for(int significand : significands) {
 		for(int st : snappingTypes) {
-			st |= ProjectSN::ST_PLANE | ProjectSN::ST_NORMALIZE;
+			st |= (cfg.snapType & ProjectSN::ST_SNAP_POSITION_MASK);
 			io.output() << ec2Str(significand, st) << " ";
 			stats.start();
 			for(const std::vector<mpfr::mpreal> & point : points) {
