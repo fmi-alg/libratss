@@ -1,17 +1,10 @@
 # This is the build file to build libratss
 # It can be build as a stand-alone project as well as a sub-project
-# This build file exports the following variables into its parent scope:
-# LIBRATSS_INCLUDE_DIR - The include directory
-# LIBRATSS_LIBRARIES - libraries that need to be linker in order for libdts2 to work
-# LIBRATSS_COMPILE_DEFINITIONS - definitions that are needed
-# 
+# It has support for imported targets
 # You may simply do the following:
 # 
-# include_directories(${LIBRATSS_INCLUDE_DIR})
-# 
-# add_executable(${PROJECT_NAME} ${SOURCES_CPP}
-# target_link_libraries(${PROJECT_NAME} ${LIBRATSS_LIBRARIES})
-# add_dependencies(${PROJECT_NAME} ratss)
+# add_subdirectory(<path to ratss>)
+# target_link_libraries(<target> ratss)
 
 cmake_minimum_required(VERSION 3.9)
 project(ratss)
