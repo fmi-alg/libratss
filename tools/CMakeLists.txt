@@ -19,9 +19,12 @@ MACRO(ADD_TOOLS_TARGET _name _sourcefiles)
 	add_executable("${PROJECT_NAME}_${_name}" "${_sourcefiles}")
 	target_link_libraries("${PROJECT_NAME}_${_name}" ratsstools)
 	set_target_properties("${PROJECT_NAME}_${_name}" PROPERTIES OUTPUT_NAME ${_name})
+	set(RATSSTOOLS_ALL_TARGETS ${RATSSTOOLS_ALL_TARGETS} "${PROJECT_NAME}_${_name}")
 ENDMACRO(ADD_TOOLS_TARGET)
 
 ADD_TOOLS_TARGET(proj proj.cpp)
 ADD_TOOLS_TARGET(ratapx ratapx.cpp)
 ADD_TOOLS_TARGET(rndpoints rndpoints.cpp)
 ADD_TOOLS_TARGET(snap_poles snap_poles.cpp)
+
+add_custom_target(${PROJECT_NAME}_all DEPENDS ${RATSSTOOLS_ALL_TARGETS})

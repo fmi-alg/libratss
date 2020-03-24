@@ -14,6 +14,7 @@ target_link_libraries(${PROJECT_NAME} ratss ratsscommon ${CPPUNIT_LIBRARIES})
 MACRO(ADD_TEST_TARGET_SINGLE _name)
 	add_executable("${PROJECT_NAME}_${_name}" "${_name}.cpp")
 	target_link_libraries("${PROJECT_NAME}_${_name}" ratsstests)
+	set(RATSSTESTS_ALL_TARGETS ${RATSSTESTS_ALL_TARGETS} "${PROJECT_NAME}_${_name}")
 ENDMACRO(ADD_TEST_TARGET_SINGLE)
 
 #containers
@@ -21,6 +22,8 @@ ADD_TEST_TARGET_SINGLE(projection)
 ADD_TEST_TARGET_SINGLE(nd_projection)
 ADD_TEST_TARGET_SINGLE(calc)
 ADD_TEST_TARGET_SINGLE(compilation)
+
+add_custom_target(${PROJECT_NAME}_all DEPENDS ${RATSSTESTS_ALL_TARGETS})
 
 else()
 	message(WARNING "Could not find cppunit library needed to compile the tests")
