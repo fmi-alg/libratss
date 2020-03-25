@@ -14,12 +14,16 @@ set(CMAKE_MODULE_PATH
 )
 
 include(add_buildtype_lto)
+include(add_buildtype_sanitize_debug)
 
 find_package(Threads)
 find_package(LIBGMPXX REQUIRED)
 find_package(LIBMPFR REQUIRED)
-find_package(CGAL COMPONENTS Core)
 find_package(PkgConfig)
+
+if (NOT LIBRATSS_DISABLE_CGAL_SUPPORT)
+	find_package(CGAL COMPONENTS Core)
+endif(NOT LIBRATSS_DISABLE_CGAL_SUPPORT)
 
 if (CGAL_FOUND AND CGAL_Core_FOUND)
 	set(LIBRATSS_CGAL_LINK_LIBRARIES

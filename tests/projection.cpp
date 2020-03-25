@@ -78,8 +78,10 @@ void ProjectionTest::bijectionSpecial() {
 	
 	SphericalCoord sp{1.5707963267948966l, 0.73303828583761843l};
 	GeoCoord gc(sp);
-	
+
+#if defined(LIB_RATSS_WITH_CGAL)
 	CORE::Expr xc, yc, zc;
+#endif
 	
 	
 	mpq_class xs, ys, zs;
@@ -136,8 +138,10 @@ void ProjectionTest::bijectionSpecial() {
 		CPPUNIT_ASSERT_EQUAL(yp_1, sp_y);
 	}
 	
+#if defined(LIB_RATSS_WITH_CGAL)
 	p.projectFromSpherical(sp.theta, sp.phi, xc, yc, zc, 32);
-
+#endif
+	
 	mpq_class sqlen = xs*xs + ys*ys + zs*zs;
 	CPPUNIT_ASSERT_EQUAL_MESSAGE("Projected point is not on the sphere", mpq_class(1), sqlen);
 	
@@ -171,13 +175,17 @@ void ProjectionTest::bijectionSpecial2() {
 		mpfr::mpreal ilatf(lat, 1024);
 		mpfr::mpreal ilonf(lon, 1024);
 		mpfr::mpreal xf, yf, zf, latf, lonf;
+#if defined(LIB_RATSS_WITH_CGAL)
 		CORE::Expr xs, ys, zs;
+#endif
 		double latOut, lonOut;
 		
 		proc.calc().cartesian(ilatf, ilonf, xf, yf, zf);
 		proc.calc().geo(xf, yf, zf, latf, lonf);
+#if defined(LIB_RATSS_WITH_CGAL)
 		proc.projectFromGeo(lat, lon, xs, ys, zs, 128);
 		proc.toGeo(xs, ys, zs, latOut, lonOut, 128);
+#endif
 		
 		double xfd(xf.toDouble());
 		double yfd(yf.toDouble());

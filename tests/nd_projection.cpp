@@ -168,6 +168,7 @@ void NDProjectionTest::snapRandomCore() {
 }
 
 void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
+#if defined(LIB_RATSS_WITH_CGAL)
 	Projector p;
 	GeoCalc gc;
 	std::vector<CORE::Expr> ptc(pt.coords.size());
@@ -251,6 +252,7 @@ void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
 			CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= projEpsc);
 		}
 	}
+#endif
 }
 
 void NDProjectionTest::quadrantTest() {

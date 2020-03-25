@@ -246,6 +246,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 	std::size_t dims = distance(begin, end);
 	
 	if (snapType & ST_PAPER) {
+#if defined(LIB_RATSS_WITH_CGAL)
 		std::vector<CORE::Expr> ptc(dims);
 		std::vector<mpq_class> pt_snap_plane(dims);
 		
@@ -272,6 +273,9 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		});
 
 		this->plane2Sphere(pt_snap_plane.begin(), pt_snap_plane.end(), pos, out);
+#else
+		throw std::runtime_error("libratss was built without CGAL support");
+#endif
 	}
 	else {
 		if (snapType & ST_NORMALIZE) {

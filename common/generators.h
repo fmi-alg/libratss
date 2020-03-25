@@ -33,10 +33,12 @@ void readPoints(const std::string & fileName, T_OUTPUT_ITERATOR out);
 
 #include <random>
 #include <unordered_set>
-
-#include <CGAL/point_generators_3.h>
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <chrono>
+
+#if defined(LIB_RATSS_WITH_CGAL)
+	#include <CGAL/point_generators_3.h>
+	#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#endif
 
 //and now the definitions
 namespace LIB_RATSS_NAMESPACE {
@@ -57,6 +59,7 @@ void getRandomGeoPoints(std::size_t count, const Bounds & bounds, T_OUTPUT_ITERA
 	}
 }
 
+#if defined(LIB_RATSS_WITH_CGAL)
 template<typename T_OUTPUT_ITERATOR>
 void getRandomPolarPoints(std::size_t number_of_points, T_OUTPUT_ITERATOR out) {
 	using K = CGAL::Exact_predicates_inexact_constructions_kernel;
@@ -74,6 +77,12 @@ void getRandomPolarPoints(std::size_t number_of_points, T_OUTPUT_ITERATOR out) {
 		++out;
 	}
 }
+#else
+template<typename T_OUTPUT_ITERATOR>
+void getRandomPolarPoints(std::size_t, T_OUTPUT_ITERATOR) {
+	throw std::runtime_error("libratss was built without CGAL support");
+}
+#endif
 
 template<typename T_OUTPUT_ITERATOR>
 void readPoints(const std::string & fileName, T_OUTPUT_ITERATOR out) {
