@@ -50,11 +50,8 @@ struct RationalPoint: PointBase {
 			coords.emplace_back(convert<mpq_class>(*begin));
 		}
 	}
-	template<typename T_VALUE>
-	RationalPoint(const std::initializer_list<T_VALUE> & il) : coords(il.begin(), il.end()) {}
 	template<typename... TArgs>
-	RationalPoint(TArgs... args) : coords{args...} {}
-	RationalPoint(int dimension);
+	RationalPoint(TArgs... args) : coords(std::forward<TArgs>(args)...) {}
 	RationalPoint(const std::string & str, Format fmt, int dimension = -1);
 	RationalPoint(const char * str, Format fmt, int dimension = -1) : RationalPoint(std::string(str), fmt, dimension) {}
 	RationalPoint(const RationalPoint & other);

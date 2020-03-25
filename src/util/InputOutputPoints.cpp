@@ -84,8 +84,6 @@ std::ostream & operator<<(std::ostream & out, const FloatPoint & src) {
 
 RationalPoint::RationalPoint() {}
 
-RationalPoint::RationalPoint(int dimension) : coords(dimension) {}
-
 RationalPoint::RationalPoint(const std::string & str, Format fmt, int dimension) {
 	std::stringstream ss;
 	ss << str;
