@@ -104,6 +104,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${LIBRATSS_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRATSS_LINK_LIBRARIES})
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${LIBRATSS_COMPILE_DEFINITIONS})
 target_compile_options(${PROJECT_NAME} PUBLIC ${LIBRATSS_COMPILE_OPTIONS})
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
 
 add_subdirectory(common ${PROJECT_NAME}common EXCLUDE_FROM_ALL)
 add_subdirectory(bench ${PROJECT_NAME}bench EXCLUDE_FROM_ALL)
