@@ -222,14 +222,14 @@ void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
 	
 	//check eps
 	mpq_class eps(mpz_class(1), mpz_class(1) << significand);
-	int max_denom_bits = 2*significand+6; //ceil(log_2(32*(d-1)/eps^2)) = ceil(5+1+2*significand)
+	unsigned long max_denom_bits = 2*significand+6; //ceil(log_2(32*(d-1)/eps^2)) = ceil(5+1+2*significand)
 	CORE::Expr epsc = Conversion<CORE::Expr>::moveFrom(eps);
 	CORE::Expr projEpsc = 2*epsc;
 	for(std::size_t i(0); i < ptc.size(); ++i) {
 		auto dist = ptc_norm[i] - ptc_snap_sphere[i];
 		auto bits = ::mpz_sizeinbase(pt_snap_sphere[i].get_den_mpz_t(), 2);
 		auto bits_plane = ::mpz_sizeinbase(pt_snap_plane[i].get_den_mpz_t(), 2);
-		if ( dist > projEpsc || bits > max_denom_bits || bits_plane > significand) {
+		if ( dist > projEpsc || bits > max_denom_bits || bits_plane > (unsigned long) significand) {
 			std::stringstream ss;
 			ss << "Significands: " << significand << '\n';
 			ss << "log_2(denom): " << bits << '\n';
@@ -247,7 +247,7 @@ void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
 			RationalPoint(pt_snap_sphere.begin(), pt_snap_sphere.end()).print(ss, RationalPoint::FM_CARTESIAN_RATIONAL);
 			ss << '\n';
 			ss << "dist=" << Conversion<CORE::Expr>::toMpreal(dist/epsc, 5) << "eps\n";
-			CPPUNIT_ASSERT_MESSAGE(ss.str(), bits_plane <= significand);
+			CPPUNIT_ASSERT_MESSAGE(ss.str(), bits_plane <= (unsigned long) significand);
 			CPPUNIT_ASSERT_MESSAGE(ss.str(), bits <= max_denom_bits);
 			CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= projEpsc);
 		}
