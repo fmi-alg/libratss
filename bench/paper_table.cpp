@@ -199,7 +199,7 @@ int main(int argc, char ** argv) {
 		points.emplace_back( std::move(ip.coords) );
 		++counter;
 		if (cfg.progress && counter % 1000 == 0) {
-			io.info() << '\xd' << counter/1000 << "k" << std::flush;
+			io.info() << '\xd' << "Reading input " << counter/1000 << "k" << std::flush;
 		}
 	}
 	if (cfg.progress) {
@@ -248,6 +248,7 @@ int main(int argc, char ** argv) {
 	io.output() << "#snaptype:bits mean-error min-error max-error mean-denom[2^] max-denom[2^] time[us]" << std::endl;
 	io.output() << points.size() << std::endl;
 	
+	counter = 0;
 
 	for(int significand : significands) {
 		for(int st : snappingTypes) {
@@ -260,6 +261,11 @@ int main(int argc, char ** argv) {
 			}
 			stats.stop();
 			io.output() << stats << std::endl;
+			
+			++counter;
+			if (cfg.progress) {
+				io.info() << "Computing projections: " << counter << '/' << significands.size()*snappingTypes.size() << std::flush;
+			}
 		}
 	}
 	io.output() << std::flush;
