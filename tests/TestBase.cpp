@@ -1,18 +1,20 @@
 #include "TestBase.h"
 
-
 extern "C" {
 	
 void debug_print_mpreal(const mpfr::mpreal & v) {
-	std::cerr << v << std::endl;
+	mpfr_exp_t exp;
+	char * binstr = ::mpfr_get_str(0, &exp, 2, 0, v.mpfr_ptr(), MPFR_RNDN);
+	std::cerr << "value=" << v << " precision=" << v.get_prec() << " exponent=" << v.get_exp() << " binary=" <<  binstr << "E" << exp << std::endl;
+	mpfr_free_str(binstr);
 }
 
 void debug_print_mpq_class(const mpq_class & v) {
-	std::cerr << v << std::endl;
+	std::cerr << "value=" << v << " approximately " << v.get_d() << std::endl;
 }
 
 void debug_print_mpz_class(const mpz_class & v) {
-	std::cerr << v << std::endl;
+	std::cerr << "value=" << v << std::endl;
 }
 
 }
