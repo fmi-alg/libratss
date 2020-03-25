@@ -30,9 +30,9 @@ namespace LIB_RATSS_NAMESPACE {
 namespace tests {
 
 void CompilationTest::conversion() {
-	mpq_class x(0), y(1);
-	y = Conversion<mpq_class>::moveFrom(x);
-	CPPUNIT_ASSERT(x == y);
+	mpq_class x(0), y(0), z(1);
+	z = Conversion<mpq_class>::moveFrom(y);
+	CPPUNIT_ASSERT(x == z);
 }
 
 }} //end namespace LIB_RATSS_NAMESPACE::tests
