@@ -76,8 +76,8 @@ void ProjectionTest::fixPointRandom() {
 		double theta, phi;
 		p.toSpherical(x, y, z, theta, phi, 128);
 		
-		CPPUNIT_ASSERT_EQUAL(coord.theta, theta);
-		CPPUNIT_ASSERT_EQUAL(coord.phi, phi);
+		CPPUNIT_ASSERT_EQUAL_MESSAGE("theta missmatch after reprojection", coord.theta, theta);
+		CPPUNIT_ASSERT_EQUAL_MESSAGE("phi missmatch after reprojection", coord.phi, phi);
 	}
 }
 
