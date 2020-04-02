@@ -124,6 +124,22 @@ void ProjectionTest::bijectionSpecial() {
 }
 
 void ProjectionTest::quadrantTest() {
+	std::vector<int> snapPositions({
+		ProjectSN::ST_PLANE,
+		ProjectSN::ST_SPHERE
+	});
+#if defined(LIB_RATSS_WITH_CGAL)
+	snapTypes.push_back(ProjectSN::ST_PAPER);
+#endif
+	std::vector<int> snapTypes({
+// 		ProjectSN::ST_CF,
+		ProjectSN::ST_FL,
+		ProjectSN::ST_FX,
+		ProjectSN::ST_JP
+	});
+#if defined(LIB_RATSS_WITH_FPLLL)
+// 	snapTypes.push_back(ProjectSN::ST_FPLLL);
+#endif
 	std::vector<GeoCoord> coords;
 	ProjectS2 p;
 	for(double lat(15); lat > -166; lat -= 15) {
@@ -132,13 +148,24 @@ void ProjectionTest::quadrantTest() {
 		}
 	}
 	mpq_class xs, ys, zs;
-	for(uint32_t bits(32); bits < 128; bits += 16) {
-		for(const GeoCoord & coord : coords) {
-			p.projectFromGeo(coord.lat, coord.lon, xs, ys, zs, bits);
-			std::stringstream ss;
-			ss << "Projection of coordinate " << coord << " is no on the sphere";
-			mpq_class sqlen = xs*xs + ys*ys + zs*zs;
-			CPPUNIT_ASSERT_EQUAL_MESSAGE(ss.str(), mpq_class(1), sqlen);
+	for(int snapPosition : snapPositions) {
+		for(int snapType : snapTypes) {
+			if (snapPosition == ProjectSN::ST_SPHERE && snapType == ProjectSN::ST_JP) {
+				continue;
+			}
+			for(int bits(32); bits < 128; bits += 16) {
+				for(std::size_t i(0); i < coords.size(); ++i) {
+					const GeoCoord & coord  = coords[i];
+					std::stringstream ss;
+					ss << "Coordinate " << i << "=" << coord << " bits=" << bits << " snapType=" << snapType << " snapPosition=" << snapPosition;
+					CPPUNIT_ASSERT_NO_THROW_MESSAGE(
+						ss.str(),
+						p.projectFromGeo(coord.lat, coord.lon, xs, ys, zs, bits, snapType | snapPosition)
+					);
+					mpq_class sqlen = xs*xs + ys*ys + zs*zs;
+					CPPUNIT_ASSERT_EQUAL_MESSAGE(ss.str(), mpq_class(1), sqlen);
+				}
+			}
 		}
 	}
 }
