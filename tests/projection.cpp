@@ -11,7 +11,6 @@ class ProjectionTest: public TestBase {
 CPPUNIT_TEST_SUITE( ProjectionTest );
 CPPUNIT_TEST( fixPointRandom );
 CPPUNIT_TEST( bijectionSpecial );
-CPPUNIT_TEST( bijectionSpecial2 );
 CPPUNIT_TEST( quadrantTest );
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -19,7 +18,6 @@ public:
 public:
 	void fixPointRandom();
 	void bijectionSpecial();
-	void bijectionSpecial2();
 	void quadrantTest();
 };
 
@@ -82,87 +80,6 @@ void ProjectionTest::fixPointRandom() {
 }
 
 void ProjectionTest::bijectionSpecial() {
-	ProjectS2 p;
-	
-	
-	SphericalCoord sp{1.5707963267948966l, 0.73303828583761843l};
-	GeoCoord gc(sp);
-
-#if defined(LIB_RATSS_WITH_CGAL)
-	CORE::Expr xc, yc, zc;
-#endif
-	
-	
-	mpq_class xs, ys, zs;
-	
-	mpq_class sp_x("1595891361/2147483648");
-	mpq_class sp_y("2873894071/4294967296");
-	
-	CPPUNIT_ASSERT(sp_x*sp_x + sp_y*sp_y <= 1);
-	
-	
-	//reproject onto sphere
-// 	p.stInverseProject(sp_x, sp_y, RationalSphere::Projector::SP_LOWER, xs, ys, zs);
-	{
-		using comp_class = mpq_class;
-		
-		comp_class zero(0);
-		comp_class one(1);
-		comp_class two(2);
-		comp_class minusOne(-1);
-	
-		comp_class xp(sp_x);
-		comp_class yp(sp_y);
-		comp_class denom = one + xp*xp + yp*yp;
-		comp_class nomZ = minusOne + xp*xp + yp*yp;
-		xs = (two*xp) / denom;
-		ys = (two*yp) / denom;
-		zs = (nomZ / denom);
-
-// 		std::cout << "denom=" << denom << '\n';
-// 		std::cout << "nom=" << nomZ << '\n';
-// 		std::cout << "xs=" << ys << '\n';
-// 		std::cout << "ys=" << ys << '\n';
-// 		std::cout << "zs=" << zs << '\n';
-		
-		zs *= -1;
-// 		std::cout << "-zs=" << zs << '\n';
-		
-		comp_class xp_1, yp_1;
-		
-		if (zs <= zero) {
-			mpq_class ztmp(zs);
-			ztmp *= -1;
-			xp_1 = xs / (1-ztmp); 
-			yp_1 = ys / (1-ztmp);
-		}
-		else {
-			xp_1 = xs / (1+zs); 
-			yp_1 = ys / (1+zs);
-		}
-// 		std::cout << "xp_1=" << xp_1 << '\n';
-// 		std::cout << "yp_1=" << yp_1 << '\n';
-		
-		CPPUNIT_ASSERT_EQUAL(xp_1, sp_x);
-		CPPUNIT_ASSERT_EQUAL(yp_1, sp_y);
-	}
-	
-#if defined(LIB_RATSS_WITH_CGAL)
-	p.projectFromSpherical(sp.theta, sp.phi, xc, yc, zc, 32);
-#endif
-	
-	mpq_class sqlen = xs*xs + ys*ys + zs*zs;
-	CPPUNIT_ASSERT_EQUAL_MESSAGE("Projected point is not on the sphere", mpq_class(1), sqlen);
-	
-	{
-		mpq_class sp_x2, sp_y2, sp_z2;
-		auto pos = p.sphere2Plane(xs, ys, zs, sp_x2, sp_y2, sp_z2);
-		CPPUNIT_ASSERT_EQUAL(sp_x, sp_x2);
-		CPPUNIT_ASSERT_EQUAL(sp_y, sp_y2);
-	}
-}
-
-void ProjectionTest::bijectionSpecial2() {
 	auto upperCoords = getRandomGeoPoints(1024, Bounds(30, 40, 5, 15));
 	auto lowerCoords = getRandomGeoPoints(1024, Bounds(-40, -30, 5, 15));
 	
@@ -184,18 +101,15 @@ void ProjectionTest::bijectionSpecial2() {
 		mpfr::mpreal ilatf(lat, 1024);
 		mpfr::mpreal ilonf(lon, 1024);
 		mpfr::mpreal xf, yf, zf, latf, lonf;
-#if defined(LIB_RATSS_WITH_CGAL)
-		CORE::Expr xs, ys, zs;
-#endif
+
+		mpq_class xs, ys, zs;
 		double latOut, lonOut;
 		
 		proc.calc().cartesian(ilatf, ilonf, xf, yf, zf);
 		proc.calc().geo(xf, yf, zf, latf, lonf);
-#if defined(LIB_RATSS_WITH_CGAL)
 		proc.projectFromGeo(lat, lon, xs, ys, zs, 128);
 		proc.toGeo(xs, ys, zs, latOut, lonOut, 128);
-#endif
-		
+
 		double xfd(xf.toDouble());
 		double yfd(yf.toDouble());
 		double zfd(zf.toDouble());
