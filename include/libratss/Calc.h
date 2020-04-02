@@ -20,6 +20,7 @@ public:
 		ST_FL=ST_FX*2, //snap by floating point
 		ST_JP=ST_FL*2, // jacobi perron
 		ST_FPLLL=ST_JP*2,
+		ST_MASK=ST_CF|ST_FX|ST_FL|ST_JP|ST_FPLLL
 	} SnapType;
 public:
 	template<typename T_FT>
