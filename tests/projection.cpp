@@ -41,8 +41,17 @@ namespace LIB_RATSS_NAMESPACE {
 namespace tests {
 
 void ProjectionTest::fixPointRandom() {
-	std::vector<SphericalCoord> coords = getRandomPolarPoints(num_random_test_points);
-	
+	std::vector<SphericalCoord> coords;
+#if defined(LIB_RATSS_WITH_CGAL)
+	getRandomPolarPoints(num_random_test_points, std::back_inserter(coords));
+#else
+	{
+		auto tmp = getRandomGeoPoints(num_random_test_points, Bounds(-90, 90, -180, 190));
+		for(auto const & x : tmp) {
+			coords.push_back(SphericalCoord(x));
+		}
+	}
+#endif
 	ProjectS2 p;
 	
 	for(uint32_t prec(16); prec < 128; prec += 16) {
