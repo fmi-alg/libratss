@@ -148,7 +148,7 @@ void Calc::apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end
 	}
 }
 
-#define LIBRATSS_DEBUG_LLL_VERBOSE
+// #define LIBRATSS_DEBUG_LLL_VERBOSE
 
 ///See Siam Journal on Computing: THE COMPUTATIONAL COMPLEXITY OF SIMULTANEOUS DIOPHANTINE APPROXIMATION PROBLEMS by J. C. LAGARIAS
 ///A short description can be found in Gathen, Joachim & Gerhard, Jürgen. (2003). Modern computer algebra (2. ed.) Chapter 17.3 Simultaneous Diophantine approximation
@@ -175,7 +175,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	
 	auto dim = distance(begin, end);
 	
-	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+	#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "LLL with " << dim << " dimensions" << std::endl;
 		std::cerr << "Input=";
 		for(auto it(begin); it != end; ++it) {
@@ -189,7 +189,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	if (dim < 2) {
 		throw std::domain_error("ratss::Calc::lll: dimension has to be larger than 1");
 	}
-	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+	#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "Input eps: " << eps << std::endl;
 	#endif
 	
@@ -251,7 +251,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 		N = (N_r.get_den() / N_r.get_num()) + int( N_r.get_den() % N_r.get_num() != 0 );
 	}
 	
-	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+	#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "N=" << N << std::endl;
 	#endif
 	
@@ -272,7 +272,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 				B *= it->get_den();
 			}
 		}
-		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		#ifdef LIBRATSS_DEBUG_VERBOSE
 			if (input_has_common_denom) {
 				std::cerr << "Input has common denominator" << std::endl;
 			}
@@ -281,18 +281,18 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 			}
 		#endif
 	}
-	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+	#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "B=" << B << std::endl;
 	#endif
 	
 	NB = N*B;
 	
-	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+	#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "NB=" << NB << std::endl;
 	#endif
 	
 	for(int j(0), s(dim+msb(NB)+1); j < s; ++j) {
-		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		#ifdef LIBRATSS_DEBUG_VERBOSE
 			std::cerr << "Checking matrix for j=" << j << std::endl;
 		#endif
 		mpz_class w;
@@ -316,14 +316,15 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 				::mpz_set(mtx(i+1, i+1).get_data(), NB.get_mpz_t());
 			}
 		}
-		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		#ifdef LIBRATSS_DEBUG_VERBOSE
 			std::cerr << mtx << std::endl;
 		#endif
 		int status = fplll::lll_reduction(mtx);
 		if (status != fplll::RedStatus::RED_SUCCESS) {
 			throw std::runtime_error("ratss::Calc::lll: LLL reduction failed with status=" + std::to_string(status));
 		}
-		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		
+		#ifdef LIBRATSS_DEBUG_VERBOSE
 			std::cerr << "=>" << std::endl;
 			std::cerr << mtx << std::endl;
 		#endif
@@ -335,7 +336,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 				current_eta = xi;
 			}
 		}
-		#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+		#ifdef LIBRATSS_DEBUG_VERBOSE
 			std::cerr << "Current eta: " << current_eta << std::endl;
 			std::cerr << "Best eta: " << best_eta << std::endl;
 			std::cerr << "Current common denom: " << current_common_denom << std::endl;
@@ -347,7 +348,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 			best_common_denom = std::move(current_common_denom);
 		}
 	}
-	#ifdef LIBRATSS_DEBUG_LLL_VERBOSE
+	#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "Finished reductions" << std::endl;
 		std::cerr << "Best eta: " << best_eta << std::endl;
 		std::cerr << "Best common denom: " << best_common_denom << std::endl;

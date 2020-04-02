@@ -456,7 +456,9 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	//TODO: if alpha = 0, but beta not good enough?
 	
 	if (alpha == 0) {
+		#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "ratss::Calc::jacobiPerron2D: simultanous approximation failed. Using continued fractions." << std::endl;
+		#endif
 		if (abs(output1-input1) > eps) {
 			output1 = within(input1-eps, input1+eps);
 		}
