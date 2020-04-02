@@ -121,10 +121,11 @@ void ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT& xs, T_F
 	m_calc.cartesian(lat, lon, flxs, flys, flzs);
 	snap(flxs, flys, flzs, xpq, ypq, zpq, precision, snapType);
 	
-	assert(!(lat > 0) || zs >= 0);
 	xs = Conversion<T_FT>::moveFrom( std::move(xpq) );
 	ys = Conversion<T_FT>::moveFrom( std::move(ypq) );
 	zs = Conversion<T_FT>::moveFrom( std::move(zpq) );
+	
+	assert(!(lat > 0) || zs >= 0);
 }
 
 template<typename T_FT>
