@@ -70,8 +70,8 @@ int main(int argc, char ** argv) {
 #endif
 
 #if defined(LIB_RATSS_WITH_FPLLL)
-// 	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FPLLL);
-// 	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FPLLL);
+	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FPLLL);
+	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FPLLL);
 #endif
 	
 #undef TEST_INSTANCE
