@@ -4,9 +4,18 @@
 #include "TestBase.h"
 #include "../common/generators.h"
 
+#include <thread>
+
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
+namespace {
+	static std::size_t num_random_test_points = 10000;
+}
 
+#define CLS_TMPL_DECL template<int snapPosition, int snapType>
+#define CLS_TMPL_NAME ProjectionTest<snapPosition,snapType>
+
+CLS_TMPL_DECL
 class ProjectionTest: public TestBase {
 CPPUNIT_TEST_SUITE( ProjectionTest );
 CPPUNIT_TEST( fixPointRandom );
@@ -14,31 +23,91 @@ CPPUNIT_TEST( bijectionSpecial );
 CPPUNIT_TEST( quadrantTest );
 CPPUNIT_TEST_SUITE_END();
 public:
-	static std::size_t num_random_test_points;
-public:
 	void fixPointRandom();
 	void bijectionSpecial();
 	void quadrantTest();
 };
 
-std::size_t ProjectionTest::num_random_test_points;
-
 }} // end namespace ratss::tests
 
 int main(int argc, char ** argv) {
-	LIB_RATSS_NAMESPACE::tests::TestBase::init(argc, argv);
-	LIB_RATSS_NAMESPACE::tests::ProjectionTest::num_random_test_points = 10000;
+	using namespace LIB_RATSS_NAMESPACE;
+	using namespace LIB_RATSS_NAMESPACE::tests;
+	TestBase::init(argc, argv);
 	srand( 0 );
-	CppUnit::TextUi::TestRunner runner;
-	runner.addTest(  LIB_RATSS_NAMESPACE::tests::ProjectionTest::suite() );
-	bool ok = runner.run();
+	
+	uint32_t numThreads = 1;
+	for(int i(1); i < argc; ++i) {
+		std::string token(argv[i]);
+		if (token == "--threads" && i+1 < argc) {
+			numThreads = std::atoi(argv[i+1]);
+			++i;
+		}
+		else if (token == "--help" || token == "-h") {
+			std::cerr << "prg [--threads <number>]" << std::endl;
+			return 0;
+		}
+	}
+	std::vector<std::unique_ptr<CppUnit::TextUi::TestRunner>> runners;
+
+#define TEST_INSTANCE(__SNAP_POSITION, __SNAP_TYPE) \
+	do { \
+		runners.push_back(std::make_unique<CppUnit::TextUi::TestRunner>()); \
+		runners.back()->addTest(  ProjectionTest<__SNAP_POSITION, __SNAP_TYPE>::suite() ); \
+	} while (0);
+	
+	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_CF);
+	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FX);
+	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FL);
+	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_JP);
+	
+	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_CF);
+	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FL);
+	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FX);
+	
+#if defined(LIB_RATSS_WITH_CGAL)
+	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_PAPER);
+#endif
+
+#if defined(LIB_RATSS_WITH_FPLLL)
+// 	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FPLLL);
+// 	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FPLLL);
+#endif
+	
+#undef TEST_INSTANCE
+	
+	std::vector<std::thread> threads;
+	std::atomic<std::size_t> runnerId{0};
+	std::atomic<bool> ok{true};
+	for(std::size_t i(0); i < numThreads; ++i) {
+		threads.emplace_back([&]() {
+			while(true) {
+				std::size_t i = runnerId.fetch_add(1, std::memory_order_relaxed);
+				if (i < runners.size()) {
+					if (!runners[i]->run()) {
+						ok = false;
+					}
+				}
+				else {
+					break;
+				}
+			}
+		});
+	}
+	
+	for(auto & x : threads) {
+		x.join();
+	}
+	
 	return ok ? 0 : 1;
 }
 
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
+	
 
-void ProjectionTest::fixPointRandom() {
+CLS_TMPL_DECL
+void CLS_TMPL_NAME::fixPointRandom() {
 	std::vector<SphericalCoord> coords;
 #if defined(LIB_RATSS_WITH_CGAL)
 	getRandomPolarPoints(num_random_test_points, std::back_inserter(coords));
@@ -55,7 +124,7 @@ void ProjectionTest::fixPointRandom() {
 	for(uint32_t prec(16); prec < 128; prec += 16) {
 		for(const SphericalCoord & coord : coords) {
 			mpq_class x,y,z;
-			p.projectFromSpherical(coord.theta, coord.phi, x, y, z, prec);
+			p.projectFromSpherical(coord.theta, coord.phi, x, y, z, int(prec), snapPosition | snapType);
 			std::stringstream ss;
 			ss << "Point " << to_string(coord) << " does not project on sphere for precision=" << prec;
 			mpq_class sqlen = x*x+y*y+z*z;
@@ -65,7 +134,7 @@ void ProjectionTest::fixPointRandom() {
 	
 	for(const SphericalCoord & coord : coords) {
 		mpq_class x,y,z;
-		p.projectFromSpherical(coord.theta, coord.phi, x, y, z, 128);
+		p.projectFromSpherical(coord.theta, coord.phi, x, y, z, 128, snapPosition | snapType);
 		std::stringstream ss;
 		ss << "Point " << to_string(coord) << " does not project on sphere for precision=" << 128;
 		mpq_class sqlen = x*x+y*y+z*z;
@@ -79,7 +148,8 @@ void ProjectionTest::fixPointRandom() {
 	}
 }
 
-void ProjectionTest::bijectionSpecial() {
+CLS_TMPL_DECL
+void CLS_TMPL_NAME::bijectionSpecial() {
 	auto upperCoords = getRandomGeoPoints(1024, Bounds(30, 40, 5, 15));
 	auto lowerCoords = getRandomGeoPoints(1024, Bounds(-40, -30, 5, 15));
 	
@@ -107,7 +177,7 @@ void ProjectionTest::bijectionSpecial() {
 		
 		proc.calc().cartesian(ilatf, ilonf, xf, yf, zf);
 		proc.calc().geo(xf, yf, zf, latf, lonf);
-		proc.projectFromGeo(lat, lon, xs, ys, zs, 128);
+		proc.projectFromGeo(lat, lon, xs, ys, zs, 128, snapPosition | snapType);
 		proc.toGeo(xs, ys, zs, latOut, lonOut, 128);
 
 		double xfd(xf.toDouble());
@@ -123,52 +193,58 @@ void ProjectionTest::bijectionSpecial() {
 	}
 }
 
-void ProjectionTest::quadrantTest() {
-	std::vector<int> snapPositions({
-		ProjectSN::ST_PLANE,
-		ProjectSN::ST_SPHERE
-	});
-#if defined(LIB_RATSS_WITH_CGAL)
-	snapTypes.push_back(ProjectSN::ST_PAPER);
-#endif
-	std::vector<int> snapTypes({
-// 		ProjectSN::ST_CF,
-		ProjectSN::ST_FL,
-		ProjectSN::ST_FX,
-		ProjectSN::ST_JP
-	});
-#if defined(LIB_RATSS_WITH_FPLLL)
-// 	snapTypes.push_back(ProjectSN::ST_FPLLL);
-#endif
+CLS_TMPL_DECL
+void CLS_TMPL_NAME::quadrantTest() {
 	std::vector<GeoCoord> coords;
+	std::vector<std::array<mpq_class, 3>> cartesians;
 	ProjectS2 p;
 	for(double lat(15); lat > -166; lat -= 15) {
 		for(double lon(0); lon < 360; lon += 15) {
 			coords.emplace_back(lat, lon);
+			std::array<mpq_class, 3> cartesian;
+			p.projectFromGeo(coords.back().lat, coords.back().lon, cartesian[0], cartesian[1], cartesian[2], 512, ProjectSN::ST_SPHERE | ProjectSN::ST_FL | ProjectSN::ST_NORMALIZE);
+			cartesians.push_back(cartesian);
 		}
 	}
-	mpq_class xs, ys, zs;
-	for(int snapPosition : snapPositions) {
-		for(int snapType : snapTypes) {
-			if (snapPosition == ProjectSN::ST_SPHERE && snapType == ProjectSN::ST_JP) {
-				continue;
+	
+	std::array<mpq_class, 3> point;
+
+	for(int bits(32); bits < 128; bits += 16) {
+		//points are not exactly on the sphere and we compare the result with an inexact computation
+		//We therefore have to leave some wiggle room (except in the paper snapping case
+		mpq_class eps;
+		if (snapPosition == ProjectSN::ST_PAPER) {
+			eps = mpq_class(mpz_class(1), mpz_class(1) << (bits-1));
+		}
+		else {
+			eps = mpq_class(mpz_class(1), mpz_class(1) << (bits-2));
+		}
+		for(std::size_t i(0); i < coords.size(); ++i) {
+			const GeoCoord & coord  = coords[i];
+			std::stringstream ss;
+			ss << "Coordinate " << i << "=" << coord << " bits=" << bits << " snapType=" << snapType << " snapPosition=" << snapPosition;
+			std::string errmsg = ss.str();
+			CPPUNIT_ASSERT_NO_THROW_MESSAGE(
+				errmsg,
+				p.projectFromGeo(coord.lat, coord.lon, point[0], point[1], point[2], bits, snapType | snapPosition | ProjectSN::ST_NORMALIZE)
+			);
+			
+			for(std::size_t j(0); j < point.size(); ++j) {
+				std::stringstream ss;
+				ss << errmsg << ": " << "bits(p[" << j << "])=" << numBits(point[j]) <<  " > " << std::size_t(2*bits);
+				CPPUNIT_ASSERT_MESSAGE(ss.str(),std::size_t(2*bits) <= numBits(point[j]));
 			}
-			for(int bits(32); bits < 128; bits += 16) {
-				for(std::size_t i(0); i < coords.size(); ++i) {
-					const GeoCoord & coord  = coords[i];
-					std::stringstream ss;
-					ss << "Coordinate " << i << "=" << coord << " bits=" << bits << " snapType=" << snapType << " snapPosition=" << snapPosition;
-					CPPUNIT_ASSERT_NO_THROW_MESSAGE(
-						ss.str(),
-						p.projectFromGeo(coord.lat, coord.lon, xs, ys, zs, bits, snapType | snapPosition)
-					);
-					mpq_class sqlen = xs*xs + ys*ys + zs*zs;
-					CPPUNIT_ASSERT_EQUAL_MESSAGE(ss.str(), mpq_class(1), sqlen);
-				}
-			}
+			
+			mpq_class sqlen = point[0]*point[0] + point[1]*point[1] + point[2]*point[2];
+			CPPUNIT_ASSERT_EQUAL_MESSAGE(ss.str(), mpq_class(1), sqlen);
+			
+			auto maxNorm = p.calc().maxNorm(cartesians[i].begin(), cartesians[i].end(), point.begin());
+			CPPUNIT_ASSERT_LESS(maxNorm, eps);
 		}
 	}
 }
 
 }} //end namespace LIB_RATSS_NAMESPACE::tests
 
+#undef CLS_TMPL_DECL
+#undef CLS_TMPL_NAME
