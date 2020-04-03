@@ -132,6 +132,7 @@ namespace LIB_RATSS_NAMESPACE {
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const mpz_class & common_denom) const {
+	assert(common_denom > 0);
 	using InputIterator = T_INPUT_ITERATOR;
 	using input_type = typename std::iterator_traits<InputIterator>::value_type;
 	for(auto it(begin); it != end; ++it, ++out) {
@@ -360,7 +361,14 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	#endif
 	
 	common_denom = std::move(best_common_denom);
-	apply_common_denominator(begin, end, out, common_denom);
+	if (common_denom == 0) { //this means the approximation should be 0 for all points
+		for(; begin != end; ++begin, ++out) {
+			*out = mpq_class(0);
+		}
+	}
+	else {
+		apply_common_denominator(begin, end, out, common_denom);
+	}
 }
 #else
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
