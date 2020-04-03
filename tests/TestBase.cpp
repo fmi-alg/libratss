@@ -22,6 +22,12 @@ void debug_print_mpz_class(const mpz_class & v) {
 
 namespace LIB_RATSS_NAMESPACE {
 namespace tests {
+	
+std::size_t numBits(mpq_class const & v) {
+	std::size_t sizeNum = mpz_sizeinbase(v.get_num().get_mpz_t(), 2);
+	std::size_t sizeDenom = mpz_sizeinbase(v.get_den().get_mpz_t(), 2);
+	return std::max(sizeNum, sizeDenom);
+}
 
 int TestBase::argc = 0;
 char ** TestBase::argv = 0;
