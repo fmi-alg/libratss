@@ -171,3 +171,4 @@ void ProjectionTest::quadrantTest() {
 }
 
 }} //end namespace LIB_RATSS_NAMESPACE::tests
+
