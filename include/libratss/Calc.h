@@ -139,7 +139,11 @@ void Calc::apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end
 		mpz_class num = (x.get_num() * common_denom) / x.get_den();
 		mpz_class num1 = num+(x >= 0 ? 1 : -1);
 		//check which one is better
-		if (abs(x - mpq_class(num, common_denom)) < abs(x - mpq_class(num1, common_denom))) {
+		mpq_class pq(num, common_denom);
+		mpq_class pq1(num1, common_denom);
+		pq.canonicalize();
+		pq1.canonicalize();
+		if (abs(x - pq) < abs(x - pq1)) {
 			*out = num;
 		}
 		else {
@@ -245,6 +249,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 			mpz_pow_ui(c_num.get_mpz_t(), tmp_num.get_mpz_t(), dim);
 			mpz_pow_ui(c_den.get_mpz_t(), tmp_den.get_mpz_t(), dim);
 			c = mpq_class(c_num, c_den);
+			c.canonicalize();
 		}
 		mpq_class N_r = (a*b)/c;
 		
@@ -447,7 +452,9 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		
 		lll(tmp.begin(), tmp.end(), numerators.begin(), common_denom, significands);
 		for(const mpz_class & x : numerators) {
-			*out = mpq_class(x, common_denom);
+			mpq_class pq(x, common_denom);
+			pq.canonicalize();
+			*out = pq;
 			++out;
 		}
 	}

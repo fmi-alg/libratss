@@ -311,7 +311,8 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	#endif
 	mpz_class pn1(1), pn2(0);
 	mpz_class qn(1), qn1(0), qn2(1);
-
+	
+	mpq_class result;
 	while(tmp > 0) {
 		tmp = 1 / tmp;
 		intPart = tmp.get_num() / tmp.get_den();
@@ -341,13 +342,13 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 		qn = a_i * qn1 + qn2;
 		qn2 = qn1;
 		qn1 = qn;
-		assert(fromRegContFrac(cf) == mpq_class(qn, pn));
-		if (mpq_class(qn, pn) - value < eps) {
+		result = mpq_class(qn, pn);
+		result.canonicalize();
+		assert(fromRegContFrac(cf) == result);
+		if (abs(result - value) < eps) {
 			break;
 		}
 	}
-	mpq_class result(qn,pn);
-	result.canonicalize();
 	assert(fromRegContFrac(cf) == result);
 	
 	using std::abs;
@@ -443,6 +444,9 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		
 		output1 = mpq_class( result(1, 0), result(0, 0) );
 		output2 = mpq_class( result(2, 0), result(0, 0) );
+		
+		output1.canonicalize();
+		output2.canonicalize();
 		
 		const mpq_class diff1 = abs(output1-input1);
 		const mpq_class diff2 = abs(output2-input2);

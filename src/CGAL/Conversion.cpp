@@ -57,10 +57,12 @@ Conversion< CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q> >::toMpq(const 
 		return Conversion<CGAL::ExtendedInt64q<CGAL::internal::boost_int1024q>::extension_type>::toMpq( v.getExtended() );
 	}
 	else {
-		return mpq_class(
+		mpq_class result(
 			gmp_int64_t(v.numerator().get()), 
 			gmp_uint64_t(v.denominator().get())
 		);
+		result.canonicalize();
+		return result;
 	}
 }
 
@@ -83,10 +85,12 @@ Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> >::toMpq(const type & v) {
 		return Conversion<CGAL::ExtendedInt64q<CGAL::Gmpq>::extension_type>::toMpq( v.getExtended() );
 	}
 	else {
-		return mpq_class(
+		mpq_class result(
 			gmp_int64_t(v.numerator().get()),
 			gmp_uint64_t(v.denominator().get())
 		);
+		result.canonicalize();
+		return result;
 	}
 }
 

@@ -33,6 +33,7 @@ void FloatPoint::assign(std::istream & is, Format fmt, int precision, int dimens
 		while (is.good() && is.peek() != '\n' && (int) coords.size() != dimension) {
 			is >> num >> denom;
 			tmp = mpq_class(num, denom);
+			tmp.canonicalize();
 			coords.emplace_back( Conversion<mpq_class>::toMpreal(tmp, precision) );
 		}
 	}
@@ -128,6 +129,7 @@ void RationalPoint::assign(std::istream & is, Format fmt, int precision, int dim
 		while (is.good() && is.peek() != '\n') {
 			is >> num >> denom;
 			mpq_class tmp = mpq_class(num, denom);
+			tmp.canonicalize();
 			coords.emplace_back(std::move(tmp));
 		}
 	}
