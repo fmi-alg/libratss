@@ -44,7 +44,7 @@ if (PKGCONFIG_FOUND)
 	pkg_search_module(FPLLL fplll)
 endif()
 
-set(LIBRATSS_WITH_VERBOSE_DEBUG OFF BOOL "Enable verbose debugging")
+set(LIBRATSS_WITH_VERBOSE_DEBUG OFF CACHE BOOL "Enable verbose debugging")
 
 if (LIBRATSS_WITH_VERBOSE_DEBUG)
 	set(LIBRATSS_COMPILE_DEFINITIONS
