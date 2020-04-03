@@ -14,6 +14,7 @@ set(CMAKE_MODULE_PATH
 )
 
 include(add_buildtype_lto)
+include(add_buildtype_lto_sanitize)
 include(add_buildtype_sanitize_debug)
 
 find_package(Threads)
