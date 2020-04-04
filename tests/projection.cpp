@@ -222,24 +222,29 @@ void CLS_TMPL_NAME::quadrantTest() {
 		for(std::size_t i(0); i < coords.size(); ++i) {
 			const GeoCoord & coord  = coords[i];
 			std::stringstream ss;
-			ss << "Coordinate " << i << "=" << coord << " bits=" << bits << " snapType=" << snapType << " snapPosition=" << snapPosition;
+			ss << "Coordinate " << i << "=(lat,lon)=(" << coord.lat << ", " << coord.lon << "); ";
+			ss << "bits=" << bits << "; ";
+			ss << "snapType=" << ProjectSN::toString(ProjectSN::SnapType(snapType)) << "; ";
+			ss << "snapPosition=" << ProjectSN::toString(ProjectSN::SnapType(snapPosition));
 			std::string errmsg = ss.str();
 			CPPUNIT_ASSERT_NO_THROW_MESSAGE(
 				errmsg,
 				p.projectFromGeo(coord.lat, coord.lon, point[0], point[1], point[2], bits, snapType | snapPosition | ProjectSN::ST_NORMALIZE)
 			);
 			
-			for(std::size_t j(0); j < point.size(); ++j) {
-				std::stringstream ss;
-				ss << errmsg << ": " << "bits(p[" << j << "])=" << numBits(point[j]) <<  " > " << std::size_t(2*bits);
-				CPPUNIT_ASSERT_MESSAGE(ss.str(),std::size_t(2*bits) <= numBits(point[j]));
-			}
-			
 			mpq_class sqlen = point[0]*point[0] + point[1]*point[1] + point[2]*point[2];
 			CPPUNIT_ASSERT_EQUAL_MESSAGE(ss.str(), mpq_class(1), sqlen);
 			
-			auto maxNorm = p.calc().maxNorm(cartesians[i].begin(), cartesians[i].end(), point.begin());
-			CPPUNIT_ASSERT_LESS(maxNorm, eps);
+			for(std::size_t j(0); j < point.size(); ++j) {
+				using std::abs;
+				std::stringstream ss;
+				ss << errmsg << ": " << "bits(p[" << j << "])=" << numBits(point[j]) <<  " > " << std::size_t(2*bits);
+				CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j]) <= std::size_t(2*bits));
+				ss.str(errmsg);
+				auto dist = abs(cartesians[i][j]-point[j]);
+				ss << ": " << "abs(p[" << j << "]=" << point[j] << " - real)=" << dist << " > eps=" << eps;
+				CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= eps);
+			}
 		}
 	}
 }
