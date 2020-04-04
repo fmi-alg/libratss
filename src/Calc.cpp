@@ -525,7 +525,7 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 		}
 	}
 	else {
-		throw std::runtime_error("ratss::Calc::snap: Unsupported snap type");
+		throw std::runtime_error("ratss::Calc::snap: Unsupported snap type: " + std::to_string(st & ST_MASK));
 	}
 }
 
