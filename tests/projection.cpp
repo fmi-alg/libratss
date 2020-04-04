@@ -66,12 +66,19 @@ int main(int argc, char ** argv) {
 	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FX);
 	
 #if defined(LIB_RATSS_WITH_CGAL)
-	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_PAPER);
+	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_CF);
+	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_FX);
+	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_FL);
+	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_JP);
 #endif
 
 #if defined(LIB_RATSS_WITH_FPLLL)
 	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FPLLL);
 	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FPLLL);
+#endif
+	
+#if defined(LIB_RATSS_WITH_CGAL) and defined(LIB_RATSS_WITH_FPLLL)
+	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_FPLLL);
 #endif
 	
 #undef TEST_INSTANCE
