@@ -266,11 +266,28 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		
 		auto pos = this->sphere2Plane(ptc.begin(), ptc.end(), ptc.begin());
 		
-		//snap points
-		std::transform(ptc.begin(), ptc.end(), pt_snap_plane.begin(), [snapType, significands, this](auto x) -> mpq_class {
-			mpq_class apx = convert<mpq_class>( x.approx(2*significands, 2*significands) );
-			return this->calc().snap(apx, snapType, significands);
-		});
+		
+		{ //snap points on plane
+			std::vector<mpq_class> apx_plane;
+			apx_plane.reserve(dims);
+			for(auto const & x : ptc) {
+				apx_plane.emplace_back( convert<mpq_class>( x.approx(2*significands, 2*significands) ) );
+			}
+			
+			if (snapType & ST_JP) {
+				int skipDim = std::abs(pos);
+				using SkipInputIterator = internal::SkipIterator<typename std::vector<mpq_class>::const_iterator>;
+				using SkipOutputIterator = internal::SkipIterator<std::vector<mpq_class>::iterator>;
+				calc().toRational(
+					SkipInputIterator(apx_plane.cbegin(), skipDim),
+					SkipInputIterator(apx_plane.cend(), 0),
+					SkipOutputIterator(pt_snap_plane.begin(), skipDim),
+					snapType, significands);
+			}
+			else {
+				calc().toRational(apx_plane.cbegin(), apx_plane.cend(), pt_snap_plane.begin(), snapType, significands);
+			}
+		}
 
 		this->plane2Sphere(pt_snap_plane.begin(), pt_snap_plane.end(), pos, out);
 #else
