@@ -10,11 +10,13 @@ void debug_print_mpreal(const mpfr::mpreal & v) {
 }
 
 void debug_print_mpq_class(const mpq_class & v) {
-	std::cerr << "value=" << v << " approximately " << v.get_d() << std::endl;
+	using LIB_RATSS_NAMESPACE::tests::numBits;
+	std::cerr << "value=" << v << "~" << v.get_d();
+	std::cerr << " bits=" << numBits(v.get_num()) << "/" << numBits(v.get_den()) << std::endl;
 }
 
 void debug_print_mpz_class(const mpz_class & v) {
-	std::cerr << "value=" << v << std::endl;
+	std::cerr << "value=" << v << " bits=" << LIB_RATSS_NAMESPACE::tests::numBits(v) << std::endl;
 }
 
 }
@@ -24,9 +26,11 @@ namespace LIB_RATSS_NAMESPACE {
 namespace tests {
 	
 std::size_t numBits(mpq_class const & v) {
-	std::size_t sizeNum = mpz_sizeinbase(v.get_num().get_mpz_t(), 2);
-	std::size_t sizeDenom = mpz_sizeinbase(v.get_den().get_mpz_t(), 2);
-	return std::max(sizeNum, sizeDenom);
+	return std::max(numBits(v.get_num()), numBits(v.get_den()));
+}
+
+std::size_t numBits(mpz_class const & v) {
+	return mpz_sizeinbase(v.get_mpz_t(), 2);
 }
 
 int TestBase::argc = 0;

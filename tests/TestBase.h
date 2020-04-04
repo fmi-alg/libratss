@@ -21,6 +21,7 @@ namespace LIB_RATSS_NAMESPACE {
 namespace tests {
 	
 std::size_t numBits(mpq_class const & v);
+std::size_t numBits(mpz_class const & v);
 
 class TestBase: public CppUnit::TestFixture {
 // CPPUNIT_TEST_SUITE( Test );
