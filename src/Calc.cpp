@@ -352,7 +352,7 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	assert(fromRegContFrac(cf) == result);
 	
 	using std::abs;
-	assert( abs(result-value) <= mpq_class(mpz_class(1), epsDenom) );
+	assert( abs(result-value) <= eps);
 	return result;
 }
 
