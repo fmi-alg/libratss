@@ -241,8 +241,10 @@ void CLS_TMPL_NAME::quadrantTest() {
 				ss << errmsg << ": " << "bits(p[" << j << "])=" << numBits(point[j]) <<  " > " << std::size_t(2*bits);
 				CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j]) <= std::size_t(2*bits));
 				ss.str(errmsg);
-				auto dist = abs(cartesians[i][j]-point[j]);
-				ss << ": " << "abs(p[" << j << "]=" << point[j] << " - real)=" << dist << " > eps=" << eps;
+				mpq_class dist = abs(cartesians[i][j]-point[j]);
+				ss << ": " << "abs(p[" << j << "]=" << point[j] << " - real)=";
+				ss << dist << " > eps=";
+				ss << eps;
 				CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= eps);
 			}
 		}
