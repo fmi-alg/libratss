@@ -97,28 +97,7 @@ public:
 	mpq_class snap(const mpq_class & v, int st, const mpq_class & eps) const;
 public:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-	typename std::enable_if<
-		std::is_same<
-			typename std::decay<
-				typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
-			>::type,
-			mpq_class
-		>::value,
-		void
-	>::type
-	toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
-	
-	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-	typename std::enable_if<
-		!std::is_same<
-			typename std::decay<
-				typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
-			>::type,
-			mpq_class
-		>::value,
-		void
-	>::type
-	toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
+	void toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
 public:
 	std::size_t maxBitCount(const mpq_class &v) const;
 };
@@ -400,36 +379,7 @@ void Calc::normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 }
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-typename std::enable_if<
-	std::is_same<
-		typename std::decay<
-			typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
-		>::type,
-		mpq_class
-	>::value,
-	void
->::type
-Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int /*snapType*/, int eps) const {
-	if (eps < 0) {
-		for( ;begin != end; ++begin, ++out) {
-			*out = *begin;
-		}
-	}
-	else {
-		throw std::runtime_error("ratss::Calc::toRational: Input is invalid since it is a rational already");
-	}
-}
-
-template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
-typename std::enable_if<
-	!std::is_same<
-		typename std::decay<
-			typename std::iterator_traits<T_INPUT_ITERATOR>::value_type
-		>::type,
-		mpq_class
-	>::value,
-	void
->::type
+void
 Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int significands) const {
 	using input_ft = typename std::iterator_traits<T_INPUT_ITERATOR>::value_type;
 	if (snapType & ST_JP) {
