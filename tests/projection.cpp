@@ -68,7 +68,6 @@ int main(int argc, char ** argv) {
 #if defined(LIB_RATSS_WITH_CGAL)
 	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_CF);
 	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_FX);
-	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_FL);
 	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_JP);
 #endif
 
