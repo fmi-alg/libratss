@@ -530,25 +530,37 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 }
 
 mpq_class
-Calc::snap(const mpq_class & v, int st, int eps) const {
-	auto result = snap(Conversion<mpq_class>::toMpreal(v, eps+2), st, eps);
-	assert(abs(result - v) <= (mpq_class(mpz_class(1), mpz_class(1) << eps)));
+Calc::snap(const mpq_class & v, int st, int significands) const {
+	mpq_class result;
+	mpq_class epsq = mpq_class(mpz_class(1), mpz_class(1) << significands);
+	if (st & ST_CF) {
+		result = snap(v, st, epsq);
+	}
+	else {
+		result = snap(Conversion<mpq_class>::toMpreal(v, significands+2), st, significands);
+		if (abs(result - v) > epsq) {
+			throw std::runtime_error("libratss::Calc::snap: could not approximate rational to requested precision");
+		}
+	}
+	assert(abs(result - v) <= epsq);
 	return result;
 }
 
 mpq_class
 Calc::snap(const mpq_class & v, int st, const mpq_class & eps) const {
+	mpq_class result;
 	if (st & ST_CF) {
 		mpq_class lower = v - eps;
 		mpq_class upper = v + eps;
-		return within(lower, upper);
+		result = within(lower, upper);
 	}
 	else {
-		mpz_class tmp(1/eps);
-		tmp += 1;
+		mpz_class tmp = eps.get_num() / eps.get_den() + int(eps.get_num() % eps.get_den() > 0);
 		int epsBits = mpz_sizeinbase(tmp.get_mpz_t(), 2);
-		return snap(v, st, epsBits);
+		result = snap(v, st, epsBits+1);
 	}
+	assert(abs(result - v) <= eps);
+	return result;
 }
 
 std::size_t Calc::maxBitCount(const mpq_class &v) const {

@@ -85,8 +85,8 @@ public:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, mpq_class epsilon) const;
 	
-	mpq_class snap(const mpfr::mpreal & v, int st, int eps = -1) const;
-	mpq_class snap(const mpq_class & v, int st, int eps = -1) const;
+	mpq_class snap(const mpfr::mpreal & v, int st, int significands = -1) const;
+	mpq_class snap(const mpq_class & v, int st, int significands = -1) const;
 	mpq_class snap(const mpq_class & v, int st, const mpq_class & eps) const;
 public:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
