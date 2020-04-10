@@ -93,6 +93,17 @@ mpfr::mpreal Conversion<mpq_class>::toMpreal(const type & v, int precision) {
 }
 
 //END mpq_class specializations
+//BEGIN mpz_class specializations
+
+mpq_class
+Conversion<mpz_class>::toMpq(const type & v) {
+	return mpq_class(v, mpz_class(1));
+}
+
+mpfr::mpreal Conversion<mpz_class>::toMpreal(const type & v, int precision) {
+	return mpfr::mpreal(v.get_mpz_t(), precision);
+}
+//END mpz_class specializations
 
 
 }//end namespace LIB_RATSS_NAMESPACE

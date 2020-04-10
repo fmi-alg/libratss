@@ -63,6 +63,13 @@ struct Conversion<mpq_class> {
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };
 
+template<>
+struct Conversion<mpz_class> {
+	using type = mpz_class;
+	static mpq_class toMpq(const type & v);
+	static mpfr::mpreal toMpreal(const type & v, int precision);
+};
+
 }//end namespace LIB_RATSS_NAMESPACE
 
 #if defined(LIB_RATSS_WITH_CGAL)
