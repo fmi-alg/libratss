@@ -140,7 +140,7 @@ void CLS_TMPL_NAME::fixPointRandom() {
 	
 	for(const SphericalCoord & coord : coords) {
 		mpq_class x,y,z;
-		p.projectFromSpherical(coord.theta, coord.phi, x, y, z, 128, snapPosition | snapType);
+		p.projectFromSpherical(coord.theta, coord.phi, x, y, z, int(128), snapPosition | snapType);
 		std::stringstream ss;
 		ss << "Point " << to_string(coord) << " does not project on sphere for precision=" << 128;
 		mpq_class sqlen = x*x+y*y+z*z;
