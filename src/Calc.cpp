@@ -101,60 +101,82 @@ m * 2^exp = m_fixed
 The issue here are not the large number since they should usually be between -1 and 1
 The problem are points that are close to 0 that are representable by floating points but to a lesser degree by a fixed point type
 */
-void Calc::makeFixpoint(mpfr::mpreal& v, int significands) const {
-	if (significands < 0) {
-		auto exp = v.get_exp();
-		auto prec = v.get_prec();
-		
-		if (exp < -prec) { //exponent does more right-shifts than we have bits in our mantissa
-			using std::signbit;
-			v.setZero((signbit(v) ? -1 : 1));
-		}
-		else if (exp > prec) { //exponent does more left shifts than we have bits in our mantissa
-			using std::signbit;
-			v.setInf((signbit(v) ? -1 : 1));
-		}
-		else if (exp < 0) {
-			//exponent does right shifts,
-			//this means that there are leading zeros,
-			//thus we need to cut off as many bits at the end as we have leading zeros
-			auto new_prec = prec + exp;
-			if (new_prec < 2) { //this should only happen if prec=2 and exp={1,2}
-				assert(prec==2);
-				v.setPrecision(2, MPFR_RNDZ);
-			}
-			else {
-				v.setPrecision(int(new_prec), MPFR_RNDZ);
-			}
-		}
-		else if (exp > 0) {
-			//exponent does left shifts,
-			//this means that the decimal point changes
-			//this is ok as long as it does not go beyond the last digit
-			//this is captured in the second case
-			//so there is nothing left todo here
-			;
-		}
+mpfr::mpreal Calc::toFixpoint(mpfr::mpreal const & v, int significands) const {
+	assert(significands > 0);
+	assert(!isnan(v));
+	assert(isfinite(v));
+	using std::abs;
+	
+	int sign = v < 0 ? -1 : 1;
+	
+	if (v*sign >= 1) {
+		return mpfr::const_infinity(sign, significands);
 	}
-	else if (v.getPrecision() < significands) {
-		throw std::domain_error(
-			"Calc::makeFixpoint: Number of signifcands is " +
-			std::to_string(significands) +
-			" which is smaller than input precision which is " +
-			std::to_string(v.getPrecision())
-		);
+
+	mpfr_exp_t exp = v.get_exp();
+	mpfr::mpreal result;
+	
+	assert(exp <= 0);
+	if (-exp > significands) {
+		result.setZero(sign);
 	}
 	else {
-		v.setPrecision(significands);
-		makeFixpoint(v, -1);
+		//this will get us the mantissa in base 2 without a sign character in front
+		result = v*sign;
+		char * binstr = ::mpfr_get_str(0, &exp, 2, significands, result.mpfr_ptr(), MPFR_RNDZ);
+		std::string strval(binstr);
+		::mpfr_free_str(binstr);
+		
+		//our number has abs(exp) many 0 bits at the front
+		//In total we want signifcands many bits
+		//thus only signifcands-abs(exp) many bits remain after adding the zeros in front
+		strval.resize(significands-abs(exp));
+		
+		result.setPrecision(std::max<int>(2, significands-abs(exp))); //a precision < 2 is not allowed
+		::mpfr_set_str(result.mpfr_ptr(), strval.data(), 2, MPFR_RNDZ);
+		::mpfr_set_exp(result.mpfr_ptr(), exp);
+		result *= sign;
 	}
+	return result;
 }
 
-mpfr::mpreal Calc::toFixpoint(const mpfr::mpreal& v, int significands) const {
-	mpfr::mpreal c(v);
-	makeFixpoint(c, significands);
-	return c;
+#if defined(LIB_RATSS_WITH_CGAL)
+CORE::BigFloat Calc::toFixpoint(CORE::BigFloat const & v, int significands) const {
+	using std::abs;
+	assert(significands > 0);
+	
+	int sign = v < 0 ? -1 : 1;
+	
+	if (v*sign >= 1) {
+		throw std::runtime_error("Calc::toFixpoint: Conversion would result in infinite value, but BigFloat does not support it.");
+	}
+	//CORE1 BigFloat is different from mpfr
+	//Here the floating point is at the end of the mantissa m
+	//Hence in our case abs(exp) >= bits(m)
+	mpz_class m(v.m().get_mp());
+	m *= sign;
+	
+	//total number of bits is abs(exp)
+	long int mbits = this->numBits(m);
+	long int exp = v.exp();
+	
+	assert(exp <= 0);
+	assert(-exp >= mbits);
+	if (abs(exp)-mbits >= significands) { //check if we have more zeros in front than we have significant bits
+		return CORE::BigFloat(double(0)*sign);
+	}
+	
+	long int leadingZeros = abs(exp)-mbits;
+	long int targetMantissaBits = significands-leadingZeros;
+	assert(targetMantissaBits > 0);
+	long int shiftBits = mbits-targetMantissaBits;
+	m >>= shiftBits;
+	exp += shiftBits;
+	
+	CORE::BigInt mc(m.get_mpz_t());
+	return CORE::BigFloat(mc, exp);
 }
+#endif
 
 mpq_class fromRegContFrac(const std::vector<mpz_class> & cf) {
 	if (cf.size() == 1) {

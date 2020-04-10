@@ -49,8 +49,16 @@ public:
 public:
 	int msb(const mpz_class & v) const;
 public:
+	///create a fixpoint number with abs(p) < 1
+	///hence abs(v) < 1
+	///everthing above is clipped to infinity
 	mpfr::mpreal toFixpoint(const mpfr::mpreal & v, int significands = -1) const;
-	void makeFixpoint(mpfr::mpreal& v, int significands = -1) const;
+#if defined(LIB_RATSS_WITH_CGAL)
+	///create a fixpoint number with abs(p) < 1
+	///hence abs(v) < 1
+	///everything above is an error!
+	CORE::BigFloat toFixpoint(CORE::BigFloat const & v, int significands = -1) const;
+#endif
 public:
 	template<typename T_INPUT_ITERATOR>
 	mpfr::mpreal squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const;
