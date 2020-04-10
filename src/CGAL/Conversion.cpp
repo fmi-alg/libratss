@@ -119,21 +119,33 @@ Conversion<CGAL::Gmpq>::toMpreal(const type & v, int precision) {
 
 //END CGAL::Gmpq specilizations
 
-Conversion<CORE::Expr>::type
-Conversion<CORE::Expr>::moveFrom(const mpq_class & v) {
-	return CORE::Expr( CORE::BigRat(v.get_mpq_t()) );
-}
-
+//BEGIN CORE::BigInt specilizations
 mpq_class
-Conversion<CORE::Expr>::toMpq(const type & v) {
-	return mpq_class(v.BigRatValue().get_mp());
+Conversion<CORE::BigInt>::toMpq(const type & v) {
+	return Conversion<mpz_class>::toMpq(mpz_class(v.get_mp()));
 }
 
 mpfr::mpreal
-Conversion<CORE::Expr>::toMpreal(const type & v, int precision) {
-	return mpfr::mpreal(v.BigRatValue().get_mp(), precision);
+Conversion<CORE::BigInt>::toMpreal(const type & v, int precision) {
+	return Conversion<mpz_class>::toMpreal(mpz_class(v.get_mp()), precision);
+}
+//END CORE::BigInt specilizations
+
+//BEGIN CORE::BigFloat specilizations
+mpq_class
+Conversion<CORE::BigFloat>::toMpq(const type & v) {
+	return mpq_class( Conversion<CORE::BigRat>::toMpq(v.BigRatValue()) );
 }
 
+mpfr::mpreal
+Conversion<CORE::BigFloat>::toMpreal(const type & v, int precision) {
+	mpfr::mpreal tmp(v.m().get_mp(), precision);
+	tmp.set_exp(tmp.get_exp() + v.exp());
+	return tmp;
+}
+//END CORE::BigInt specilizations
+
+//BEGIN CORE::BigRat specilizations
 Conversion<CORE::BigRat>::type
 Conversion<CORE::BigRat>::moveFrom(const mpq_class &v) {
 	return CORE::BigRat(v.get_mpq_t());
@@ -148,22 +160,61 @@ mpfr::mpreal
 Conversion<CORE::BigRat>::toMpreal(const type & v, int precision) {
 	return mpfr::mpreal(v.get_mp(), precision);
 }
+//END CORE::BigRat specilizations
 
+//BEGIN CORE::Expr specilizations
+Conversion<CORE::Expr>::type
+Conversion<CORE::Expr>::moveFrom(const mpq_class & v) {
+	return CORE::Expr( CORE::BigRat(v.get_mpq_t()) );
+}
 
+mpq_class
+Conversion<CORE::Expr>::toMpq(const type & v, int precision) {
+	if (precision < 0) {
+		return mpq_class(v.BigRatValue().get_mp());
+	}
+	else {
+		return toMpq(v.approx(precision, precision), -1);
+	}
+}
+
+mpfr::mpreal
+Conversion<CORE::Expr>::toMpreal(const type & v, int precision) {
+	if (precision < 0) {
+		return Conversion<CORE::BigFloat>::toMpreal(v.BigFloatValue(), precision);
+	}
+	else {
+		return Conversion<CORE::BigFloat>::toMpreal(v.approx(precision, precision).BigFloatValue(), precision);
+	}
+}
+//END CORE::Expr specilizations
+
+//BEGIN CORE::Real specilizations
 Conversion<CORE::Real>::type
 Conversion<CORE::Real>::moveFrom(const mpq_class &v) {
 	return type( Conversion<CORE::BigRat>::moveFrom(v) );
 }
 
 mpq_class
-Conversion<CORE::Real>::toMpq(const type & v) {
-	return mpq_class( Conversion<CORE::BigRat>::toMpq(v.BigRatValue()) );
+Conversion<CORE::Real>::toMpq(const type & v, int precision) {
+	if (precision < 0) {
+		return mpq_class( Conversion<CORE::BigRat>::toMpq(v.BigRatValue()) );
+	}
+	else {
+		return Conversion<CORE::Real>::toMpq(v.approx(precision, precision), -1);
+	}
 }
 
 mpfr::mpreal
 Conversion<CORE::Real>::toMpreal(const type & v, int precision) {
-	return Conversion<CORE::BigRat>::toMpreal(v.BigRatValue(), precision);
+	if (precision < 0) {
+		return Conversion<CORE::BigFloat>::toMpreal(v.BigFloatValue(), precision);
+	}
+	else {
+		return Conversion<CORE::BigFloat>::toMpreal(v.approx(precision, precision).BigFloatValue(), -1);
+	}
 }
+//END CORE::Real specilizations
 
 //BEGIN CGAL::Lazy_exact_nt<mpq_class>
 

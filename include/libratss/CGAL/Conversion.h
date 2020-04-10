@@ -74,9 +74,8 @@ struct Conversion< boost::multiprecision::number<boost::multiprecision::backends
 };
 
 template<>
-struct Conversion<CORE::Expr> {
-	using type = CORE::Expr;
-	static type moveFrom(const mpq_class & v);
+struct Conversion<CORE::BigInt> {
+	using type = CORE::BigInt;
 	static mpq_class toMpq(const type & v);
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };
@@ -90,10 +89,25 @@ struct Conversion<CORE::BigRat> {
 };
 
 template<>
+struct Conversion<CORE::BigFloat> {
+	using type = CORE::BigFloat;
+	static mpq_class toMpq(const type & v);
+	static mpfr::mpreal toMpreal(const type & v, int precision);
+};
+
+template<>
+struct Conversion<CORE::Expr> {
+	using type = CORE::Expr;
+	static type moveFrom(const mpq_class & v);
+	static mpq_class toMpq(const type & v, int precision = -1);
+	static mpfr::mpreal toMpreal(const type & v, int precision);
+};
+
+template<>
 struct Conversion<CORE::Real> {
 	using type = CORE::Real;
 	static type moveFrom(const mpq_class & v);
-	static mpq_class toMpq(const type & v);
+	static mpq_class toMpq(const type & v, int precision = -1);
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };
 
