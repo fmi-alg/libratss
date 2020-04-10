@@ -226,14 +226,12 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		
 		auto pos = this->sphere2Plane(ptc.begin(), ptc.end(), ptc.begin());
 		
-		
-		{ //snap points on plane
+		if (snapType & (ST_JP | ST_FPLLL | ST_CF)) {
 			std::vector<mpq_class> apx_plane;
 			apx_plane.reserve(dims);
 			for(auto const & x : ptc) {
-				apx_plane.emplace_back( convert<mpq_class>( x.approx(2*significands, 2*significands) ) );
+				apx_plane.emplace_back( convert<mpq_class>( x.approx(significands+2, significands+2) ) );
 			}
-			
 			if (snapType & ST_JP) {
 				int skipDim = std::abs(pos);
 				using SkipInputIterator = internal::SkipIterator<typename std::vector<mpq_class>::const_iterator>;
@@ -247,6 +245,16 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 			else {
 				calc().toRational(apx_plane.cbegin(), apx_plane.cend(), pt_snap_plane.begin(), snapType, significands);
 			}
+		}
+		else if (snapType & ST_FX) {
+			for(std::size_t i(0); i < dims; ++i) {
+				CORE::BigFloat fv = ptc[i].approx(significands+1, significands+1).BigFloatValue();
+				fv = calc().toFixpoint(fv, significands);
+				pt_snap_plane[i] = Conversion<CORE::BigFloat>::toMpq(fv);
+			}
+		}
+		else {
+			throw std::runtime_error("ProjectSN::snap: snapType ST_PAPER is incompatible with ST_FL");
 		}
 
 		this->plane2Sphere(pt_snap_plane.begin(), pt_snap_plane.end(), pos, out);
