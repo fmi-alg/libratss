@@ -33,19 +33,19 @@ using EntryConfig = std::pair<int, int>;
 
 std::string ec2Str(const EntryConfig & ec) {
 	std::string ret;
-	if (ec.first & ProjectSN::ST_AUTO_ALL) {
+	if (ec.first & ST_AUTO_ALL) {
 		ret = "auto";
 	}
-	else if (ec.first & ProjectSN::ST_FX) {
+	else if (ec.first & ST_FX) {
 		ret = "fx";
 	}
-	else if (ec.first & ProjectSN::ST_CF) {
+	else if (ec.first & ST_CF) {
 		ret = "cf";
 	}
-	else if (ec.first & ProjectSN::ST_JP) {
+	else if (ec.first & ST_JP) {
 		ret = "jp";
 	}
-	else if (ec.first & ProjectSN::ST_FPLLL) {
+	else if (ec.first & ST_FPLLL) {
 		ret = "lll";
 	}
 	else {
@@ -57,45 +57,45 @@ std::string ec2Str(const EntryConfig & ec) {
 constexpr std::size_t num_entries = 20;
 
 std::array<EntryConfig, num_entries> entryConfigs{{
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 4),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 6),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 8),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 10),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 12),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 14),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 16),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 18),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 20),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 22),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 24),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 26),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 28),
-// 	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 30),
+// 	EntryConfig(ST_FX | ST_PLANE, 4),
+// 	EntryConfig(ST_FX | ST_PLANE, 6),
+// 	EntryConfig(ST_FX | ST_PLANE, 8),
+// 	EntryConfig(ST_FX | ST_PLANE, 10),
+// 	EntryConfig(ST_FX | ST_PLANE, 12),
+// 	EntryConfig(ST_FX | ST_PLANE, 14),
+// 	EntryConfig(ST_FX | ST_PLANE, 16),
+// 	EntryConfig(ST_FX | ST_PLANE, 18),
+// 	EntryConfig(ST_FX | ST_PLANE, 20),
+// 	EntryConfig(ST_FX | ST_PLANE, 22),
+// 	EntryConfig(ST_FX | ST_PLANE, 24),
+// 	EntryConfig(ST_FX | ST_PLANE, 26),
+// 	EntryConfig(ST_FX | ST_PLANE, 28),
+// 	EntryConfig(ST_FX | ST_PLANE, 30),
 	
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 4),
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 12),
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_FX | ProjectSN::ST_PLANE, 30),
+	EntryConfig(ST_FX | ST_PLANE, 4),
+	EntryConfig(ST_FX | ST_PLANE, 12),
+	EntryConfig(ST_FX | ST_PLANE, 20),
+	EntryConfig(ST_FX | ST_PLANE, 30),
 	
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 4),
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 12),
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_CF | ProjectSN::ST_PLANE, 30),
+	EntryConfig(ST_CF | ST_PLANE, 4),
+	EntryConfig(ST_CF | ST_PLANE, 12),
+	EntryConfig(ST_CF | ST_PLANE, 20),
+	EntryConfig(ST_CF | ST_PLANE, 30),
 // 	
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 4),
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 12),
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_JP | ProjectSN::ST_PLANE, 30),
+	EntryConfig(ST_JP | ST_PLANE, 4),
+	EntryConfig(ST_JP | ST_PLANE, 12),
+	EntryConfig(ST_JP | ST_PLANE, 20),
+	EntryConfig(ST_JP | ST_PLANE, 30),
 	
-	EntryConfig(ProjectSN::ST_FPLLL | ProjectSN::ST_PLANE, 4),
-	EntryConfig(ProjectSN::ST_FPLLL | ProjectSN::ST_PLANE, 12),
-	EntryConfig(ProjectSN::ST_FPLLL | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_FPLLL | ProjectSN::ST_PLANE, 30),
+	EntryConfig(ST_FPLLL | ST_PLANE, 4),
+	EntryConfig(ST_FPLLL | ST_PLANE, 12),
+	EntryConfig(ST_FPLLL | ST_PLANE, 20),
+	EntryConfig(ST_FPLLL | ST_PLANE, 30),
 	
-	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 4),
-	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 12),
-	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 20),
-	EntryConfig(ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ProjectSN::ST_PLANE, 30)
+	EntryConfig(ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ST_PLANE, 4),
+	EntryConfig(ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ST_PLANE, 12),
+	EntryConfig(ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ST_PLANE, 20),
+	EntryConfig(ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ST_PLANE, 30)
 }};
 
 struct PointStatEntry {
@@ -121,7 +121,7 @@ void PointStatEntry::assign(const FloatPoint& ip, RationalPoint& op, ProjectSN& 
 	
 	for(std::size_t i(0); i < num_entries; ++i) {
 		const EntryConfig & ec = entryConfigs.at(i);
-		if (ec.first & ProjectSN::ST_JP && (ip.coords.size() > 3)) {
+		if (ec.first & ST_JP && (ip.coords.size() > 3)) {
 			data[i].denom = -1;
 			data[i].diff = -1;
 			continue;

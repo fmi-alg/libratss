@@ -102,31 +102,31 @@ public:
 
 std::string ec2Str(int significand, int st) {
 	std::string ret;
-	if (st & ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM) {
+	if (st & ST_AUTO_POLICY_MIN_MAX_DENOM) {
 		ret = "md";
 	}
-	else if (st & ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM) {
+	else if (st & ST_AUTO_POLICY_MIN_SUM_DENOM) {
 		ret = "msd";
 	}
-	else if (st & ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
+	else if (st & ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
 		ret = "ml";
 	}
-	else if (st & ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
+	else if (st & ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
 		ret = "md2";
 	}
-	else if (st & ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM) {
+	else if (st & ST_AUTO_POLICY_MIN_MAX_NORM) {
 		ret = "mmn";
 	}
-	else if (st & ProjectSN::ST_FX) {
+	else if (st & ST_FX) {
 		ret = "fx";
 	}
-	else if (st & ProjectSN::ST_CF) {
+	else if (st & ST_CF) {
 		ret = "cf";
 	}
-	else if (st & ProjectSN::ST_JP) {
+	else if (st & ST_JP) {
 		ret = "jp";
 	}
-	else if (st & ProjectSN::ST_FPLLL) {
+	else if (st & ST_FPLLL) {
 		ret = "lll";
 	}
 	else {
@@ -220,27 +220,27 @@ int main(int argc, char ** argv) {
 	
 	if (maxDimension == 3) {
 		snappingTypes = {{
-			ProjectSN::ST_FX,
-			ProjectSN::ST_CF,
-			ProjectSN::ST_JP,
-			ProjectSN::ST_FPLLL,
-			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM,
-			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS,
-			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM,
-			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE,
-			ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM
+			ST_FX,
+			ST_CF,
+			ST_JP,
+			ST_FPLLL,
+			ST_AUTO_ALL|ST_AUTO_POLICY_MIN_MAX_DENOM,
+			ST_AUTO_ALL|ST_AUTO_POLICY_MIN_TOTAL_LIMBS,
+			ST_AUTO_ALL|ST_AUTO_POLICY_MIN_SUM_DENOM,
+			ST_AUTO_ALL|ST_AUTO_POLICY_MIN_SQUARED_DISTANCE,
+			ST_AUTO_ALL|ST_AUTO_POLICY_MIN_MAX_NORM
 		}};
 	}
 	else {
 		snappingTypes = {{
-			ProjectSN::ST_FX,
-			ProjectSN::ST_CF,
-			ProjectSN::ST_FPLLL,
-// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM) - ProjectSN::ST_AUTO_JP,
-// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) - ProjectSN::ST_AUTO_JP,
-// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM) - ProjectSN::ST_AUTO_JP,
-// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) - ProjectSN::ST_AUTO_JP,
-// 			(ProjectSN::ST_AUTO_ALL|ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM) - ProjectSN::ST_AUTO_JP
+			ST_FX,
+			ST_CF,
+			ST_FPLLL,
+// 			(ST_AUTO_ALL|ST_AUTO_POLICY_MIN_MAX_DENOM) - ST_AUTO_JP,
+// 			(ST_AUTO_ALL|ST_AUTO_POLICY_MIN_TOTAL_LIMBS) - ST_AUTO_JP,
+// 			(ST_AUTO_ALL|ST_AUTO_POLICY_MIN_SUM_DENOM) - ST_AUTO_JP,
+// 			(ST_AUTO_ALL|ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) - ST_AUTO_JP,
+// 			(ST_AUTO_ALL|ST_AUTO_POLICY_MIN_MAX_NORM) - ST_AUTO_JP
 		}};
 	}
 
@@ -249,10 +249,9 @@ int main(int argc, char ** argv) {
 	io.output() << points.size() << std::endl;
 	
 	counter = 0;
-
 	for(int significand : significands) {
 		for(int st : snappingTypes) {
-			st |= (cfg.snapType & ProjectSN::ST_SNAP_POSITION_MASK);
+			st |= (cfg.snapType & ST_SNAP_POSITION_MASK);
 			io.output() << ec2Str(significand, st) << " ";
 			stats.start();
 			for(const std::vector<mpfr::mpreal> & point : points) {

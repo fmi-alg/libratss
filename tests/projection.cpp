@@ -56,28 +56,28 @@ int main(int argc, char ** argv) {
 		runners.back()->addTest(  ProjectionTest<__SNAP_POSITION, __SNAP_TYPE>::suite() ); \
 	} while (0);
 	
-	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_CF);
-	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FX);
-	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FL);
-	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_JP);
+	TEST_INSTANCE(ST_PLANE, ST_CF);
+	TEST_INSTANCE(ST_PLANE, ST_FX);
+	TEST_INSTANCE(ST_PLANE, ST_FL);
+	TEST_INSTANCE(ST_PLANE, ST_JP);
 	
-	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_CF);
-	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FL);
-	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FX);
+	TEST_INSTANCE(ST_SPHERE, ST_CF);
+	TEST_INSTANCE(ST_SPHERE, ST_FL);
+	TEST_INSTANCE(ST_SPHERE, ST_FX);
 	
 #if defined(LIB_RATSS_WITH_CGAL)
-	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_CF);
-	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_FX);
-	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_JP);
+	TEST_INSTANCE(ST_PAPER, ST_CF);
+	TEST_INSTANCE(ST_PAPER, ST_FX);
+	TEST_INSTANCE(ST_PAPER, ST_JP);
 #endif
 
 #if defined(LIB_RATSS_WITH_FPLLL)
-	TEST_INSTANCE(ProjectSN::ST_PLANE, ProjectSN::ST_FPLLL);
-	TEST_INSTANCE(ProjectSN::ST_SPHERE, ProjectSN::ST_FPLLL);
+	TEST_INSTANCE(ST_PLANE, ST_FPLLL);
+	TEST_INSTANCE(ST_SPHERE, ST_FPLLL);
 #endif
 	
 #if defined(LIB_RATSS_WITH_CGAL) and defined(LIB_RATSS_WITH_FPLLL)
-	TEST_INSTANCE(ProjectSN::ST_PAPER, ProjectSN::ST_FPLLL);
+	TEST_INSTANCE(ST_PAPER, ST_FPLLL);
 #endif
 	
 #undef TEST_INSTANCE
@@ -208,7 +208,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 		for(double lon(0); lon < 360; lon += 15) {
 			coords.emplace_back(lat, lon);
 			std::array<mpq_class, 3> cartesian;
-			p.projectFromGeo(coords.back().lat, coords.back().lon, cartesian[0], cartesian[1], cartesian[2], 512, ProjectSN::ST_SPHERE | ProjectSN::ST_FL | ProjectSN::ST_NORMALIZE);
+			p.projectFromGeo(coords.back().lat, coords.back().lon, cartesian[0], cartesian[1], cartesian[2], 512, ST_SPHERE | ST_FL | ST_NORMALIZE);
 			cartesians.push_back(cartesian);
 		}
 	}
@@ -219,7 +219,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 		//points are not exactly on the sphere and we compare the result with an inexact computation
 		//We therefore have to leave some wiggle room (except in the paper snapping case
 		mpq_class eps;
-		if (snapPosition == ProjectSN::ST_PAPER) {
+		if (snapPosition == ST_PAPER) {
 			eps = mpq_class(mpz_class(1), mpz_class(1) << (bits-1));
 		}
 		else {
@@ -235,7 +235,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 			std::string errmsg = ss.str();
 			CPPUNIT_ASSERT_NO_THROW_MESSAGE(
 				errmsg,
-				p.projectFromGeo(coord.lat, coord.lon, point[0], point[1], point[2], bits, snapType | snapPosition | ProjectSN::ST_NORMALIZE)
+				p.projectFromGeo(coord.lat, coord.lon, point[0], point[1], point[2], bits, snapType | snapPosition | ST_NORMALIZE)
 			);
 			
 			mpq_class sqlen = point[0]*point[0] + point[1]*point[1] + point[2]*point[2];

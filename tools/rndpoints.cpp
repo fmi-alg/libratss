@@ -27,8 +27,8 @@ struct PointGenerator {
 		using std::distance;
 		int dim = distance(begin, end);
 		RationalPoint rp(dim);
-		if (snapType == ProjectSN::ST_NONE) {
-			gc.toRational(begin, end, rp.coords.begin(), ProjectSN::ST_FL, -1);
+		if (snapType == ST_NONE) {
+			gc.toRational(begin, end, rp.coords.begin(), ST_FL, -1);
 		}
 		else {
 			proj.snap(begin, end, rp.coords.begin(), snapType);
@@ -53,10 +53,10 @@ struct CGALPointGenerator: PointGenerator {
 		++rnd;
 		std::array<mpfr::mpreal, 3> vec = {{p.x(), p.y(), p.z()}};
 		if (snap) {
-			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_CF | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
+			return toRationalPoint(vec.begin(), vec.end(), ST_CF | ST_SPHERE | ST_NORMALIZE);
 		}
 		else {
-			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_NONE);
+			return toRationalPoint(vec.begin(), vec.end(), ST_NONE);
 		}
 	}
 	
@@ -101,7 +101,7 @@ struct GeoPointGenerator: PointGenerator {
 		else {
 			std::array<mpfr::mpreal, 3> c;
 			gc.cartesian(lat, lon, c[0], c[1], c[2]);
-			return toRationalPoint(c.begin(), c.end(), ProjectSN::ST_NONE);
+			return toRationalPoint(c.begin(), c.end(), ST_NONE);
 		}
 	}
 	
@@ -187,7 +187,7 @@ struct NPlanePointGenerator: PointGenerator {
 		bool positiveSide = boolRnd(gen);
 		if (snap) {
 			std::vector<mpq_class> snapVec(ip.coords.size());
-			proj.calc().toRational(ip.coords.begin(), ip.coords.end(), snapVec.begin(), Calc::ST_CF);
+			proj.calc().toRational(ip.coords.begin(), ip.coords.end(), snapVec.begin(), ST_CF);
 			assert(snapVec.size() == (std::size_t) dimension);
 			proj.plane2Sphere(snapVec.begin(), snapVec.end(), (PositionOnSphere)(positiveSide ? dimension : -dimension), ret.coords.begin());
 			return ret;
@@ -195,7 +195,7 @@ struct NPlanePointGenerator: PointGenerator {
 		else {
 			std::vector<mpfr::mpreal> onSphere(dimension);
 			proj.plane2Sphere(ip.coords.begin(), ip.coords.end(), (PositionOnSphere)(positiveSide ? dimension : -dimension), onSphere.begin());
-			return toRationalPoint(onSphere.begin(), onSphere.end(), ProjectSN::ST_NONE);
+			return toRationalPoint(onSphere.begin(), onSphere.end(), ST_NONE);
 		}
 	}
 	
@@ -218,10 +218,10 @@ struct NSpherePointGenerator: PointGenerator {
 			vec.emplace_back( circleRnd(gen) );
 		}
 		if (snap) {
-			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_FX | ProjectSN::ST_SPHERE | ProjectSN::ST_NORMALIZE);
+			return toRationalPoint(vec.begin(), vec.end(), ST_FX | ST_SPHERE | ST_NORMALIZE);
 		}
 		else {
-			return toRationalPoint(vec.begin(), vec.end(), ProjectSN::ST_NONE);
+			return toRationalPoint(vec.begin(), vec.end(), ST_NONE);
 		}
 	}
 	

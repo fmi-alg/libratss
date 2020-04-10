@@ -98,7 +98,7 @@ int main(int argc, char ** argv) {
 		op.clear();
 		op.resize(ip.coords.size());
 		
-		if (cfg.snapType & Calc::ST_FPLLL && cfg.epsilon > 0) {
+		if (cfg.snapType & ST_FPLLL && cfg.epsilon > 0) {
 			mpz_class common_denom;
 			proj.calc().lll(ip.coords.begin(), ip.coords.end(), op.coords.begin(), common_denom, cfg.epsilon);
 			for(auto & x: op.coords) {
@@ -108,7 +108,7 @@ int main(int argc, char ** argv) {
 		else {
 			FloatPoint fip;
 			fip.assign(ip.coords.begin(), ip.coords.end(), cfg.precision);
-			proj.calc().toRational(fip.coords.begin(), fip.coords.end(), op.coords.begin(), cfg.snapType & ProjectSN::ST_SNAP_TYPES_MASK, cfg.significands);
+			proj.calc().toRational(fip.coords.begin(), fip.coords.end(), op.coords.begin(), cfg.snapType & ST_SNAP_TYPES_MASK, cfg.significands);
 		}
 
 		if (cfg.stats) {

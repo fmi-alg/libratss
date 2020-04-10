@@ -99,9 +99,9 @@ int main(int argc, char ** argv) {
 		assert(xpd*xpd + ypd*ypd + zpd*zpd <= 1);
 		
 		//snap with cast
-		xps = calc.snap(xpd, Calc::ST_FL);
-		yps = calc.snap(ypd, Calc::ST_FL);
-		zps = calc.snap(zpd, Calc::ST_FL);
+		xps = calc.snap(xpd, ST_FL);
+		yps = calc.snap(ypd, ST_FL);
+		zps = calc.snap(zpd, ST_FL);
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
 		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
@@ -113,9 +113,9 @@ int main(int argc, char ** argv) {
 		snapFlProj.update(zs);
 		
 		//snap with fix point
-		xps = calc.snap(xpd, Calc::ST_FX);
-		yps = calc.snap(ypd, Calc::ST_FX);
-		zps = calc.snap(zpd, Calc::ST_FX);
+		xps = calc.snap(xpd, ST_FX);
+		yps = calc.snap(ypd, ST_FX);
+		zps = calc.snap(zpd, ST_FX);
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
 		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());
@@ -127,9 +127,9 @@ int main(int argc, char ** argv) {
 		snapFxProj.update(zs);
 		
 		//snap with continous fraction
-		xps = calc.snap(xpd, Calc::ST_CF);
-		yps = calc.snap(ypd, Calc::ST_CF);
-		zps = calc.snap(zpd, Calc::ST_CF);
+		xps = calc.snap(xpd, ST_CF);
+		yps = calc.snap(ypd, ST_CF);
+		zps = calc.snap(zpd, ST_CF);
 		p.plane2Sphere(xps, yps, zps, pos, xs, ys, zs);
 		assert(xs*xs + ys*ys + zs*zs == mpq_class(1));
 		assert(xs.get_den() == ys.get_den() && xs.get_den() == zs.get_den());

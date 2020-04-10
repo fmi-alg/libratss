@@ -37,16 +37,16 @@ public:
 public: 
 	void quadrantTest();
 
-	void snapFlPlane() { snapRandom({ProjectSN::ST_FL}, {ProjectSN::ST_PLANE}); }
-	void snapFxPlane() { snapRandom({ProjectSN::ST_FX}, {ProjectSN::ST_PLANE}); }
-	void snapCfPlane() { snapRandom({ProjectSN::ST_CF}, {ProjectSN::ST_PLANE}); }
-	void snapJpPlane() { snapRandom({ProjectSN::ST_JP}, {ProjectSN::ST_PLANE}); }
-	void snaplllPlane() { snapRandom({ProjectSN::ST_FPLLL}, {ProjectSN::ST_PLANE}); }
-	void snapFlSphere() { snapRandom({ProjectSN::ST_FL}, {ProjectSN::ST_SPHERE}); }
-	void snapFxSphere() { snapRandom({ProjectSN::ST_FX}, {ProjectSN::ST_SPHERE}); }
-	void snapCfSphere() { snapRandom({ProjectSN::ST_CF}, {ProjectSN::ST_SPHERE}); }
-// 	void snaJpSphere() { snapRandom({ProjectSN::ST_JP}, {ProjectSN::ST_SPHERE}); }
-	void snaplllSphere() { snapRandom({ProjectSN::ST_FPLLL}, {ProjectSN::ST_SPHERE}); }
+	void snapFlPlane() { snapRandom({ST_FL}, {ST_PLANE}); }
+	void snapFxPlane() { snapRandom({ST_FX}, {ST_PLANE}); }
+	void snapCfPlane() { snapRandom({ST_CF}, {ST_PLANE}); }
+	void snapJpPlane() { snapRandom({ST_JP}, {ST_PLANE}); }
+	void snaplllPlane() { snapRandom({ST_FPLLL}, {ST_PLANE}); }
+	void snapFlSphere() { snapRandom({ST_FL}, {ST_SPHERE}); }
+	void snapFxSphere() { snapRandom({ST_FX}, {ST_SPHERE}); }
+	void snapCfSphere() { snapRandom({ST_CF}, {ST_SPHERE}); }
+// 	void snaJpSphere() { snapRandom({ST_JP}, {ST_SPHERE}); }
+	void snaplllSphere() { snapRandom({ST_FPLLL}, {ST_SPHERE}); }
 public:
 	void snapSpecial();
 	void snapRandomCore();
@@ -198,7 +198,7 @@ void NDProjectionTest::snapCore(const RationalPoint & pt, int significand) {
 		//any other snappin method does not work like that
 		//As input we get a value that has an eps of 1/(k*significand)
 		//Hence if we only snap with signifcand, then we may overshoot by this quantity -> we would need to have an eps of 1/2^significand - 1(k*signifcand)
-		return gc.snap(xreal, gc.ST_FX, significand);
+		return gc.snap(xreal, ST_FX, significand);
 	});
 	
 	for(mpq_class & x : pt_snap_plane) {

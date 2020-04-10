@@ -3,6 +3,7 @@
 #pragma once
 
 #include <libratss/constants.h>
+#include <libratss/enum.h>
 #include <libratss/Conversion.h>
 
 #ifdef LIB_RATSS_WITH_FPLLL
@@ -13,15 +14,7 @@ namespace LIB_RATSS_NAMESPACE {
 
 class Calc {
 public:
-	///Values are compatible with the ones defined in ProjectSN::SnapType
-	typedef enum { ST_NONE=0x0, 
-		ST_CF=0x8, //snap by continous fraction
-		ST_FX=ST_CF*2, //snap by fix point
-		ST_FL=ST_FX*2, //snap by floating point
-		ST_JP=ST_FL*2, // jacobi perron
-		ST_FPLLL=ST_JP*2,
-		ST_MASK=ST_CF|ST_FX|ST_FL|ST_JP|ST_FPLLL
-	} SnapType;
+	using SnapType = LIB_RATSS_NAMESPACE::SnapType;
 public:
 	template<typename T_FT>
 	inline T_FT add(const T_FT & a, const T_FT & b) const { return a+b; }

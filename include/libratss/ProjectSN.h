@@ -4,8 +4,6 @@
 
 #include <libratss/constants.h>
 #include <libratss/Calc.h>
-#include <libratss/enum.h>
-#include <libratss/Conversion.h>
 
 #include "internal/SkipIterator.h"
 
@@ -17,45 +15,7 @@ namespace LIB_RATSS_NAMESPACE {
 
 class ProjectSN {
 public:
-	typedef enum {
-		ST_NONE=0x0,
-		
-		ST_SPHERE=0x1, //snap point on sphere
-		ST_PLANE=ST_SPHERE*2, //snap point on plane
-		ST_PAPER=ST_PLANE*2, //snap point on the plane based on a normalized version of the input point, computed using CORE
-		
-		ST_SNAP_POSITION_MASK=ST_SPHERE|ST_PLANE|ST_PAPER,
-		
-		ST_CF=0x8, //snap by continous fraction, compatible with values defined in Calc
-		ST_FX=ST_CF*2, //snap by fix point
-		ST_FL=ST_FX*2, //snap by floating point
-		ST_JP=ST_FL*2, // jacobi perron
-		ST_FPLLL=ST_JP*2,
-		
-		ST_SNAP_TYPES_MASK=ST_CF|ST_FX|ST_FL|ST_JP|ST_FPLLL,
-
-		ST_AUTO_CF=ST_FPLLL*2, //add cf to auto snapping
-		ST_AUTO_FX=ST_AUTO_CF*2, //add fx to auto snapping
-		ST_AUTO_FL=ST_AUTO_FX*2, //add fl to auto snapping
-		ST_AUTO_JP=ST_AUTO_FL*2, //add jp to auto snapping
-		ST_AUTO_FPLLL=ST_AUTO_JP*2, //add fpll to auto snapping
-		ST_AUTO=ST_AUTO_FPLLL*2, //select snapping that produces the smallest denominators
-		ST_AUTO_ALL=ST_AUTO|ST_AUTO_CF|ST_AUTO_FX|ST_AUTO_JP|ST_AUTO_FPLLL, //try all snappings and use the best one
-		ST_AUTO_SNAP_MASK=ST_AUTO_ALL,
-		
-		ST_AUTO_POLICY_MIN_SUM_DENOM=ST_AUTO*2,
-		ST_AUTO_POLICY_MIN_MAX_DENOM=ST_AUTO_POLICY_MIN_SUM_DENOM*2,
-		ST_AUTO_POLICY_MIN_TOTAL_LIMBS=ST_AUTO_POLICY_MIN_MAX_DENOM*2,
-		ST_AUTO_POLICY_MIN_SQUARED_DISTANCE=ST_AUTO_POLICY_MIN_TOTAL_LIMBS*2,
-		ST_AUTO_POLICY_MIN_MAX_NORM=ST_AUTO_POLICY_MIN_SQUARED_DISTANCE*2,
-		ST_AUTO_POLICY_MASK=ST_AUTO_POLICY_MIN_SUM_DENOM|ST_AUTO_POLICY_MIN_MAX_DENOM|ST_AUTO_POLICY_MIN_TOTAL_LIMBS|ST_AUTO_POLICY_MIN_SQUARED_DISTANCE|ST_AUTO_POLICY_MIN_MAX_NORM,
-		
-		ST_NORMALIZE=ST_AUTO_POLICY_MIN_MAX_NORM*2,
-		//Do not use the values below!
-		ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES=5, //this effecivly defines the shift to get from ST_* to ST_AUTO_*
-		ST__INTERNAL_AUTO_POLICIES=ST_AUTO_POLICY_MIN_SUM_DENOM|ST_AUTO_POLICY_MIN_MAX_DENOM|ST_AUTO_POLICY_MIN_TOTAL_LIMBS|ST_AUTO_POLICY_MIN_SQUARED_DISTANCE|ST_AUTO_POLICY_MIN_MAX_NORM,
-		ST__INTERNAL_AUTO_ALL_WITH_POLICY=ST_AUTO_ALL|ST__INTERNAL_AUTO_POLICIES
-	} SnapType;
+	using SnapType = LIB_RATSS_NAMESPACE::SnapType;
 	class SnapConfig {
 	public:
 		SnapConfig();
@@ -413,7 +373,7 @@ ProjectSN::StOptimizer<GRADE_TYPE, POLICY>::best(const T_ITERATOR & begin, const
 template<>
 template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 std::size_t
-ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM>::
+ProjectSN::StOptimizer<std::size_t, ProjectSN::SnapType::ST_AUTO_POLICY_MIN_SUM_DENOM>::
 grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
 	return parent->calc().summedDenomSize(output_begin, output_end);
 }
@@ -421,7 +381,7 @@ grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input
 template<>
 template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 std::size_t
-ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS>::
+ProjectSN::StOptimizer<std::size_t, ProjectSN::SnapType::ST_AUTO_POLICY_MIN_TOTAL_LIMBS>::
 grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
 	return parent->calc().limbCount(output_begin, output_end);
 }
@@ -429,7 +389,7 @@ grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input
 template<>
 template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 std::size_t
-ProjectSN::StOptimizer<std::size_t, ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM>::
+ProjectSN::StOptimizer<std::size_t, ProjectSN::SnapType::ST_AUTO_POLICY_MIN_MAX_DENOM>::
 grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input_end*/, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & output_end) const {
 	return parent->calc().maxDenom(output_begin, output_end);
 }
@@ -437,7 +397,7 @@ grade(const T_ITERATOR_INPUT & /*input_begin*/, const T_ITERATOR_INPUT & /*input
 template<>
 template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 mpq_class
-ProjectSN::StOptimizer<mpq_class, ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE>::
+ProjectSN::StOptimizer<mpq_class, ProjectSN::SnapType::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE>::
 grade(const T_ITERATOR_INPUT & input_begin, const T_ITERATOR_INPUT & input_end, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & /*output_end*/) const {
 	return parent->calc().squaredDistance(input_begin, input_end, output_begin);
 }
@@ -445,7 +405,7 @@ grade(const T_ITERATOR_INPUT & input_begin, const T_ITERATOR_INPUT & input_end, 
 template<>
 template<typename T_ITERATOR_INPUT, typename T_ITERATOR_OUTPUT>
 mpq_class
-ProjectSN::StOptimizer<mpq_class, ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM>::
+ProjectSN::StOptimizer<mpq_class, ProjectSN::SnapType::ST_AUTO_POLICY_MIN_MAX_NORM>::
 grade(const T_ITERATOR_INPUT & input_begin, const T_ITERATOR_INPUT & input_end, const T_ITERATOR_OUTPUT & output_begin, const T_ITERATOR_OUTPUT & /*output_end*/) const {
 	return parent->calc().maxNorm(input_begin, input_end, output_begin);
 }

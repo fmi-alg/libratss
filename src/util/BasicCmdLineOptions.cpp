@@ -6,7 +6,7 @@ namespace LIB_RATSS_NAMESPACE {
 BasicCmdLineOptions::BasicCmdLineOptions() :
 precision(-1),
 significands(-1),
-snapType(ProjectSN::ST_NONE),
+snapType(ST_NONE),
 normalize(false),
 verbose(false),
 progress(false),
@@ -43,34 +43,34 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 			if (i+1 < argc) {
 				std::string stStr(argv[i+1]);
 				if (stStr == "cf") {
-					snapType |= ProjectSN::ST_CF;
+					snapType |= ST_CF;
 				}
 				else if (stStr == "fx") {
-					snapType |= ProjectSN::ST_FX;
+					snapType |= ST_FX;
 				}
 				else if (stStr == "fl") {
-					snapType |= ProjectSN::ST_FL;
+					snapType |= ST_FL;
 				}
 				else if ( stStr == "jp") {
-					snapType |= ProjectSN::ST_JP;
+					snapType |= ST_JP;
 				}
 				else if ( stStr == "lll") {
-					snapType |= ProjectSN::ST_FPLLL;
+					snapType |= ST_FPLLL;
 				}
 				else if (stStr == "ml" || stStr == "minlimb") {
-					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS;
+					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS;
 				}
 				else if (stStr == "md" || stStr == "mindenom") {
-					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM;
+					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_MAX_DENOM;
 				}
 				else if (stStr == "msd" || stStr == "minsumdenom") {
-					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM;
+					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_SUM_DENOM;
 				}
 				else if (stStr == "md2" || stStr == "minsqdist") {
-					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE;
+					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_SQUARED_DISTANCE;
 				}
 				else if (stStr == "mmn" || stStr == "minmaxnorm") {
-					snapType |= ProjectSN::ST_AUTO_ALL | ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM;
+					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_MAX_NORM;
 				}
 				else {
 					std::cerr << "Unrecognized snap method: " << stStr << std::endl;
@@ -86,16 +86,16 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 			if (i+1 < argc) {
 				std::string stStr(argv[i+1]);
 				if (stStr == "p" || stStr == "plane") {
-					snapType &= ~ProjectSN::ST_SPHERE;
-					snapType |= ProjectSN::ST_PLANE;
+					snapType &= ~ST_SPHERE;
+					snapType |= ST_PLANE;
 				}
 				else if (stStr == "s" || stStr == "sphere") {
-					snapType |= ProjectSN::ST_SPHERE;
-					snapType &= ~ProjectSN::ST_PLANE;
+					snapType |= ST_SPHERE;
+					snapType &= ~ST_PLANE;
 				}
 				else if (stStr == "paper") {
-					snapType |= ProjectSN::ST_PAPER;
-					snapType &= ~ProjectSN::ST_PAPER;
+					snapType |= ST_PAPER;
+					snapType &= ~ST_PAPER;
 				}
 				else {
 					std::cerr << "Unrecognized snap location: " << stStr << std::endl;
@@ -216,7 +216,7 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		++numParsedOpts;
 	}
 	
-	if (snapType & ProjectSN::ST_PAPER && normalize) {
+	if (snapType & ST_PAPER && normalize) {
 		std::cerr << "Requesting normaliziation of input with paper snapping is of no use." << std::endl;
 		return -1;
 	}
@@ -229,12 +229,12 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		significands = 31;
 	}
 	
-	if (! (snapType & (ProjectSN::ST_PLANE|ProjectSN::ST_SPHERE))) {
-		snapType |= ProjectSN::ST_PLANE;
+	if (! (snapType & (ST_PLANE|ST_SPHERE))) {
+		snapType |= ST_PLANE;
 	}
 	
-	if (! (snapType & (ProjectSN::ST_CF|ProjectSN::ST_FX|ProjectSN::ST_FL))) {
-		snapType |= ProjectSN::ST_FX;
+	if (! (snapType & (ST_CF|ST_FX|ST_FL))) {
+		snapType |= ST_FX;
 	}
 	
 	parse_completed();
@@ -270,41 +270,41 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 		out << "Significands: " << significands << '\n';
 	}
 	out << "Float conversion method: ";
-	if (snapType & ratss::ProjectSN::ST_CF) {
+	if (snapType & ratss::ST_CF) {
 		out << "continous fraction";
 	}
-	else if (snapType & ratss::ProjectSN::ST_FX) {
+	else if (snapType & ratss::ST_FX) {
 		out << "fix point";
 	}
-	else if (snapType & ratss::ProjectSN::ST_FL) {
+	else if (snapType & ratss::ST_FL) {
 		out << "floating point";
 	}
-	else if (snapType & ratss::ProjectSN::ST_JP) {
+	else if (snapType & ratss::ST_JP) {
 		out << "jacobi-perron";
 	}
-	else if (snapType & ratss::ProjectSN::ST_FPLLL) {
+	else if (snapType & ratss::ST_FPLLL) {
 		out << "LLL";
 	}
-	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_MAX_DENOM) {
+	else if (snapType & ratss::ST_AUTO_POLICY_MIN_MAX_DENOM) {
 		out << "minimize maximum denominator";
 	}
-	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_SUM_DENOM) {
+	else if (snapType & ratss::ST_AUTO_POLICY_MIN_SUM_DENOM) {
 		out << "minimize summed denominators";
 	}
-	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
+	else if (snapType & ratss::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
 		out << "minimize total number of limbs";
 	}
-	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
+	else if (snapType & ratss::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
 		out << "minimize squared distance to input point";
 	}
-	else if (snapType & ratss::ProjectSN::ST_AUTO_POLICY_MIN_MAX_NORM) {
+	else if (snapType & ratss::ST_AUTO_POLICY_MIN_MAX_NORM) {
 		out << "minimize maximum norm";
 	}
 	else {
 		out << "invalid";
 	}
 	out << '\n';
-	out << "Float conversion location: " << (snapType & ratss::ProjectSN::ST_SPHERE ? "sphere" : "plane") << '\n';
+	out << "Float conversion location: " << (snapType & ratss::ST_SPHERE ? "sphere" : "plane") << '\n';
 	out << "Normalize: " << (normalize ? "yes" : "no") << '\n';
 	out << "Input format: ";
 	if (inFormat == FloatPoint::FM_GEO) {
