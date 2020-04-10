@@ -552,9 +552,11 @@ Calc::snap(const mpq_class & v, int st, const mpq_class & eps) const {
 }
 
 std::size_t Calc::maxBitCount(const mpq_class &v) const {
-	std::size_t sizeNum = mpz_sizeinbase(v.get_num().get_mpz_t(), 2);
-	std::size_t sizeDenom = mpz_sizeinbase(v.get_den().get_mpz_t(), 2);
-	return std::max<std::size_t>(sizeNum, sizeDenom);
+	return std::max<std::size_t>(numBits(v.get_num()), numBits(v.get_den()));
+}
+
+std::size_t Calc::numBits(const mpz_class &v) const {
+	return mpz_sizeinbase(v.get_mpz_t(), 2);
 }
 
 }//end namespace

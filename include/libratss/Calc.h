@@ -93,6 +93,7 @@ public:
 	void toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
 public:
 	std::size_t maxBitCount(const mpq_class &v) const;
+	std::size_t numBits(const mpz_class &v) const;
 };
 
 }//end namespace LIB_RATSS_NAMESPACE
