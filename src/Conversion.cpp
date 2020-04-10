@@ -84,7 +84,7 @@ Conversion<mpq_class>::moveFrom(mpq_class && v) {
 }
 
 const mpq_class &
-Conversion<mpq_class>::toMpq(const Conversion<mpq_class>::type & v) {
+Conversion<mpq_class>::toMpq(const type & v) {
 	return v;
 }
 
