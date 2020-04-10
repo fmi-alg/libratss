@@ -19,6 +19,10 @@ void debug_print_mpz_class(const mpz_class & v) {
 	std::cerr << "value=" << v << " bits=" << LIB_RATSS_NAMESPACE::tests::numBits(v) << std::endl;
 }
 
+void debug_print_CORE_BigFloat(CORE::BigFloat const & v) {
+	std::cerr << "value=" << v << " m=" << mpz_class(v.m().get_mp()) << " exp=" << v.exp() << std::endl;
+}
+
 }
 
 
