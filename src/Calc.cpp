@@ -150,15 +150,21 @@ CORE::BigFloat Calc::toFixpoint(CORE::BigFloat const & v, int significands) cons
 	if (v*sign >= 1) {
 		throw std::runtime_error("Calc::toFixpoint: Conversion would result in infinite value, but BigFloat does not support it.");
 	}
+	else if (v == 0) {
+		return v;
+	}
 	//CORE1 BigFloat is different from mpfr
 	//Here the floating point is at the end of the mantissa m
 	//Hence in our case abs(exp) >= bits(m)
 	mpz_class m(v.m().get_mp());
 	m *= sign;
 	
-	//total number of bits is abs(exp)
+	//Exponents in BigFloat are a bit complicated
+	//The function BigFloat::exp() returns the number of chunk shifts
+	//So the real number is m()*B^exp() with B either 2^14 or 2^30
+	//However when setting a BigFloat then we have m*2^exp
 	long int mbits = this->numBits(m);
-	long int exp = v.exp();
+	long int exp = v.getRep().bits(v.exp());
 	
 	assert(exp <= 0);
 	assert(-exp >= mbits);
