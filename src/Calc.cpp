@@ -508,6 +508,11 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 }
 
 mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
+	if (v >= 1) {
+		mpfr::mpreal integerPart;
+		mpfr::mpreal fractionalPart = modf(v, integerPart);
+		return snap(fractionalPart, st, significands) + Conversion<mpfr::mpreal>::toMpq(integerPart);
+	}
 	if (st & ST_CF) {
 		if (v.getPrecision() < significands+2) {
 			throw std::domain_error(
