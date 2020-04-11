@@ -244,8 +244,13 @@ void CLS_TMPL_NAME::quadrantTest() {
 			for(std::size_t j(0); j < point.size(); ++j) {
 				using std::abs;
 				std::stringstream ss;
-				ss << errmsg << "; p[" << j << "]=" << point[j] << " : " << "bits(p[" << j << "])=" << numBits(point[j]) <<  " > " << std::size_t(2*bits+1);
-				CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j]) <= std::size_t(2*bits+1));
+				ss << errmsg << "; p[" << j << "]=" << point[j] << " : ";
+				ss << "bits(p[" << j << "])=" << numBits(point[j].get_num()) << "/" << numBits(point[j].get_den());
+				ss <<  " > " << std::size_t(2*bits+1) << "/" << std::size_t(2*bits+2);
+				 //algo guarantees num <= Q^2 with Q=2^bits -> num <= 2^(2*bits) -> we need 2*bits+1 bits to encode the number 2^(2*bits)
+				CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_num()) <= std::size_t(2*bits+1));
+				 //algo guarantees den <= 2*Q^2 with Q=2^bits -> num <= 2*2^(2*bits) -> we need 2*bits+2 bits to encode the number 2^(2*bits+1)
+				CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_den()) <= std::size_t(2*bits+2));
 				ss.str(errmsg);
 				mpq_class dist = abs(cartesians[i][j]-point[j]);
 				ss << ": " << "abs(p[" << j << "]=" << point[j] << " - real)=";
