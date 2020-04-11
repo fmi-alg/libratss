@@ -49,6 +49,9 @@ Conversion<mpfr::mpreal>::moveFrom(const mpq_class & v) {
 
 mpq_class
 Conversion<mpfr::mpreal>::toMpq(const type & v) {
+	if (!isfinite(v)) {
+		throw std::overflow_error("Conversion<mpfr::mpreal>: Cannot convert infinite value to rational");
+	}
 	mpf_class tmpf;
 	::mpfr_get_f(tmpf.get_mpf_t(), v.mpfr_srcptr(), MPFR_RNDZ);
 	
