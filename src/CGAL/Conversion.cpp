@@ -140,7 +140,9 @@ Conversion<CORE::BigFloat>::toMpq(const type & v) {
 mpfr::mpreal
 Conversion<CORE::BigFloat>::toMpreal(const type & v, int precision) {
 	mpfr::mpreal tmp(v.m().get_mp(), precision);
-	tmp.set_exp(tmp.get_exp() + v.exp());
+	//BigFloat has a different exponent style. See Core Library Tutorial page 25 or
+	//take a look at the ctor of BigFloatRep(BigInt, long) in BigFloatRep.h:281 (in CGAL 4.14)
+	tmp.set_exp(tmp.get_exp() + v.getRep().bits(v.exp()));
 	return tmp;
 }
 //END CORE::BigInt specilizations
