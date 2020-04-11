@@ -252,8 +252,9 @@ void CLS_TMPL_NAME::quadrantTest() {
 				 //algo guarantees den <= 2*Q^2 with Q=2^bits -> num <= 2*2^(2*bits) -> we need 2*bits+2 bits to encode the number 2^(2*bits+1)
 				CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_den()) <= std::size_t(2*bits+2));
 				ss.str(errmsg);
+				ss = std::stringstream();
 				mpq_class dist = abs(cartesians[i][j]-point[j]);
-				ss << ": " << "abs(p[" << j << "]=" << point[j] << " - real)=";
+				ss << errmsg << ": " << "abs(p[" << j << "]=" << point[j] << "~" << point[j].get_d() << " - real~" << cartesians[i][j].get_d() << ")=";
 				ss << dist << " > eps=";
 				ss << eps;
 				CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= eps);
