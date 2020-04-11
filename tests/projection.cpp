@@ -208,7 +208,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 		for(double lon(0); lon < 360; lon += 15) {
 			coords.emplace_back(lat, lon);
 			std::array<mpq_class, 3> cartesian;
-			p.projectFromGeo(coords.back().lat, coords.back().lon, cartesian[0], cartesian[1], cartesian[2], 512, ST_SPHERE | ST_FL | ST_NORMALIZE);
+			p.projectFromGeo(coords.back().lat, coords.back().lon, cartesian[0], cartesian[1], cartesian[2], 1024, ST_PLANE | ST_FL | ST_NORMALIZE);
 			cartesians.push_back(cartesian);
 		}
 	}
