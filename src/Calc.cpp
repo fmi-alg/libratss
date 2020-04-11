@@ -509,18 +509,7 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 
 mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 	if (st & ST_CF) {
-		if (significands < 0) {
-			mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
-			return contFrac(rat, significands);
-			mpz_class tmp(1);
-			tmp <<= v.getPrecision();
-			mpq_class eps = mpq_class(mpz_class(1), tmp)/2;
-			mpq_class lower = rat - eps;
-			mpq_class upper = rat + eps;
-			assert(within(rat, rat) == rat);
-			return within(lower, upper);
-		}
-		else if (v.getPrecision() < significands) {
+		if (v.getPrecision() < significands+2) {
 			throw std::domain_error(
 				"Calc::makeFixpoint: Number of signifcands is " +
 				std::to_string(significands) +
@@ -529,16 +518,7 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 			);
 		}
 		else {
-			mpq_class rat = Conversion<mpfr::mpreal>::toMpq(v);
-			return contFrac(rat, significands);
-			mpq_class precEps = 0; //mpq_class(mpz_class(1), rat.get_den());
-			mpz_class tmp(1);
-			tmp <<= significands;
-			mpq_class eps = mpq_class(mpz_class(1), tmp);
-// 			std::cerr << eps << std::endl;
-			mpq_class lower = rat - eps + precEps;
-			mpq_class upper = rat + eps - precEps;
-			return within(lower, upper);
+			return contFrac(snap(v, ST_FX, significands+2), significands+1);
 		}
 	}
 	else if (st & ST_FX) {

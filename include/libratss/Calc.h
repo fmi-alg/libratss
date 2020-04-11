@@ -93,6 +93,10 @@ public:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, mpq_class epsilon) const;
 	
+	///In the following v_real is the real unkown value of v and v is an approimation thereof
+	///For ST_CF this computes a snapped rational r with |r - v_real| <= 3/4*2^-significands and r.den <= 2^(significands+2)
+	///For ST_FX|ST_FL this computes a snapped rational r with |r - v_real| <= 2^-significands
+	///ST_FX also guarantees r.den <= 2^significands
 	mpq_class snap(const mpfr::mpreal & v, int st, int significands = -1) const;
 	mpq_class snap(const mpq_class & v, int st, int significands = -1) const;
 	mpq_class snap(const mpq_class & v, int st, const mpq_class & eps) const;
