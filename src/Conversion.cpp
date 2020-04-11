@@ -49,19 +49,10 @@ Conversion<mpfr::mpreal>::moveFrom(const mpq_class & v) {
 
 mpq_class
 Conversion<mpfr::mpreal>::toMpq(const type & v) {
-	mpf_t tmpf;
-	::mpf_init(tmpf);
-	::mpfr_get_f(tmpf, v.mpfr_srcptr(), ::mpfr_get_default_rounding_mode());
+	mpf_class tmpf;
+	::mpfr_get_f(tmpf.get_mpf_t(), v.mpfr_srcptr(), MPFR_RNDZ);
 	
-	mpq_t tmpq;
-	::mpq_init(tmpq);
-	::mpq_set_f(tmpq, tmpf);
-	
-	mpq_class result(tmpq);
-	
-	::mpf_clear(tmpf);
-	::mpq_clear(tmpq);
-
+	mpq_class result(tmpf);
 	return result;
 }
 
