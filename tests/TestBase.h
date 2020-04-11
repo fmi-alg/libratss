@@ -14,6 +14,7 @@ extern "C" {
 	void debug_print_mpreal(const mpfr::mpreal & v);
 	void debug_print_mpq_class(const mpq_class & v);
 	void debug_print_mpz_class(const mpz_class & v);
+	void debug_print_mpf_class(const mpf_class & v);
 	void debug_print_CORE_BigFloat(CORE::BigFloat const & v);
 }
 
