@@ -179,6 +179,8 @@ CORE::BigFloat Calc::toFixpoint(CORE::BigFloat const & v, int significands) cons
 	m >>= shiftBits;
 	exp += shiftBits;
 	
+	m *= sign;
+	
 	CORE::BigInt mc(m.get_mpz_t());
 	return CORE::BigFloat(mc, exp);
 }
