@@ -114,7 +114,7 @@ mpfr::mpreal Calc::toFixpoint(mpfr::mpreal const & v, int significands) const {
 	}
 
 	mpfr_exp_t exp = v.get_exp();
-	mpfr::mpreal result;
+	mpfr::mpreal result(0, significands);
 	
 	assert(exp <= 0);
 	if (-exp > significands) {
