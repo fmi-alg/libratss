@@ -219,12 +219,29 @@ void CLS_TMPL_NAME::quadrantTest() {
 		//points are not exactly on the sphere and we compare the result with an inexact computation
 		//We therefore have to leave some wiggle room (except in the paper snapping case
 		mpq_class eps;
+		std::size_t maxQ{0}; //number of bits the lcm of the denominators of coordinates in the plane, this is the Q in the paper
 		if (snapPosition == ST_PAPER) {
 			eps = mpq_class(mpz_class(1), mpz_class(1) << (bits-1));
 		}
 		else {
 			eps = mpq_class(mpz_class(1), mpz_class(1) << (bits-2));
 		}
+		//In the following eps=2^-significands
+		//For ST_CF|ST_FPLLL|ST_JP we need one bit more since we first have to compute a rational with at least eps/4 close to the correct one
+		//from there we compute a eps/2 approximation to that value thus guaranteeing a 3/4*eps apx
+		switch (snapType) {
+		case ST_CF:
+			maxQ = bits*point.size();
+			break;
+		case ST_FX:
+			maxQ = bits;
+			break;
+		case ST_FPLLL:
+		case ST_JP:
+			maxQ = bits+1;
+			break;
+		}
+
 		for(std::size_t i(0); i < coords.size(); ++i) {
 			const GeoCoord & coord  = coords[i];
 			std::stringstream ss;
@@ -244,14 +261,16 @@ void CLS_TMPL_NAME::quadrantTest() {
 			for(std::size_t j(0); j < point.size(); ++j) {
 				using std::abs;
 				std::stringstream ss;
-				ss << errmsg << "; p[" << j << "]=" << point[j] << " : ";
-				ss << "bits(p[" << j << "])=" << numBits(point[j].get_num()) << "/" << numBits(point[j].get_den());
-				ss <<  " > " << std::size_t(2*bits+1) << "/" << std::size_t(2*bits+2);
-				 //algo guarantees num <= Q^2 with Q=2^bits -> num <= 2^(2*bits) -> we need 2*bits+1 bits to encode the number 2^(2*bits)
-				CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_num()) <= std::size_t(2*bits+1));
-				 //algo guarantees den <= 2*Q^2 with Q=2^bits -> num <= 2*2^(2*bits) -> we need 2*bits+2 bits to encode the number 2^(2*bits+1)
-				CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_den()) <= std::size_t(2*bits+2));
-				ss.str(errmsg);
+				//ST_FL may result in bit sizes larger than the requested number of bits due to the exponent
+				if (snapType & (ST_CF | ST_FX | ST_FPLLL | ST_JP)) {
+					ss << errmsg << "; p[" << j << "]=" << point[j] << " : ";
+					ss << "bits(p[" << j << "])=" << numBits(point[j].get_num()) << "/" << numBits(point[j].get_den());
+					ss <<  " > " << std::size_t(2*bits+1) << "/" << std::size_t(2*bits+2);
+					//algo guarantees num <= Q^2 with Q=2^bits -> num <= 2^(2*bits) -> we need 2*bits+1 bits to encode the number 2^(2*bits)
+					CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_num()) <= std::size_t(2*maxQ+1));
+					//algo guarantees den <= 2*Q^2 with Q=2^bits -> num <= 2*2^(2*bits) -> we need 2*bits+2 bits to encode the number 2^(2*bits+1)
+					CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_den()) <= std::size_t(2*maxQ+2));
+				}
 				ss = std::stringstream();
 				mpq_class dist = abs(cartesians[i][j]-point[j]);
 				ss << errmsg << ": " << "abs(p[" << j << "]=" << point[j] << "~" << point[j].get_d() << " - real~" << cartesians[i][j].get_d() << ")=";
