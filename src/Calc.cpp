@@ -511,10 +511,10 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 	if (!isfinite(v)) {
 		throw std::runtime_error("Calc::snap: v=" + v.toString() + " is not finite");
 	}
-	if (v >= 1) {
+	if (abs(v) >= 1) {
 		mpfr::mpreal integerPart;
-		mpfr::mpreal fractionalPart = modf(v, integerPart);
-		return snap(fractionalPart, st, significands) + Conversion<mpfr::mpreal>::toMpq(integerPart);
+		mpfr::mpreal fractionalPart = modf(abs(v), integerPart);
+		return (v < 0 ? -1 : 1) * (snap(fractionalPart, st, significands) + Conversion<mpfr::mpreal>::toMpq(integerPart));
 	}
 	if (st & ST_CF) {
 		if (v.getPrecision() < significands+2) {
