@@ -227,8 +227,9 @@ void CLS_TMPL_NAME::quadrantTest() {
 			eps = mpq_class(mpz_class(1), mpz_class(1) << (bits-2));
 		}
 		//In the following eps=2^-significands
-		//For ST_CF|ST_FPLLL|ST_JP we need one bit more since we first have to compute a rational with at least eps/4 close to the correct one
+		//For ST_CF we need one bit more since we first have to compute a rational with at least eps/4 close to the correct one
 		//from there we compute a eps/2 approximation to that value thus guaranteeing a 3/4*eps apx
+		//For ST_JP we do the same but may not find a better sim-apx thus returning the eps/4 apx used with ST_FX thus 2 bits more
 		switch (snapType) {
 		case ST_CF:
 			maxQ = bits*point.size();
@@ -237,8 +238,9 @@ void CLS_TMPL_NAME::quadrantTest() {
 			maxQ = bits;
 			break;
 		case ST_FPLLL:
-		case ST_JP:
 			maxQ = bits+1;
+		case ST_JP:
+			maxQ = bits+2;
 			break;
 		}
 
