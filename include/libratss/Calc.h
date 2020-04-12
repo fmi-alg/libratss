@@ -411,10 +411,10 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		
 		tmp.reserve(numerators.size());
 		for(; begin != end; ++begin) {
-			tmp.emplace_back(Conversion<input_ft>::toMpq(*begin));
+			tmp.emplace_back( snap(*begin, ST_FX, significands+2) );
 		}
 		
-		lll(tmp.begin(), tmp.end(), numerators.begin(), common_denom, significands);
+		lll(tmp.begin(), tmp.end(), numerators.begin(), common_denom, significands+1);
 		for(const mpz_class & x : numerators) {
 			mpq_class pq(x, common_denom);
 			pq.canonicalize();
