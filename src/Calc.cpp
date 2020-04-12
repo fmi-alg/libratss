@@ -508,6 +508,9 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 }
 
 mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
+	if (!isfinite(v)) {
+		throw std::runtime_error("Calc::snap: v=" + v.toString() + " is not finite");
+	}
 	if (v >= 1) {
 		mpfr::mpreal integerPart;
 		mpfr::mpreal fractionalPart = modf(v, integerPart);
