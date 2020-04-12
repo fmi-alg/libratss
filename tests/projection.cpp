@@ -276,8 +276,8 @@ void CLS_TMPL_NAME::quadrantTest() {
 				ss = std::stringstream();
 				mpq_class dist = abs(cartesians[i][j]-point[j]);
 				ss << errmsg << ": " << "abs(p[" << j << "]=" << point[j] << "~" << point[j].get_d() << " - real~" << cartesians[i][j].get_d() << ")=";
-				ss << dist << " > eps=";
-				ss << eps;
+				ss << dist << "~" << dist.get_d() << " > eps=";
+				ss << eps << "~" << eps.get_d();
 				CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= eps);
 			}
 		}
