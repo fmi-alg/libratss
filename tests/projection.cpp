@@ -268,8 +268,17 @@ void CLS_TMPL_NAME::quadrantTest() {
 					ss << errmsg << "; p[" << j << "]=" << point[j] << " : ";
 					ss << "bits(p[" << j << "])=" << numBits(point[j].get_num()) << "/" << numBits(point[j].get_den());
 					ss <<  " > " << std::size_t(2*bits+1) << "/" << std::size_t(2*bits+2);
-					//algo guarantees num <= Q^2 with Q=2^bits -> num <= 2^(2*bits) -> we need 2*bits+1 bits to encode the number 2^(2*bits)
-					CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_num()) <= std::size_t(2*maxQ+1));
+					//algo guarantees
+					//num <= Q^2 for j = posOnSphere(...)
+					//num <= 2*Q^2 for j != posOnSphere(...)
+					//with Q=2^bits -> num <= 2^(2*bits) -> we need 2*bits+1 bits to encode the number 2^(2*bits)
+					auto pos = p.positionOnSphere(point.begin(), point.end()); //position on sphere is shifted by 1
+					if (abs(pos)-1 == j) {
+						CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_num()) <= std::size_t(2*maxQ+1));
+					}
+					else {
+						CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_num()) <= std::size_t(2*maxQ+2));
+					}
 					//algo guarantees den <= 2*Q^2 with Q=2^bits -> num <= 2*2^(2*bits) -> we need 2*bits+2 bits to encode the number 2^(2*bits+1)
 					CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_den()) <= std::size_t(2*maxQ+2));
 				}
