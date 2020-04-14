@@ -15,6 +15,7 @@ class ProjectS2: public ProjectSN {
 public:
 	using ProjectSN::sphere2Plane;
 	using ProjectSN::plane2Sphere;
+	using ProjectSN::positionOnSphere;
 	
 	template<typename T_FT>
 	PositionOnSphere positionOnSphere(const T_FT& xs, const T_FT& ys, const T_FT& zs) const;
