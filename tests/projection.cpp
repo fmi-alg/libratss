@@ -230,15 +230,25 @@ void CLS_TMPL_NAME::quadrantTest() {
 		//For ST_CF we need one bit more since we first have to compute a rational with at least eps/4 close to the correct one
 		//from there we compute a eps/2 approximation to that value thus guaranteeing a 3/4*eps apx
 		//For ST_JP we do the same but may not find a better sim-apx thus returning the eps/4 apx used with ST_FX thus 2 bits more
+		//
+		//In the following we have significands=n
+		//For ST_FX and ST_SPHERE we have as input to the projection
+		//x_i = p_i/2^n with the pole coordinate x_d = p_d/2^n
+		//In the plane we have
+		//y_i = x_i/(1-x_d) = (p_i/2^n)/(1-p_d/2^n) = (p_i/2^n)* 2^n/(2^n-p_d) = p_i/(2^n-p_d)
+		//Thus an lcm of (2^n-p_d)=Q thus Q<=2^(n+1) since p_d may be negative but abs(p_d) <= 2^n
 		switch (snapType) {
 		case ST_CF:
 			maxQ = bits*point.size();
 			break;
 		case ST_FX:
 			maxQ = bits;
+			if (snapPosition & ST_SPHERE) {
+				maxQ += 1;
+			}
 			break;
 		case ST_FPLLL:
-			maxQ = bits+1;
+			maxQ = bits+2;
 		case ST_JP:
 			maxQ = bits+2;
 			break;
