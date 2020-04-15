@@ -106,6 +106,13 @@ if (CGAL_FOUND)
 	)
 endif(CGAL_FOUND)
 
+if (FPLLL_FOUND)
+	set(LIB_SOURCES_CPP
+		${LIB_SOURCES_CPP}
+		src/SimApxLLL.cpp
+	)
+endif(FPLLL_FOUND)
+
 add_library(${PROJECT_NAME} STATIC
 	${LIB_SOURCES_CPP}
 )

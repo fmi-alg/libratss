@@ -7,7 +7,7 @@
 #include <libratss/Conversion.h>
 
 #ifdef LIB_RATSS_WITH_FPLLL
-	#include <fplll.h>
+	#include <libratss/SimApxLLL.h>
 #endif
 
 namespace LIB_RATSS_NAMESPACE {
@@ -159,6 +159,13 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, mpz_class & common_denom, mpq_class eps) const {
+#if 1
+	SimApxLLL<T_INPUT_ITERATOR> worker(begin, end, eps);
+	common_denom = worker.run(true);
+	for(auto it(worker.numerators_begin()); it != worker.numerators_end(); ++it, ++out) {
+		*out = std::move(*it);
+	}
+#else
 	using std::distance;
 	
 	using Matrix = fplll::ZZ_mat<mpz_t>;
@@ -354,6 +361,7 @@ void Calc::lll(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR o
 	else {
 		apply_common_denominator(begin, end, out, common_denom);
 	}
+#endif
 }
 #else
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
