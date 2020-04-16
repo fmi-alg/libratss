@@ -15,6 +15,7 @@ MACRO(ADD_TEST_TARGET_SINGLE _name)
 	add_executable("${PROJECT_NAME}_${_name}" "${_name}.cpp")
 	target_link_libraries("${PROJECT_NAME}_${_name}" ratsstests)
 	set(RATSSTESTS_ALL_TARGETS ${RATSSTESTS_ALL_TARGETS} "${PROJECT_NAME}_${_name}")
+	add_test(NAME "${PROJECT_NAME}_${_name}" COMMAND "${PROJECT_NAME}_${_name}")
 ENDMACRO(ADD_TEST_TARGET_SINGLE)
 
 #containers
