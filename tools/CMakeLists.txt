@@ -23,8 +23,11 @@ MACRO(ADD_TOOLS_TARGET _name _sourcefiles)
 ENDMACRO(ADD_TOOLS_TARGET)
 
 ADD_TOOLS_TARGET(proj proj.cpp)
-ADD_TOOLS_TARGET(ratapx ratapx.cpp)
 ADD_TOOLS_TARGET(rndpoints rndpoints.cpp)
 ADD_TOOLS_TARGET(snap_poles snap_poles.cpp)
+
+if (FPLLL_FOUND)
+	ADD_TOOLS_TARGET(ratapx ratapx.cpp)
+endif(FPLLL_FOUND)
 
 add_custom_target(${PROJECT_NAME}_all DEPENDS ${RATSSTOOLS_ALL_TARGETS})

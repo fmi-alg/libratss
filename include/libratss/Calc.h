@@ -210,24 +210,27 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		*out = output2;
 		++out;
 	}
-	else if (snapType & ST_FPLLL) {
-		using std::distance;
-		std::vector<mpq_class> tmp;
-		std::vector<mpz_class> numerators(distance(begin, end));
-		mpz_class common_denom;
-		
-		tmp.reserve(numerators.size());
-		for(; begin != end; ++begin) {
-			tmp.emplace_back( snap(*begin, ST_FX, significands+2) );
-		}
-		
-		lll(tmp.begin(), tmp.end(), numerators.begin(), common_denom, significands+1);
-		for(const mpz_class & x : numerators) {
-			mpq_class pq(x, common_denom);
-			pq.canonicalize();
-			*out = pq;
-			++out;
-		}
+	else if (snapType & (ST_FPLLL | ST_FPLLL_GREEDY)) {
+		#if defined(LIB_RATSS_WITH_FPLLL)
+			using std::distance;
+			std::vector<mpq_class> tmp;
+			
+			for(; begin != end; ++begin) {
+				tmp.emplace_back( snap(*begin, ST_FX, significands+2) );
+			}
+			
+			SimApxLLL<std::vector<mpq_class>::iterator> sapx(tmp.begin(), tmp.end(), significands+1);
+			sapx.run(snapType & ST_FPLLL_GREEDY);
+			
+			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it) {
+				mpq_class pq(*it, sapx.denominator());
+				pq.canonicalize();
+				*out = pq;
+				++out;
+			}
+		#else
+			throw std::runtime_error("libratss::Calc::toRational: libratss was built without support for fplll");
+		#endif
 	}
 	else {
 		std::transform(

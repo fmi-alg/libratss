@@ -40,7 +40,7 @@ else()
 	message(STATUS "Disabling support for CGAL")
 endif()
 
-if (PKGCONFIG_FOUND)
+if (PKGCONFIG_FOUND AND NOT LIBRATSS_DISABLE_FPLLL_SUPPORT)
 	pkg_search_module(FPLLL fplll)
 endif()
 
