@@ -139,6 +139,9 @@ Conversion<CORE::BigFloat>::toMpq(const type & v) {
 
 mpfr::mpreal
 Conversion<CORE::BigFloat>::toMpreal(const type & v, int precision) {
+	if (precision < 0) {
+		precision = mpz_sizeinbase(v.m().get_mp(), 2);
+	}
 	mpfr::mpreal tmp(v.m().get_mp(), precision);
 	//BigFloat has a different exponent style. See Core Library Tutorial page 25 or
 	//take a look at the ctor of BigFloatRep(BigInt, long) in BigFloatRep.h:281 (in CGAL 4.14)
@@ -203,7 +206,7 @@ Conversion<CORE::Real>::toMpq(const type & v, int precision) {
 		return mpq_class( Conversion<CORE::BigRat>::toMpq(v.BigRatValue()) );
 	}
 	else {
-		return Conversion<CORE::Real>::toMpq(v.approx(precision, precision), -1);
+		return toMpq(v.approx(precision, precision), -1);
 	}
 }
 
@@ -213,7 +216,7 @@ Conversion<CORE::Real>::toMpreal(const type & v, int precision) {
 		return Conversion<CORE::BigFloat>::toMpreal(v.BigFloatValue(), precision);
 	}
 	else {
-		return Conversion<CORE::BigFloat>::toMpreal(v.approx(precision, precision).BigFloatValue(), -1);
+		return Conversion<CORE::BigFloat>::toMpreal(v.approx(precision, precision).BigFloatValue(), precision);
 	}
 }
 //END CORE::Real specilizations
