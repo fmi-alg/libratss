@@ -129,6 +129,9 @@ std::string ec2Str(int significand, int st) {
 	else if (st & ST_FPLLL) {
 		ret = "lll";
 	}
+	else if (st & ST_FPLLL_GREEDY) {
+		ret = "lll-greedy";
+	}
 	else {
 		throw std::runtime_error("Invalid EntryConfig");
 	}
@@ -224,6 +227,7 @@ int main(int argc, char ** argv) {
 			ST_CF,
 			ST_JP,
 			ST_FPLLL,
+			ST_FPLLL_GREEDY,
 			ST_AUTO_ALL|ST_AUTO_POLICY_MIN_MAX_DENOM,
 			ST_AUTO_ALL|ST_AUTO_POLICY_MIN_TOTAL_LIMBS,
 			ST_AUTO_ALL|ST_AUTO_POLICY_MIN_SUM_DENOM,
@@ -236,6 +240,7 @@ int main(int argc, char ** argv) {
 			ST_FX,
 			ST_CF,
 			ST_FPLLL,
+			ST_FPLLL_GREEDY,
 // 			(ST_AUTO_ALL|ST_AUTO_POLICY_MIN_MAX_DENOM) - ST_AUTO_JP,
 // 			(ST_AUTO_ALL|ST_AUTO_POLICY_MIN_TOTAL_LIMBS) - ST_AUTO_JP,
 // 			(ST_AUTO_ALL|ST_AUTO_POLICY_MIN_SUM_DENOM) - ST_AUTO_JP,

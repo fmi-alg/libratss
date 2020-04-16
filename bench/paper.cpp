@@ -48,13 +48,16 @@ std::string ec2Str(const EntryConfig & ec) {
 	else if (ec.first & ST_FPLLL) {
 		ret = "lll";
 	}
+	else if (ec.first & ST_FPLLL_GREEDY) {
+		ret = "lll-greedy";
+	}
 	else {
 		throw std::runtime_error("Invalid EntryConfig");
 	}
 	return ret + ":" + std::to_string(ec.second);
 }
 
-constexpr std::size_t num_entries = 20;
+constexpr std::size_t num_entries = 24;
 
 std::array<EntryConfig, num_entries> entryConfigs{{
 // 	EntryConfig(ST_FX | ST_PLANE, 4),
@@ -91,6 +94,11 @@ std::array<EntryConfig, num_entries> entryConfigs{{
 	EntryConfig(ST_FPLLL | ST_PLANE, 12),
 	EntryConfig(ST_FPLLL | ST_PLANE, 20),
 	EntryConfig(ST_FPLLL | ST_PLANE, 30),
+	
+	EntryConfig(ST_FPLLL_GREEDY | ST_PLANE, 4),
+	EntryConfig(ST_FPLLL_GREEDY | ST_PLANE, 12),
+	EntryConfig(ST_FPLLL_GREEDY | ST_PLANE, 20),
+	EntryConfig(ST_FPLLL_GREEDY | ST_PLANE, 30),
 	
 	EntryConfig(ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ST_PLANE, 4),
 	EntryConfig(ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS | ST_PLANE, 12),
