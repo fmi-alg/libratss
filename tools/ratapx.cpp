@@ -2,6 +2,7 @@
 #include <libratss/util/BasicCmdLineOptions.h>
 #include <libratss/util/InputOutputPoints.h>
 #include <libratss/util/InputOutput.h>
+#include <libratss/SimApxLLL.h>
 
 #include "../common/stats.h"
 #include <fstream>
@@ -99,10 +100,12 @@ int main(int argc, char ** argv) {
 		op.resize(ip.coords.size());
 		
 		if (cfg.snapType & (ST_FPLLL | ST_FPLLL_GREEDY) && cfg.epsilon > 0) {
-			mpz_class common_denom;
-			proj.calc().lll(ip.coords.begin(), ip.coords.end(), op.coords.begin(), common_denom, cfg.epsilon);
-			for(auto & x: op.coords) {
-				x /= common_denom;
+			SimApxLLL<RationalPoint::const_iterator> sapx(ip.coords.begin(), ip.coords.end(), cfg.epsilon);
+			mpz_class common_denom = sapx.run(cfg.snapType & ST_FPLLL_GREEDY);
+			auto oit = op.coords.begin();
+			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it, ++oit) {
+				*oit = mpq_class(*it, common_denom);
+				oit->canonicalize();
 			}
 		}
 		else {
