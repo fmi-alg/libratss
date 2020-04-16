@@ -28,92 +28,6 @@ public:
 	void quadrantTest();
 };
 
-}} // end namespace ratss::tests
-
-int main(int argc, char ** argv) {
-	using namespace LIB_RATSS_NAMESPACE;
-	using namespace LIB_RATSS_NAMESPACE::tests;
-	TestBase::init(argc, argv);
-	srand( 0 );
-	
-	uint32_t numThreads = 1;
-	for(int i(1); i < argc; ++i) {
-		std::string token(argv[i]);
-		if (token == "--threads" && i+1 < argc) {
-			numThreads = std::atoi(argv[i+1]);
-			++i;
-		}
-		else if (token == "--help" || token == "-h") {
-			std::cerr << "prg [--threads <number>]" << std::endl;
-			return 0;
-		}
-	}
-	std::vector<std::unique_ptr<CppUnit::TextUi::TestRunner>> runners;
-
-#define TEST_INSTANCE(__SNAP_POSITION, __SNAP_TYPE) \
-	do { \
-		runners.push_back(std::make_unique<CppUnit::TextUi::TestRunner>()); \
-		runners.back()->addTest(  ProjectionTest<__SNAP_POSITION, __SNAP_TYPE>::suite() ); \
-	} while (0);
-	
-	TEST_INSTANCE(ST_PLANE, ST_CF);
-	TEST_INSTANCE(ST_PLANE, ST_FX);
-	TEST_INSTANCE(ST_PLANE, ST_FL);
-	TEST_INSTANCE(ST_PLANE, ST_JP);
-	
-	TEST_INSTANCE(ST_SPHERE, ST_CF);
-	TEST_INSTANCE(ST_SPHERE, ST_FL);
-	TEST_INSTANCE(ST_SPHERE, ST_FX);
-	
-#if defined(LIB_RATSS_WITH_CGAL)
-	TEST_INSTANCE(ST_PAPER, ST_CF);
-	TEST_INSTANCE(ST_PAPER, ST_FX);
-	TEST_INSTANCE(ST_PAPER, ST_JP);
-#endif
-
-#if defined(LIB_RATSS_WITH_FPLLL)
-	TEST_INSTANCE(ST_PLANE, ST_FPLLL);
-	TEST_INSTANCE(ST_SPHERE, ST_FPLLL);
-	TEST_INSTANCE(ST_PLANE, ST_FPLLL_GREEDY);
-	TEST_INSTANCE(ST_SPHERE, ST_FPLLL_GREEDY);
-#endif
-	
-#if defined(LIB_RATSS_WITH_CGAL) and defined(LIB_RATSS_WITH_FPLLL)
-	TEST_INSTANCE(ST_PAPER, ST_FPLLL);
-	TEST_INSTANCE(ST_PAPER, ST_FPLLL_GREEDY);
-#endif
-	
-#undef TEST_INSTANCE
-	
-	std::vector<std::thread> threads;
-	std::atomic<std::size_t> runnerId{0};
-	std::atomic<bool> ok{true};
-	for(std::size_t i(0); i < numThreads; ++i) {
-		threads.emplace_back([&]() {
-			while(true) {
-				std::size_t i = runnerId.fetch_add(1, std::memory_order_relaxed);
-				if (i < runners.size()) {
-					if (!runners[i]->run()) {
-						ok = false;
-					}
-				}
-				else {
-					break;
-				}
-			}
-		});
-	}
-	
-	for(auto & x : threads) {
-		x.join();
-	}
-	
-	return ok ? 0 : 1;
-}
-
-namespace LIB_RATSS_NAMESPACE {
-namespace tests {
-	
 
 CLS_TMPL_DECL
 void CLS_TMPL_NAME::fixPointRandom() {
@@ -217,7 +131,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 	}
 	
 	std::array<mpq_class, 3> point;
-
+	
 	for(int bits(32); bits < 128; bits += 16) {
 		mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << bits);
 		std::size_t maxQ{0}; //number of bits the lcm of the denominators of coordinates in the plane, this is the Q in the paper
@@ -302,7 +216,88 @@ void CLS_TMPL_NAME::quadrantTest() {
 	}
 }
 
-}} //end namespace LIB_RATSS_NAMESPACE::tests
-
 #undef CLS_TMPL_DECL
 #undef CLS_TMPL_NAME
+
+}} // end namespace ratss::tests
+
+int main(int argc, char ** argv) {
+	using namespace LIB_RATSS_NAMESPACE;
+	using namespace LIB_RATSS_NAMESPACE::tests;
+	TestBase::init(argc, argv);
+	srand( 0 );
+	
+	uint32_t numThreads = 1;
+	for(int i(1); i < argc; ++i) {
+		std::string token(argv[i]);
+		if (token == "--threads" && i+1 < argc) {
+			numThreads = std::atoi(argv[i+1]);
+			++i;
+		}
+		else if (token == "--help" || token == "-h") {
+			std::cerr << "prg [--threads <number>]" << std::endl;
+			return 0;
+		}
+	}
+	std::vector<std::unique_ptr<CppUnit::TextUi::TestRunner>> runners;
+
+#define TEST_INSTANCE(__SNAP_POSITION, __SNAP_TYPE) \
+	do { \
+		runners.push_back(std::make_unique<CppUnit::TextUi::TestRunner>()); \
+		runners.back()->addTest(  ProjectionTest<__SNAP_POSITION, __SNAP_TYPE>::suite() ); \
+	} while (0);
+	
+	TEST_INSTANCE(ST_PLANE, ST_CF);
+	TEST_INSTANCE(ST_PLANE, ST_FX);
+	TEST_INSTANCE(ST_PLANE, ST_FL);
+	TEST_INSTANCE(ST_PLANE, ST_JP);
+	
+	TEST_INSTANCE(ST_SPHERE, ST_CF);
+	TEST_INSTANCE(ST_SPHERE, ST_FL);
+	TEST_INSTANCE(ST_SPHERE, ST_FX);
+	
+#if defined(LIB_RATSS_WITH_CGAL)
+	TEST_INSTANCE(ST_PAPER, ST_CF);
+	TEST_INSTANCE(ST_PAPER, ST_FX);
+	TEST_INSTANCE(ST_PAPER, ST_JP);
+#endif
+
+#if defined(LIB_RATSS_WITH_FPLLL)
+	TEST_INSTANCE(ST_PLANE, ST_FPLLL);
+	TEST_INSTANCE(ST_SPHERE, ST_FPLLL);
+	TEST_INSTANCE(ST_PLANE, ST_FPLLL_GREEDY);
+	TEST_INSTANCE(ST_SPHERE, ST_FPLLL_GREEDY);
+#endif
+	
+#if defined(LIB_RATSS_WITH_CGAL) and defined(LIB_RATSS_WITH_FPLLL)
+	TEST_INSTANCE(ST_PAPER, ST_FPLLL);
+	TEST_INSTANCE(ST_PAPER, ST_FPLLL_GREEDY);
+#endif
+	
+#undef TEST_INSTANCE
+	
+	std::vector<std::thread> threads;
+	std::atomic<std::size_t> runnerId{0};
+	std::atomic<bool> ok{true};
+	for(std::size_t i(0); i < numThreads; ++i) {
+		threads.emplace_back([&]() {
+			while(true) {
+				std::size_t i = runnerId.fetch_add(1, std::memory_order_relaxed);
+				if (i < runners.size()) {
+					if (!runners[i]->run()) {
+						ok = false;
+					}
+				}
+				else {
+					break;
+				}
+			}
+		});
+	}
+	
+	for(auto & x : threads) {
+		x.join();
+	}
+	
+	return ok ? 0 : 1;
+}
