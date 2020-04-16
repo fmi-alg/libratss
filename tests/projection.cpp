@@ -234,6 +234,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 		//Thus an lcm of (2^n-p_d)=Q thus Q<=2^(n+1) since p_d may be negative but abs(p_d) <= 2^n
 		switch (snapType) {
 		case ST_CF:
+		case ST_FPLLL:
 			maxQ = bits*point.size();
 			break;
 		case ST_FX:
@@ -242,7 +243,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 				maxQ += 1;
 			}
 			break;
-		case ST_FPLLL:
+		case ST_FPLLL_GREEDY:
 			maxQ = bits+2;
 		case ST_JP:
 			maxQ = bits+2;
@@ -269,7 +270,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 				using std::abs;
 				std::stringstream ss;
 				//ST_FL may result in bit sizes larger than the requested number of bits due to the exponent
-				if (snapType & (ST_CF | ST_FX | ST_FPLLL | ST_JP)) {
+				if (snapType & (ST_CF | ST_FX | ST_FPLLL | ST_FPLLL_GREEDY | ST_JP)) {
 					ss << errmsg << "; p[" << j << "]=" << point[j] << " : ";
 					ss << "bits(p[" << j << "])=" << numBits(point[j].get_num()) << "/" << numBits(point[j].get_den());
 					ss <<  " > " << std::size_t(2*bits+1) << "/" << std::size_t(2*bits+2);
