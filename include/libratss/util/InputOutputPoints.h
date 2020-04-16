@@ -41,6 +41,8 @@ struct FloatPoint: PointBase {
 std::ostream & operator<<(std::ostream & out, const FloatPoint & src);
 
 struct RationalPoint: PointBase {
+	using iterator = std::vector<mpq_class>::iterator;
+	using const_iterator = std::vector<mpq_class>::const_iterator;
 	GeoCalc c;
 	std::vector<mpq_class> coords;
 	RationalPoint();
