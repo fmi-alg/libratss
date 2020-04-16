@@ -272,6 +272,16 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 		utmp = 1 / utmp;
 	}
 	mpq_class result = fromRegContFrac(cf);
+	
+	//make sure that we always return the smallest possible denominator
+	if (result == lower || result == upper) {
+		if (lower.get_den() <= upper.get_den()) {
+			result = lower;
+		}
+		else {
+			result = upper;
+		}
+	}
 	assert(result <= 1 || result >= -1);
 	assert(result >= lower);
 	assert(result <= upper);
