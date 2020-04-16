@@ -219,16 +219,8 @@ void CLS_TMPL_NAME::quadrantTest() {
 	std::array<mpq_class, 3> point;
 
 	for(int bits(32); bits < 128; bits += 16) {
-		//points are not exactly on the sphere and we compare the result with an inexact computation
-		//We therefore have to leave some wiggle room (except in the paper snapping case
-		mpq_class eps;
+		mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << bits);
 		std::size_t maxQ{0}; //number of bits the lcm of the denominators of coordinates in the plane, this is the Q in the paper
-		if (snapPosition == ST_PAPER) {
-			eps = mpq_class(mpz_class(1), mpz_class(1) << (bits-1));
-		}
-		else {
-			eps = mpq_class(mpz_class(1), mpz_class(1) << (bits-2));
-		}
 		//In the following eps=2^-significands
 		//For ST_CF we need one bit more since we first have to compute a rational with at least eps/4 close to the correct one
 		//from there we compute a eps/2 approximation to that value thus guaranteeing a 3/4*eps apx
@@ -297,10 +289,13 @@ void CLS_TMPL_NAME::quadrantTest() {
 				}
 				ss = std::stringstream();
 				mpq_class dist = abs(cartesians[i][j]-point[j]);
+				mpq_class distInEps = dist/eps;
 				ss << errmsg << ": " << "abs(p[" << j << "]=" << point[j] << "~" << point[j].get_d() << " - real~" << cartesians[i][j].get_d() << ")=";
-				ss << dist << "~" << dist.get_d() << " > eps=";
+				ss << dist << "~" << dist.get_d() << "~" << distInEps.get_d() << "[eps] > eps=";
 				ss << eps << "~" << eps.get_d();
-				CPPUNIT_ASSERT_MESSAGE(ss.str(), dist <= eps);
+				//points are not exactly on the sphere and we compare the result with an inexact computation
+				//We therefore have to leave some wiggle room (except in the paper snapping case
+				CPPUNIT_ASSERT_MESSAGE(ss.str(), mpq_class(dist/eps).get_d() <= 2.01);
 			}
 		}
 	}
