@@ -226,7 +226,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		
 		auto pos = this->sphere2Plane(ptc.begin(), ptc.end(), ptc.begin());
 		
-		if (snapType & (ST_JP | ST_FPLLL | ST_CF)) {
+		if (snapType & (ST_JP | ST_FPLLL | ST_FPLLL_GREEDY | ST_CF)) {
 			std::vector<mpq_class> apx_plane;
 			apx_plane.reserve(dims);
 			for(auto const & x : ptc) {
@@ -361,7 +361,7 @@ template<typename GRADE_TYPE, int POLICY>
 template<typename T_ITERATOR>
 int
 ProjectSN::StOptimizer<GRADE_TYPE, POLICY>::best(const T_ITERATOR & begin, const T_ITERATOR & end) const {
-	constexpr std::array<int, ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES> snappingType = {{ST_FL, ST_FX, ST_CF, ST_JP, ST_FPLLL}};
+	constexpr std::array<int, ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES> snappingType = {{ST_FL, ST_FX, ST_CF, ST_JP, ST_FPLLL, ST_FPLLL_GREEDY}};
 	std::vector<mpq_class> tmp(dims);
 	GRADE_TYPE bestGrade = GRADE_TYPE(std::numeric_limits<std::size_t>::max());
 	int bestType = ST_FX;

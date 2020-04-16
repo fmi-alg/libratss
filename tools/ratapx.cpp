@@ -98,7 +98,7 @@ int main(int argc, char ** argv) {
 		op.clear();
 		op.resize(ip.coords.size());
 		
-		if (cfg.snapType & ST_FPLLL && cfg.epsilon > 0) {
+		if (cfg.snapType & (ST_FPLLL | ST_FPLLL_GREEDY) && cfg.epsilon > 0) {
 			mpz_class common_denom;
 			proj.calc().lll(ip.coords.begin(), ip.coords.end(), op.coords.begin(), common_denom, cfg.epsilon);
 			for(auto & x: op.coords) {
