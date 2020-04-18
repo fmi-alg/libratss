@@ -76,6 +76,10 @@ struct Conversion<mpz_class> {
 	#include <libratss/CGAL/Conversion.h>
 #endif
 
+#if defined(LIBRATSS_WITH_CORE_TWO)
+	#include <libratss/core2/Conversion.h>
+#endif
+
 namespace LIB_RATSS_NAMESPACE {
 
 // template<typename T_TARGET, typename T_SOURCE>
