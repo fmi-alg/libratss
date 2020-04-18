@@ -28,10 +28,11 @@ typedef enum : int {
 	ST_SPHERE=0x1, //snap point on sphere
 	ST_PLANE=ST_SPHERE*2, //snap point on plane
 	ST_PAPER=ST_PLANE*2, //snap point on the plane based on a normalized version of the input point, computed using CORE
+	ST_PAPER2=ST_PAPER*2, //snap point on the plane based on a normalized version of the input point, computed using CORE2
 	
-	ST_SNAP_POSITION_MASK=ST_SPHERE|ST_PLANE|ST_PAPER,
+	ST_SNAP_POSITION_MASK=ST_SPHERE|ST_PLANE|ST_PAPER|ST_PAPER2,
 	
-	ST_CF=ST_PAPER*2, //snap by continous fraction, compatible with values defined in Calc
+	ST_CF=ST_PAPER2*2, //snap by continous fraction, compatible with values defined in Calc
 	ST_FX=ST_CF*2, //snap by fix point
 	ST_FL=ST_FX*2, //snap by floating point
 	ST_JP=ST_FL*2, // jacobi perron

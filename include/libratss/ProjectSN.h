@@ -262,6 +262,63 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		throw std::runtime_error("libratss was built without CGAL support");
 #endif
 	}
+	if (snapType & ST_PAPER2) {
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+		std::vector<CORE_TWO::Expr> ptc(dims);
+		std::vector<mpq_class> pt_snap_plane(dims);
+		
+		std::transform(begin, end, ptc.begin(), [](auto x) -> CORE_TWO::Expr { return convert<CORE_TWO::Expr>(x); });
+		
+		//normalize input
+		{
+			CORE_TWO::Expr len{0};
+			for(auto & x : ptc) {
+				len += x*x;
+			}
+			len = sqrt(len);
+			for(auto & x : ptc) {
+				x /= len;
+			}
+		}
+		
+		auto pos = this->sphere2Plane(ptc.begin(), ptc.end(), ptc.begin());
+		
+		if (snapType & (ST_JP | ST_FPLLL | ST_FPLLL_GREEDY | ST_CF)) {
+			std::vector<mpq_class> apx_plane;
+			apx_plane.reserve(dims);
+			for(auto const & x : ptc) {
+				apx_plane.emplace_back( convert<mpq_class>( x.approx(significands+2, significands+2) ) );
+			}
+			if (snapType & ST_JP) {
+				int skipDim = std::abs(pos);
+				using SkipInputIterator = internal::SkipIterator<typename std::vector<mpq_class>::const_iterator>;
+				using SkipOutputIterator = internal::SkipIterator<std::vector<mpq_class>::iterator>;
+				calc().toRational(
+					SkipInputIterator(apx_plane.cbegin(), skipDim),
+					SkipInputIterator(apx_plane.cend(), 0),
+					SkipOutputIterator(pt_snap_plane.begin(), skipDim),
+					snapType, significands);
+			}
+			else {
+				calc().toRational(apx_plane.cbegin(), apx_plane.cend(), pt_snap_plane.begin(), snapType, significands);
+			}
+		}
+		else if (snapType & ST_FX) {
+			for(std::size_t i(0); i < dims; ++i) {
+				CORE_TWO::BigFloat fv = ptc[i].approx(significands+1, significands+1).BigFloatValue();
+				fv = calc().toFixpoint(fv, significands);
+				pt_snap_plane[i] = Conversion<CORE_TWO::BigFloat>::toMpq(fv);
+			}
+		}
+		else {
+			throw std::runtime_error("ProjectSN::snap: snapType ST_PAPER2 is incompatible with ST_FL");
+		}
+
+		this->plane2Sphere(pt_snap_plane.begin(), pt_snap_plane.end(), pos, out);
+#else
+		throw std::runtime_error("libratss was built without CORE2 support");
+#endif
+	}
 	else {
 		if (snapType & ST_NORMALIZE) {
 			std::vector<input_ft> normalized(dims);

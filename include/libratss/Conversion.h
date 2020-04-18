@@ -76,7 +76,7 @@ struct Conversion<mpz_class> {
 	#include <libratss/CGAL/Conversion.h>
 #endif
 
-#if defined(LIBRATSS_WITH_CORE_TWO)
+#if defined(LIB_RATSS_WITH_CORE_TWO)
 	#include <libratss/core2/Conversion.h>
 #endif
 
