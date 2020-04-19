@@ -47,7 +47,7 @@ void CLS_TMPL_NAME::fixPointRandom() {
 	for(uint32_t prec(16); prec < 128; prec += 16) {
 		for(const SphericalCoord & coord : coords) {
 			mpq_class x,y,z;
-			p.projectFromSpherical(coord.theta, coord.phi, x, y, z, int(prec), snapPosition | snapType);
+			p.projectFromSpherical(mpfr::mpreal(coord.theta), mpfr::mpreal(coord.phi), x, y, z, int(prec), snapPosition | snapType);
 			std::stringstream ss;
 			ss << "Point " << to_string(coord) << " does not project on sphere for precision=" << prec;
 			mpq_class sqlen = x*x+y*y+z*z;
@@ -57,7 +57,7 @@ void CLS_TMPL_NAME::fixPointRandom() {
 	
 	for(const SphericalCoord & coord : coords) {
 		mpq_class x,y,z;
-		p.projectFromSpherical(coord.theta, coord.phi, x, y, z, int(128), snapPosition | snapType);
+		p.projectFromSpherical(mpfr::mpreal(coord.theta), mpfr::mpreal(coord.phi), x, y, z, int(128), snapPosition | snapType);
 		std::stringstream ss;
 		ss << "Point " << to_string(coord) << " does not project on sphere for precision=" << 128;
 		mpq_class sqlen = x*x+y*y+z*z;
@@ -100,7 +100,7 @@ void CLS_TMPL_NAME::bijectionSpecial() {
 		
 		proc.calc().cartesian(ilatf, ilonf, xf, yf, zf);
 		proc.calc().geo(xf, yf, zf, latf, lonf);
-		proc.projectFromGeo(lat, lon, xs, ys, zs, 128, snapPosition | snapType);
+		proc.projectFromGeo(mpfr::mpreal(lat), mpfr::mpreal(lon), xs, ys, zs, 128, snapPosition | snapType);
 		proc.toGeo(xs, ys, zs, latOut, lonOut, 128);
 
 		double xfd(xf.toDouble());
@@ -125,7 +125,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 		for(double lon(0); lon < 360; lon += 15) {
 			coords.emplace_back(lat, lon);
 			std::array<mpq_class, 3> cartesian;
-			p.projectFromGeo(coords.back().lat, coords.back().lon, cartesian[0], cartesian[1], cartesian[2], 1024, ST_PLANE | ST_FL | ST_NORMALIZE);
+			p.projectFromGeo(mpfr::mpreal(coords.back().lat), mpfr::mpreal(coords.back().lon), cartesian[0], cartesian[1], cartesian[2], 1024, ST_PLANE | ST_FL | ST_NORMALIZE);
 			cartesians.push_back(cartesian);
 		}
 	}
@@ -174,7 +174,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 			std::string errmsg = ss.str();
 			CPPUNIT_ASSERT_NO_THROW_MESSAGE(
 				errmsg,
-				p.projectFromGeo(coord.lat, coord.lon, point[0], point[1], point[2], bits, snapType | snapPosition | ST_NORMALIZE)
+				p.projectFromGeo(mpfr::mpreal(coord.lat), mpfr::mpreal(coord.lon), point[0], point[1], point[2], bits, snapType | snapPosition | ST_NORMALIZE)
 			);
 			
 			mpq_class sqlen = point[0]*point[0] + point[1]*point[1] + point[2]*point[2];

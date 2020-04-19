@@ -286,7 +286,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		if (snapType & (ST_JP | ST_FPLLL | ST_FPLLL_GREEDY | ST_CF)) {
 			std::vector<mpq_class> apx_plane;
 			apx_plane.reserve(dims);
-			for(auto const & x : ptc) {
+			for(auto & x : ptc) {
 				apx_plane.emplace_back( convert<mpq_class>( x.approx(significands+2, significands+2) ) );
 			}
 			if (snapType & ST_JP) {
@@ -305,7 +305,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		}
 		else if (snapType & ST_FX) {
 			for(std::size_t i(0); i < dims; ++i) {
-				CORE_TWO::BigFloat fv = ptc[i].approx(significands+1, significands+1).BigFloatValue();
+				CORE_TWO::BigFloat fv = ptc[i].approx(significands+1, significands+1);
 				fv = calc().toFixpoint(fv, significands);
 				pt_snap_plane[i] = Conversion<CORE_TWO::BigFloat>::toMpq(fv);
 			}

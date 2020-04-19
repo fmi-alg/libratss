@@ -66,6 +66,38 @@ void GeoCalc::cartesianFromSpherical(const mpfr::mpreal & theta, const mpfr::mpr
 	z = cos(theta);
 }
 
+
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+
+//ADL chooses Calc::sin which is not available for CORE_TWO::Expr
+namespace {
+	CORE_TWO::Expr core2_sin(CORE_TWO::Expr const & v) {
+		return sin(v);
+	}
+	CORE_TWO::Expr core2_cos(CORE_TWO::Expr const & v) {
+		return sin(v);
+	}
+}
+void GeoCalc::cartesian(CORE_TWO::Expr const & lat, CORE_TWO::Expr const & lon, CORE_TWO::Expr & x, CORE_TWO::Expr & y, CORE_TWO::Expr & z) const {
+	CORE_TWO::Expr pi = CORE_TWO::pi();
+	
+	CORE_TWO::Expr lat_rad = lat/180 * pi;
+	CORE_TWO::Expr lon_rad = lon/180 * pi;
+	
+	x = core2_cos(lon_rad) * core2_cos(lat_rad);
+	y = core2_sin(lon_rad) * core2_cos(lat_rad);
+	z = core2_sin(lat_rad);
+}
+
+void GeoCalc::cartesianFromSpherical(CORE_TWO::Expr const & theta, CORE_TWO::Expr const & phi, CORE_TWO::Expr & x, CORE_TWO::Expr & y, CORE_TWO::Expr & z) const {
+	CORE_TWO::Expr sinTheta = core2_sin(theta);
+	x = sinTheta * core2_cos(phi);
+	y = sinTheta * core2_sin (phi);
+	z = core2_cos(theta);
+}
+
+#endif
+
 void GeoCalc::spherical(const mpfr::mpreal& x, const mpfr::mpreal& y, const mpfr::mpreal& z, mpfr::mpreal& theta, mpfr::mpreal& phi) const {
 	theta = acos(z);
 	phi = atan(div(y, x));

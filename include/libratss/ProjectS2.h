@@ -57,6 +57,13 @@ public:
 	void toSpherical(const T_FT & xs, const T_FT & ys, const T_FT & zs, double & theta, double & phi, int precision) const;
 	
 public:
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+	template<typename T_FT>
+	void projectFromGeo(CORE_TWO::Expr const & lat, CORE_TWO::Expr const & lon, T_FT & x, T_FT & y, T_FT & z, int precision, int snapType) const;
+	template<typename T_FT>
+	void projectFromSpherical(CORE_TWO::Expr const & theta, CORE_TWO::Expr const & phi, T_FT & x, T_FT & y, T_FT & z, int precision, int snapType) const;
+#endif
+public:
 	inline const GeoCalc & calc() const { return m_calc; }
 private:
 	GeoCalc m_calc;
@@ -281,6 +288,50 @@ void ProjectS2::toGeo(const T_FT & xs, const T_FT & ys, const T_FT & zs, double 
 	lat = latf.toDouble();
 	lon = lonf.toDouble();
 }
+
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+template<typename T_FT>
+void ProjectS2::projectFromGeo(CORE_TWO::Expr const & lat, CORE_TWO::Expr const & lon, T_FT & x, T_FT & y, T_FT & z, int precision, int snapType) const {
+	if (precision < 2) {
+		throw std::runtime_error("ProjectS2::projectFromGeo: precision has to be larger than 1");
+	}
+	snapType &= ~ST_SNAP_POSITION_MASK;
+	snapType |= ST_PAPER2;
+
+	std::array<CORE_TWO::Expr, 3> cartesian;
+	std::array<mpq_class, 3> snapped;
+
+	//clip to 3D and snap to sphere
+	m_calc.cartesian(lat, lon, cartesian[0], cartesian[1], cartesian[2]);
+	ProjectSN::snap(cartesian.begin(), cartesian.end(), snapped.begin(), precision, snapType);
+	
+	x = Conversion<T_FT>::moveFrom( std::move(snapped[0]) );
+	y = Conversion<T_FT>::moveFrom( std::move(snapped[1]) );
+	z = Conversion<T_FT>::moveFrom( std::move(snapped[2]) );
+	
+	assert(!(lat > 0) || z >= 0);
+}
+
+template<typename T_FT>
+void ProjectS2::projectFromSpherical(CORE_TWO::Expr const & theta, CORE_TWO::Expr const & phi, T_FT & x, T_FT & y, T_FT & z, int precision, int snapType) const {
+	if (precision < 2) {
+		throw std::runtime_error("ProjectS2::projectFromSpherical: precision has to be larger than 1");
+	}
+	snapType &= ~ST_SNAP_POSITION_MASK;
+	snapType |= ST_PAPER2;
+
+	std::array<CORE_TWO::Expr, 3> cartesian;
+	std::array<mpq_class, 3> snapped;
+	
+	//clip to 3D and snap to sphere
+	m_calc.cartesianFromSpherical(theta, phi, cartesian[0], cartesian[1], cartesian[2]);
+	ProjectSN::snap(cartesian.begin(), cartesian.end(), snapped.begin(), precision, snapType);
+	
+	x = Conversion<T_FT>::moveFrom( std::move(snapped[0]) );
+	y = Conversion<T_FT>::moveFrom( std::move(snapped[1]) );
+	z = Conversion<T_FT>::moveFrom( std::move(snapped[2]) );
+}
+#endif
 
 }//end namespace LIB_RATSS_NAMESPACE
 

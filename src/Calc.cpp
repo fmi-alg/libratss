@@ -186,6 +186,12 @@ CORE::BigFloat Calc::toFixpoint(CORE::BigFloat const & v, int significands) cons
 }
 #endif
 
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+CORE_TWO::BigFloat Calc::toFixpoint(CORE_TWO::BigFloat const & v, int significands) const {
+	return CORE_TWO::BigFloat(toFixpoint(mpfr::mpreal(v.mp()), significands).mpfr_srcptr());
+}
+#endif
+
 mpq_class fromRegContFrac(const std::vector<mpz_class> & cf) {
 	if (cf.size() == 1) {
 		return mpq_class(cf.back());

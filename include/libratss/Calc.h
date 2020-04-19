@@ -59,6 +59,9 @@ public:
 	///everything above is an error!
 	CORE::BigFloat toFixpoint(CORE::BigFloat const & v, int significands = -1) const;
 #endif
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+	CORE_TWO::BigFloat toFixpoint(CORE_TWO::BigFloat const & v, int significands = -1) const;
+#endif
 public:
 	template<typename T_INPUT_ITERATOR>
 	mpfr::mpreal squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const;
