@@ -129,6 +129,7 @@ void CLS_TMPL_NAME::initB() {
 		else {
 			std::cerr << "Input does not have a common denominator" << std::endl;
 		}
+		std::cerr << "B=" << B << std::endl;
 	#endif
 }
 
@@ -284,6 +285,11 @@ void CLS_TMPL_NAME::set_numerators() {
 		
 CLS_TMPL_DECL
 mpz_class CLS_TMPL_NAME::run_single() {
+	
+
+	#ifdef LIBRATSS_DEBUG_VERBOSE
+		std::cerr << "N=" << N << std::endl;
+	#endif
 	
 	NB = N*B;
 	
