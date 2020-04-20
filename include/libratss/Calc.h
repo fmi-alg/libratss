@@ -218,8 +218,8 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 			using std::distance;
 			std::vector<mpq_class> tmp;
 			
-			for(; begin != end; ++begin) {
-				tmp.emplace_back( snap(*begin, ST_FX, significands+2) );
+			for(auto it(begin); it != end; ++it) {
+				tmp.emplace_back( snap(*it, ST_FX, significands+2) );
 			}
 			
 			SimApxLLL<std::vector<mpq_class>::const_iterator> sapx(tmp.cbegin(), tmp.cend(), significands+1);
