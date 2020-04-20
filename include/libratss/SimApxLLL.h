@@ -137,10 +137,11 @@ void CLS_TMPL_NAME::initN(mpq_class eps) {
 	//let d=dim
 	//Let b_i=*(it+i)=u_i/v_i and hence b=(b_0,...b_d)
 	//Let {{bq}} = min_{p_i in Z} max_{b_i in b} abs{u_i/v_i - p_i/q}
+	//Let eps_opt be the best possible simultaneous approximation to b_i
 	//where p_i is computed using the apply_common_denominator function which takes a p_i such that abs{u_i/v_i - p_i/q} is minimal
 	//For N=eps^(-d) and B=prod v_i the algorithm produces
 	//1 <= q <= 2^(d/2) N * B with
-	//{{bq}} <= \sqrt(5*d) * 2^((d-1)/2) * eps
+	//{{bq}} <= \sqrt(5*d) * 2^((d-1)/2) * eps_opt
 	//
 	//In order to guarantee our target epsilon we use our own epsilon to choose N:
 	//eps = \sqrt(5*d) * 2^((d-1)/2) * eps_o
