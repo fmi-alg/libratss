@@ -258,6 +258,7 @@ void CLS_TMPL_NAME::set_numerators() {
 		for(; begin != end; ++begin, ++out) {
 			*out = mpz_class(0);
 		}
+		best_common_denom = 1;
 	}
 	else {
 		for(auto it(begin); it != end; ++it, ++out) {
