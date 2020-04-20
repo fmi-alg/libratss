@@ -262,7 +262,7 @@ void CLS_TMPL_NAME::set_numerators() {
 	else {
 		for(auto it(begin); it != end; ++it, ++out) {
 			mpq_class x = *it;
-			mpz_class num = (x.get_num() * best_common_denom) / x.get_den();
+			mpz_class num = (x >= 0 ? 1 : -1)*(abs(x.get_num()) * best_common_denom) / x.get_den();
 			mpz_class num1 = num+(x >= 0 ? 1 : -1);
 			//check which one is better
 			mpq_class pq(num, best_common_denom);
