@@ -184,6 +184,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 				using std::abs;
 				std::stringstream ss;
 				//ST_FL may result in bit sizes larger than the requested number of bits due to the exponent
+				//ST_FPLLL_GREEDY may exceed the bitsize as well but does not for this test
 				if (snapType & (ST_CF | ST_FX | ST_FPLLL | ST_FPLLL_GREEDY | ST_JP)) {
 					ss << errmsg << "; p[" << j << "]=" << point[j] << " : ";
 					ss << "bits(p[" << j << "])=" << numBits(point[j].get_num()) << "/" << numBits(point[j].get_den());
@@ -202,15 +203,18 @@ void CLS_TMPL_NAME::quadrantTest() {
 					//algo guarantees den <= 2*Q^2 with Q=2^bits -> num <= 2*2^(2*bits) -> we need 2*bits+2 bits to encode the number 2^(2*bits+1)
 					CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_den()) <= std::size_t(2*maxQ+2));
 				}
-				ss = std::stringstream();
-				mpq_class dist = abs(cartesians[i][j]-point[j]);
-				mpq_class distInEps = dist/eps;
-				ss << errmsg << ": " << "abs(p[" << j << "]=" << point[j] << "~" << point[j].get_d() << " - real~" << cartesians[i][j].get_d() << ")=";
-				ss << dist << "~" << dist.get_d() << "~" << distInEps.get_d() << "[eps] > eps=";
-				ss << eps << "~" << eps.get_d();
-				//points are not exactly on the sphere and we compare the result with an inexact computation
-				//We therefore have to leave some wiggle room (except in the paper snapping case
-				CPPUNIT_ASSERT_MESSAGE(ss.str(), mpq_class(dist/eps).get_d() <= 2.01);
+				///ST_FPLLL does not guarantee the distance
+				if (snapType & (ST_FL | ST_CF | ST_FX | ST_JP | ST_FPLLL_SCALED |  ST_FPLLL_GREEDY)) {
+					ss = std::stringstream();
+					mpq_class dist = abs(cartesians[i][j]-point[j]);
+					mpq_class distInEps = dist/eps;
+					ss << errmsg << ": " << "abs(p[" << j << "]=" << point[j] << "~" << point[j].get_d() << " - real~" << cartesians[i][j].get_d() << ")=";
+					ss << dist << "~" << dist.get_d() << "~" << distInEps.get_d() << "[eps] > eps=";
+					ss << eps << "~" << eps.get_d();
+					//points are not exactly on the sphere and we compare the result with an inexact computation
+					//We therefore have to leave some wiggle room (except in the paper snapping case
+					CPPUNIT_ASSERT_MESSAGE(ss.str(), mpq_class(dist/eps).get_d() <= 2.01);
+				}
 			}
 		}
 	}
