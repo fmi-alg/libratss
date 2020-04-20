@@ -4,6 +4,7 @@
 
 #include <libratss/constants.h>
 #include <libratss/Conversion.h>
+#include <libratss/enum.h>
 
 #include <fplll.h>
 
@@ -23,7 +24,7 @@ public:
 	SimApxLLL(input_iterator begin, input_iterator end, mpq_class eps);
 	~SimApxLLL();
 public:
-	mpz_class run(bool greedy);
+	void run(SnapType st);
 public:
 	inline mpz_class const & denominator() const { return best_common_denom; }
 	inline result_iterator numerators_begin() { return numerators.begin(); }
@@ -211,47 +212,54 @@ mpq_class CLS_TMPL_NAME::apxEps() {
 }
 
 CLS_TMPL_DECL
-mpz_class CLS_TMPL_NAME::run(bool greedy) {
+void CLS_TMPL_NAME::run(SnapType st) {
 	
 	initB();
 	#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "B=" << B << std::endl;
 	#endif
 		
-	if (!greedy) {
-		initN(target_eps);
-		
-		#ifdef LIBRATSS_DEBUG_VERBOSE
-			std::cerr << "N=" << N << std::endl;
-		#endif
-		
-		return run_single();
-	}
-	
-	#ifdef LIBRATSS_DEBUG_VERBOSE
-		std::cerr << "Using greedy strategy" << std::endl;
-	#endif
-	
-	N = pow(1/target_eps, dim);
-	
-	while (true) {
-		run_single();
-		//check the distance
-		if (apxEps() <= target_eps) {
-			break;
+	if (st & (ST_FPLLL|ST_FPLLL_SCALED)) {
+		if (st & ST_FPLLL) {
+			N = (target_eps.get_den() / target_eps.get_num()) + int( target_eps.get_den() % target_eps.get_num() != 0 );
 		}
 		else {
-			N *= 2;
+			initN(target_eps);
+		}
+		run_single();
+		
+		assert(ST_FPLLL || apxEps() <= target_eps);
+	}
+	else {
+		N = 2;
+		
+		#ifdef LIBRATSS_DEBUG_VERBOSE
+			std::size_t iterations = 0;
+		#endif
+		while (true) {
+			run_single();
+			//check the distance
+			if (apxEps() <= target_eps) {
+				break;
+			}
+			else {
+				N *= 2;
+			}
+			#ifdef LIBRATSS_DEBUG_VERBOSE
+			{
+				mpq_class dist = apxEps();
+				std::cerr << "Current distance=" << dist << "~" << dist.get_d() << std::endl;
+			}
+			iterations += 1;
+			#endif
 		}
 		#ifdef LIBRATSS_DEBUG_VERBOSE
-		{
-			mpq_class dist = apxEps();
-			std::cerr << "Current distance=" << dist << "~" << dist.get_d() << std::endl;
-			std::cerr << "Increasing N to " << N << std::endl;
-		}
+			std::cerr << "Number of greedy iterations: " << iterations << std::endl;
+			std::cerr << "Final N: " << N << std::endl;
 		#endif
+		
+		assert(apxEps() <= target_eps);
 	}
-	return best_common_denom;
 }
 
 CLS_TMPL_DECL

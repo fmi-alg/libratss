@@ -101,10 +101,10 @@ int main(int argc, char ** argv) {
 		
 		if (cfg.snapType & (ST_FPLLL | ST_FPLLL_GREEDY) && cfg.epsilon > 0) {
 			SimApxLLL<RationalPoint::const_iterator> sapx(ip.coords.begin(), ip.coords.end(), cfg.epsilon);
-			mpz_class common_denom = sapx.run(cfg.snapType & ST_FPLLL_GREEDY);
+			sapx.run(SnapType(cfg.snapType & ST_SNAP_POSITION_MASK));
 			auto oit = op.coords.begin();
 			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it, ++oit) {
-				*oit = mpq_class(*it, common_denom);
+				*oit = mpq_class(*it, sapx.denominator());
 				oit->canonicalize();
 			}
 		}
