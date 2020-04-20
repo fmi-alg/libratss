@@ -36,9 +36,11 @@ typedef enum : int {
 	ST_FX=ST_CF*2, //snap by fix point
 	ST_FL=ST_FX*2, //snap by floating point
 	ST_JP=ST_FL*2, // jacobi perron
-	ST_FPLLL=ST_JP*2,
-	ST_FPLLL_SCALED=ST_FPLLL*2,
-	ST_FPLLL_GREEDY=ST_FPLLL_SCALED*2,
+	///ST_FPLLL variants are all based on the Method described in Lagarias(1985) which uses the
+	///LLL algorithm to produce a simultaneous approximation
+	ST_FPLLL=ST_JP*2, //Maximum denominator of 1/epsilon or 2^significands
+	ST_FPLLL_SCALED=ST_FPLLL*2, //Result within target epsilon, fast, possibly large denominator
+	ST_FPLLL_GREEDY=ST_FPLLL_SCALED*2, ///Result within target epsilon, slow, close the the smallest possible denominator using the algorithm
 	
 	ST_SNAP_TYPES_MASK=ST_CF|ST_FX|ST_FL|ST_JP|ST_FPLLL|ST_FPLLL_SCALED|ST_FPLLL_GREEDY,
 
