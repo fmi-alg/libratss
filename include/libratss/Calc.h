@@ -222,7 +222,7 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 				tmp.emplace_back( snap(*begin, ST_FX, significands+2) );
 			}
 			
-			SimApxLLL<std::vector<mpq_class>::iterator> sapx(tmp.begin(), tmp.end(), significands+1);
+			SimApxLLL<std::vector<mpq_class>::const_iterator> sapx(tmp.cbegin(), tmp.cend(), significands+1);
 			sapx.run(snapType & ST_FPLLL_GREEDY);
 			
 			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it) {
