@@ -167,6 +167,9 @@ void PointStatEntry::print(std::ostream& out, PointBase::Format fmt) const {
 			out << Conversion<mpq_class>::toMpreal(v, 128);
 			out.precision(prec);
 		}
+		else {
+			std::runtime_error("Selected output format is not possible");
+		}
 	};
 
 	printDiff(data[0].diff);
