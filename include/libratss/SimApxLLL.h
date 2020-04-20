@@ -193,10 +193,13 @@ mpq_class CLS_TMPL_NAME::apxEps() {
 	using std::max;
 	auto it = begin;
 	auto nit = numerators_begin();
+	int i = 0;
+	
 	mpq_class tmp(*nit, denominator());
 	tmp.canonicalize();
 	mpq_class dist = abs(*it-tmp);
-	for(int i(1); i < dim; ++i, ++it, ++nit) {
+	
+	for(++i, ++it, ++nit; i < dim; ++i, ++it, ++nit) {
 		tmp = mpq_class(*nit, denominator());
 		tmp.canonicalize();
 		dist = max(dist, mpq_class(abs(*it-tmp)));
