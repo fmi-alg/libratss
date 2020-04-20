@@ -284,6 +284,11 @@ int main(int argc, char ** argv) {
 	TEST_INSTANCE(ST_PAPER, ST_FPLLL_GREEDY);
 #endif
 	
+#if defined(LIB_RATSS_WITH_CORE_TWO) and defined(LIB_RATSS_WITH_FPLLL)
+	TEST_INSTANCE(ST_PAPER2, ST_FPLLL);
+	TEST_INSTANCE(ST_PAPER2, ST_FPLLL_GREEDY);
+#endif
+	
 #undef TEST_INSTANCE
 	
 	std::vector<std::thread> threads;
