@@ -134,6 +134,7 @@ void CLS_TMPL_NAME::initB() {
 
 CLS_TMPL_DECL
 void CLS_TMPL_NAME::initN(mpq_class eps) {
+	std::runtime_error("SimaApxLLL using ST_FPLLL_SCALED is still buggy");
 	//let d=dim
 	//Let b_i=*(it+i)=u_i/v_i and hence b=(b_0,...b_d)
 	//Let {{bq}} = min_{p_i in Z} max_{b_i in b} abs{u_i/v_i - p_i/q}
