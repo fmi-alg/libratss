@@ -1,0 +1,3 @@
+[submodule "vendor/core2"]
+	path = vendor/core2
+	url = https://github.com/fmi-alg/core2.git
