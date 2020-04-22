@@ -268,7 +268,7 @@ int main(int argc, char ** argv) {
 			
 			++counter;
 			if (cfg.progress) {
-				io.info() << "Computing projections: " << counter << '/' << significands.size()*snappingTypes.size() << std::flush;
+				io.info() << "Computing projections: " << counter << '/' << significands.size()*snappingTypes.size() << '\xd' << std::flush;
 			}
 		}
 	}
