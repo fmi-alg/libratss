@@ -16,6 +16,7 @@ public:
 	bool stats{false};
 	bool check{false};
 	mpq_class epsilon{-1};
+	bool printApxQuality{false};
 public:
 	Config() = default;
 	using BasicCmdLineOptions::parse;
@@ -33,6 +34,9 @@ public:
 			}
 			++i;
 		}
+		else if (token == "--with-apx-quality") {
+			printApxQuality = true;
+		}
 		else {
 			return false;
 		}
@@ -44,6 +48,7 @@ public:
 			"Options:\n"
 			"\t-b\talso print bitsize statistics\n"
 			"\t-c\tcheck approximated points\n"
+			"\t--with-apx-quality\n"
 			"\t--epsilon\tapproximation quality given as rational overrides significands option";
 		BasicCmdLineOptions::options_help(out);
 		out << std::endl;
@@ -147,6 +152,10 @@ int main(int argc, char ** argv) {
 			}
 		}
 		op.print(io.output(), cfg.outFormat);
+		if (cfg.printApxQuality) {
+			auto mn = ip.c.maxNorm(ip.coords.begin(), ip.coords.end(),op.coords.begin());
+			io.output() << ' ' << mn << ' ' << mn.get_d();
+		}
 		if (io.input().peek() != '\n') {
 			io.output().put(' ');
 		}
