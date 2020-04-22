@@ -129,6 +129,9 @@ std::string ec2Str(int significand, int st) {
 	else if (st & ST_FPLLL) {
 		ret = "lll";
 	}
+	else if (st & ST_FPLLL_SCALED) {
+		ret = "lll-scaled";
+	}
 	else if (st & ST_FPLLL_GREEDY) {
 		ret = "lll-greedy";
 	}

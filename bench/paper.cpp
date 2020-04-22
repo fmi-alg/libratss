@@ -48,6 +48,9 @@ std::string ec2Str(const EntryConfig & ec) {
 	else if (ec.first & ST_FPLLL) {
 		ret = "lll";
 	}
+	else if (ec.first & ST_FPLLL_SCALED) {
+		ret = "lll-scaled";
+	}
 	else if (ec.first & ST_FPLLL_GREEDY) {
 		ret = "lll-greedy";
 	}
