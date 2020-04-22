@@ -400,7 +400,7 @@ void ProjectSN::snapNormalized(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_O
 		}
 	}
 	else {
-		throw std::runtime_error("ratss::ProjectSN::snap: Unsupported snap type");
+		throw std::runtime_error("ratss::ProjectSN::snapNormalized: Unsupported snap type: " + std::to_string(snapType));
 	}
 	plane2Sphere(coords_plane_pq.begin(), coords_plane_pq.end(), pos, out);
 }
