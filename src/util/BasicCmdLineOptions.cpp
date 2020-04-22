@@ -235,11 +235,11 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		significands = 31;
 	}
 	
-	if (! (snapType & (ST_PLANE|ST_SPHERE))) {
+	if ((snapType & ST_SNAP_POSITION_MASK) == 0) {
 		snapType |= ST_PLANE;
 	}
 	
-	if (! (snapType & (ST_CF|ST_FX|ST_FL))) {
+	if ((snapType & ST_SNAP_TYPES_MASK) == 0) {
 		snapType |= ST_FX;
 	}
 	
