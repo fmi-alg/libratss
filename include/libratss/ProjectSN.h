@@ -262,7 +262,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		throw std::runtime_error("libratss was built without CGAL support");
 #endif
 	}
-	if (snapType & ST_PAPER2) {
+	else if (snapType & ST_PAPER2) {
 #if defined(LIB_RATSS_WITH_CORE_TWO)
 		std::vector<CORE_TWO::Expr> ptc(dims);
 		std::vector<mpq_class> pt_snap_plane(dims);
