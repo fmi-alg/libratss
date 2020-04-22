@@ -25,9 +25,18 @@ void debug_print_mpf_class(const mpf_class & v) {
 	std::cerr << "value=" << v << " precision=" << v.get_prec() << " exp=" << v.get_ui() << std::endl;
 }
 
+#if defined(LIB_RATSS_WITH_CGAL)
 void debug_print_CORE_BigFloat(CORE::BigFloat const & v) {
 	std::cerr << "value=" << v << " m=" << mpz_class(v.m().get_mp()) << " exp=" << v.exp() << std::endl;
 }
+#endif
+
+
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+	void debug_print_CORE_TWO_BigFloat(CORE_TWO::BigFloat const & v) {
+		debug_print_mpreal(LIB_RATSS_NAMESPACE::convert<mpfr::mpreal>(v));
+	}
+#endif
 
 }
 

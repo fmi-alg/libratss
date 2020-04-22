@@ -15,7 +15,12 @@ extern "C" {
 	void debug_print_mpq_class(const mpq_class & v);
 	void debug_print_mpz_class(const mpz_class & v);
 	void debug_print_mpf_class(const mpf_class & v);
+#if defined(LIB_RATSS_WITH_CGAL)
 	void debug_print_CORE_BigFloat(CORE::BigFloat const & v);
+#endif
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+	void debug_print_CORE_TWO_BigFloat(CORE_TWO::BigFloat const & v);
+#endif
 }
 
 namespace LIB_RATSS_NAMESPACE {
