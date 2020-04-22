@@ -60,6 +60,9 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if ( stStr == "lllg") {
 					snapType |= ST_FPLLL_GREEDY;
 				}
+				else if ( stStr == "bf") {
+					snapType |= ST_BRUTE_FORCE;
+				}
 				else if (stStr == "ml" || stStr == "minlimb") {
 					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS;
 				}
@@ -256,7 +259,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-v\tverbose\n"
 		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
 		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (cf|fl|fx|jp|lll|lllg)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron,lll=LLL, lllg=LLL-greedy, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
+		"\t-r (cf|fl|fx|jp|lll|lllg|bf)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, lll=LLL, lllg=LLL-greedy, bf=bruteforce, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
 		"\t-s (s=sphere|p=plane|paper)\tset where the float->rational conversion should take place.\n"
 		"\t-n\tnormalize input to length 1\n"
 		"\t--progress\tprogress indicators\n"
@@ -290,6 +293,9 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	}
 	else if (snapType & ratss::ST_FPLLL_GREEDY) {
 		out << "LLL Greedy";
+	}
+	else if (snapType & ratss::ST_BRUTE_FORCE) {
+		out << "Brute force";
 	}
 	else if (snapType & ratss::ST_AUTO_POLICY_MIN_MAX_DENOM) {
 		out << "minimize maximum denominator";
