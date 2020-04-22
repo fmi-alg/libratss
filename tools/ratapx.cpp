@@ -99,9 +99,15 @@ int main(int argc, char ** argv) {
 		op.clear();
 		op.resize(ip.coords.size());
 		
-		if (cfg.snapType & (ST_FPLLL | ST_FPLLL_GREEDY) && cfg.epsilon > 0) {
-			SimApxLLL<RationalPoint::const_iterator> sapx(ip.coords.begin(), ip.coords.end(), cfg.epsilon);
-			sapx.run(SnapType(cfg.snapType & ST_SNAP_POSITION_MASK));
+		if (cfg.snapType & (ST_FPLLL | ST_FPLLL_SCALED | ST_FPLLL_GREEDY)) {
+			SimApxLLL<RationalPoint::const_iterator> sapx(ip.coords.begin(), ip.coords.end());
+			if (cfg.epsilon > 0) {
+				sapx.setEps(cfg.epsilon);
+			}
+			else {
+				sapx.setSignificands(cfg.significands);
+			}
+			sapx.run(SnapType(cfg.snapType & ST_SNAP_TYPES_MASK));
 			auto oit = op.coords.begin();
 			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it, ++oit) {
 				*oit = mpq_class(*it, sapx.denominator());
