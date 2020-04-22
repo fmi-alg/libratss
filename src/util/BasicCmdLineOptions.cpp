@@ -222,7 +222,7 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 		++numParsedOpts;
 	}
 	
-	if (snapType & ST_PAPER && normalize) {
+	if (snapType & (ST_PAPER|ST_PAPER2) && normalize) {
 		std::cerr << "Requesting normaliziation of input with paper snapping is of no use." << std::endl;
 		return -1;
 	}
