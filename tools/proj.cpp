@@ -14,18 +14,23 @@ class Config: public BasicCmdLineOptions {
 public:
 	bool stats;
 	bool check;
+	bool planeCoords;
 public:
 	Config() :
 	stats(false),
-	check(false)
+	check(false),
+	planeCoords(false)
 	{}
 	using BasicCmdLineOptions::parse;
-	virtual bool parse(const std::string & token, int &, int , char **) {
+	bool parse(const std::string & token, int &, int , char **) override {
 		if (token == "-c") {
 			check = true;
 		}
 		else if (token == "-b") {
 			stats = true;
+		}
+		else if (token == "--print-plane-coords")  {
+			planeCoords = true;
 		}
 		else {
 			return false;
@@ -37,6 +42,7 @@ public:
 		out << "prg OPTIONS\n"
 			"Options:\n"
 			"\t-b\talso print bitsize statistics\n"
+			"\t--print-plane-coords\tprint coordinates in the plane\n"
 			"\t-c\tcheck projected points\n";
 		BasicCmdLineOptions::options_help(out);
 		out << std::endl;
@@ -70,6 +76,7 @@ int main(int argc, char ** argv) {
 	
 	FloatPoint ip;
 	RationalPoint op;
+	RationalPoint opp;
 	
 	if (cfg.progress) {
 		io.info() << std::endl;
@@ -114,6 +121,13 @@ int main(int argc, char ** argv) {
 			op.clear();
 			op.resize(ip.coords.size());
 			proj.snap(ip.coords.begin(), ip.coords.end(), op.coords.begin(), cfg.snapType, cfg.significands);
+			if (cfg.planeCoords) {
+				opp.clear();
+				opp.resize(op.coords.size());
+				auto pos = proj.sphere2Plane(op.coords.begin(), op.coords.end(), opp.coords.begin());
+				using std::swap;
+				swap(opp.coords, op.coords);
+			}
 		}
 		if (cfg.stats) {
 			bc.update(op.coords.begin(), op.coords.end());
