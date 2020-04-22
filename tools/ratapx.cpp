@@ -108,6 +108,14 @@ int main(int argc, char ** argv) {
 				oit->canonicalize();
 			}
 		}
+		else if (cfg.snapType & ST_BRUTE_FORCE) {
+			SimApxBruteForce<mpq_class, 0> sapx(ip.coords.begin(), ip.coords.end());
+			sapx.run(cfg.significands);
+			auto oit = op.coords.begin();
+			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it, ++oit) {
+				*oit = *it/sapx.denominator();
+			}
+		}
 		else {
 			FloatPoint fip;
 			fip.assign(ip.coords.begin(), ip.coords.end(), cfg.precision);
