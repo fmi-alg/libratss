@@ -5,6 +5,7 @@
 #include <libratss/constants.h>
 #include <libratss/enum.h>
 #include <libratss/Conversion.h>
+#include <libratss/SimApxBruteForce.h>
 
 #ifdef LIB_RATSS_WITH_FPLLL
 	#include <libratss/SimApxLLL.h>
@@ -234,6 +235,21 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		#else
 			throw std::runtime_error("libratss::Calc::toRational: libratss was built without support for fplll");
 		#endif
+	}
+	else if (snapType & (ST_BRUTE_FORCE)) {
+			using std::distance;
+			std::vector<mpq_class> tmp;
+			
+			for(auto it(begin); it != end; ++it) {
+				tmp.emplace_back( snap(*it, ST_FX, significands+2) );
+			}
+			
+			SimApxBruteForce<mpq_class,0> sapx(tmp.cbegin(), tmp.cend());
+			sapx.run(significands+1);
+			
+			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it, ++out) {
+				*out = *it/sapx.denominator();
+			}
 	}
 	else {
 		std::transform(
