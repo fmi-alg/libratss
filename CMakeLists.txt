@@ -45,7 +45,7 @@ if (PKGCONFIG_FOUND AND NOT LIBRATSS_DISABLE_FPLLL_SUPPORT)
 	pkg_search_module(FPLLL fplll)
 endif()
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vendor/core2")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vendor/core2" AND NOT LIBRATSS_DISABLE_CORE_TWO_SUPPORT)
 	add_subdirectory(vendor/core2 ${PROJECT_NAME}core2)
 	
 	set(LIBRATSS_COMPILE_DEFINITIONS
@@ -54,6 +54,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vendor/core2")
 	)
 	set(CORE_TWO_FOUND TRUE)
 	set(CORE_TWO_LIBRARIES core2)
+	message(STATUS "Enabling support for core2")
+else()
+	message(STATUS "Disabling support for core2")
 endif()
 
 set(LIBRATSS_WITH_VERBOSE_DEBUG OFF CACHE BOOL "Enable verbose debugging")
