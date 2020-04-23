@@ -29,13 +29,21 @@ void debug_print_mpf_class(const mpf_class & v) {
 void debug_print_CORE_BigFloat(CORE::BigFloat const & v) {
 	std::cerr << "value=" << v << " m=" << mpz_class(v.m().get_mp()) << " exp=" << v.exp() << std::endl;
 }
+
+void debug_print_CORE_Expr(CORE::Expr const & v) {
+	std::cerr << "value=" << v << std::endl;
+}
 #endif
 
 
 #if defined(LIB_RATSS_WITH_CORE_TWO)
-	void debug_print_CORE_TWO_BigFloat(CORE_TWO::BigFloat const & v) {
-		debug_print_mpreal(LIB_RATSS_NAMESPACE::convert<mpfr::mpreal>(v));
-	}
+void debug_print_CORE_TWO_BigFloat(CORE_TWO::BigFloat const & v) {
+	debug_print_mpreal(LIB_RATSS_NAMESPACE::convert<mpfr::mpreal>(v));
+}
+
+void debug_print_CORE_TWO_Expr(CORE_TWO::Expr const & v) {
+	std::cerr << "value=" << v << std::endl;
+}
 #endif
 
 }
