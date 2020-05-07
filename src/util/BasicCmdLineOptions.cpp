@@ -60,6 +60,9 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if ( stStr == "llls") {
 					snapType |= ST_FPLLL_SCALED;
 				}
+				else if ( stStr == "llln") {
+					snapType |= ST_FPLLL_FIXED_N;
+				}
 				else if ( stStr == "lllg") {
 					snapType |= ST_FPLLL_GREEDY;
 				}
@@ -296,6 +299,9 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	}
 	else if (snapType & ratss::ST_FPLLL_SCALED) {
 		out << "LLL Scaled";
+	}
+	else if (snapType & ratss::ST_FPLLL_FIXED_N) {
+		out << "LLL Fixed N";
 	}
 	else if (snapType & ratss::ST_FPLLL_GREEDY) {
 		out << "LLL Greedy";

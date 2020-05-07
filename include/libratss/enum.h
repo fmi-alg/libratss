@@ -40,10 +40,12 @@ typedef enum : int {
 	///LLL algorithm to produce a simultaneous approximation
 	ST_FPLLL=ST_JP*2, //Maximum denominator of 1/epsilon or 2^significands
 	ST_FPLLL_SCALED=ST_FPLLL*2, //Result within target epsilon, fast, possibly large denominator
-	ST_FPLLL_GREEDY=ST_FPLLL_SCALED*2, ///Result within target epsilon, slow, close the the smallest possible denominator using the algorithm
+	ST_FPLLL_FIXED_N=ST_FPLLL_SCALED*2,
+	ST_FPLLL_GREEDY=ST_FPLLL_FIXED_N*2, ///Result within target epsilon, slow, close the the smallest possible denominator using the algorithm
 	ST_BRUTE_FORCE=ST_FPLLL_GREEDY*2,
 	
-	ST_SNAP_TYPES_MASK=ST_CF|ST_FX|ST_FL|ST_JP|ST_FPLLL|ST_FPLLL_SCALED|ST_FPLLL_GREEDY|ST_BRUTE_FORCE,
+	ST_FPLLL_MASK=ST_FPLLL|ST_FPLLL_SCALED|ST_FPLLL_FIXED_N|ST_FPLLL_GREEDY,
+	ST_SNAP_TYPES_MASK=ST_CF|ST_FX|ST_FL|ST_JP|ST_FPLLL_MASK|ST_BRUTE_FORCE,
 
 	ST_AUTO_CF=ST_FPLLL_GREEDY*2, //add cf to auto snapping
 	ST_AUTO_FX=ST_AUTO_CF*2, //add fx to auto snapping
@@ -51,7 +53,8 @@ typedef enum : int {
 	ST_AUTO_JP=ST_AUTO_FL*2, //add jp to auto snapping
 	ST_AUTO_FPLLL=ST_AUTO_JP*2, //add fplll to auto snapping
 	ST_AUTO_FPLLL_SCALED=ST_AUTO_FPLLL*2,
-	ST_AUTO_FPLLL_GREEDY=ST_AUTO_FPLLL_SCALED*2, //add fplll-greedy to auto snapping
+	ST_AUTO_FPLLL_FIXED_N=ST_AUTO_FPLLL_SCALED*2,
+	ST_AUTO_FPLLL_GREEDY=ST_AUTO_FPLLL_FIXED_N*2, //add fplll-greedy to auto snapping
 	ST_AUTO_BRUTE_FORCE=ST_AUTO_FPLLL_GREEDY*2,
 	ST_AUTO=ST_AUTO_FPLLL*2, //select snapping that produces the smallest denominators
 	ST_AUTO_ALL=ST_AUTO|ST_AUTO_CF|ST_AUTO_FX|ST_AUTO_JP|ST_AUTO_FPLLL|ST_AUTO_FPLLL_SCALED|ST_AUTO_FPLLL_GREEDY, //try all snappings and use the best one
