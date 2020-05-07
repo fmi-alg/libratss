@@ -244,7 +244,7 @@ void CLS_TMPL_NAME::run(SnapType st) {
 		}
 		run_single();
 		
-		assert(ST_FPLLL || apxEps() <= target_eps);
+		assert((ST_FPLLL & st)|| apxEps() <= target_eps);
 	}
 	else {
 		N = 2;
