@@ -56,6 +56,35 @@ public:
 	virtual  ~SimApxBruteForce() {}
 public:
 	void run(int significands);
+	void run(std::size_t max_den);
+public:
+	inline std::size_t dimensions() const { return m_dims; }
+	inline integer_base const & denominator() const { return m_den; }
+	inline numerators_const_iterator numerators_begin() { return m_num.begin(); }
+	inline numerators_const_iterator numerators_end() { return m_num.end(); }
+protected:
+	std::vector<bool> m_sign;
+	std::vector<integer_base> m_input;
+	std::vector<integer_base> m_num;
+	integer_base m_den;
+	std::size_t m_dims;
+};
+
+template<std::size_t T_DIMENSIONS>
+class SimApxBruteForce<mpz_class, T_DIMENSIONS> {
+public:
+	static constexpr int default_number_of_significands = 31;
+	
+	using integer_base = mpq_class;
+	using numerators_const_iterator = typename std::vector<integer_base>::const_iterator;
+	
+public:
+	template<typename T_ITERATOR>
+	SimApxBruteForce(T_ITERATOR begin, T_ITERATOR end);
+	virtual  ~SimApxBruteForce() {}
+public:
+	void run(int significands);
+	void run(std::size_t max_den);
 public:
 	inline std::size_t dimensions() const { return m_dims; }
 	inline integer_base const & denominator() const { return m_den; }
@@ -115,6 +144,11 @@ SimApxBruteForce<mpq_class, T_DIMENSIONS>::SimApxBruteForce(T_ITERATOR begin, T_
 template<std::size_t T_DIMENSIONS>
 void SimApxBruteForce<mpq_class, T_DIMENSIONS>::run(int significands) {
 	std::size_t max_den = std::size_t(1) << significands;
+	run(max_den);
+}
+
+template<std::size_t T_DIMENSIONS>
+void SimApxBruteForce<mpq_class, T_DIMENSIONS>::run(std::size_t max_den) {
 	mpq_class bden = 2;
 	mpq_class bdist(100);
 
@@ -164,6 +198,74 @@ void SimApxBruteForce<mpq_class, T_DIMENSIONS>::run(int significands) {
 		}
 		if (m_sign[i]) {
 			m_num[i] *= -1;
+		}
+	}
+}
+
+template<std::size_t T_DIMENSIONS>
+template<typename T_ITERATOR>
+SimApxBruteForce<mpz_class, T_DIMENSIONS>::SimApxBruteForce(T_ITERATOR begin, T_ITERATOR end) {
+	for(; begin != end; ++begin) {
+		m_input.push_back( convert<mpq_class>(*begin) );
+		m_sign.push_back(m_input.back() < 0);
+		if (m_sign.back()) {
+			m_input.back() *= -1;
+		}
+	}
+	m_dims = m_sign.size();
+}
+
+template<std::size_t T_DIMENSIONS>
+void SimApxBruteForce<mpz_class, T_DIMENSIONS>::run(int significands) {
+	std::size_t max_den = std::size_t(1) << significands;
+	run(max_den);
+}
+
+template<std::size_t T_DIMENSIONS>
+void SimApxBruteForce<mpz_class, T_DIMENSIONS>::run(std::size_t max_den) {
+
+	mpz_class bden;
+	mpq_class bsupnorm;
+	
+	mpq_class csubnorm{0};
+	
+	mpz_class num_f, r_f;
+	
+	std::size_t i(max_den);
+	mpz_class den(i);
+	for(; i > 1; --i, --den) {
+		csubnorm = 0;
+		
+		for(std::size_t j(0), s(dimensions()); j < s; ++j) {
+			
+			mpz_class tmp = m_input[j].get_num()*den;
+			::mpz_fdiv_qr(num_f.get_mpz_t(), r_f.get_mpz_t(), tmp.get_mpz_t(), m_input[j].get_den().get_mpz_t());
+			if (r_f*2 > m_input[j].get_den()) { //ceil is closer
+				num_f += 1;
+			}
+			
+			mpq_class dist = abs(den*m_input[j] - num_f);
+			if (csubnorm < dist) {
+				csubnorm = dist;
+			}
+		}
+		if (i == max_den || csubnorm <= bsupnorm) {
+			bden = i;
+			bsupnorm = csubnorm;
+		}
+		
+	}
+	m_den = bden;
+	m_num.resize(dimensions());
+	for(std::size_t j(0); j < dimensions(); ++j) {
+		mpz_class tmp = m_input[j].get_num()*bden;
+		::mpz_fdiv_qr(num_f.get_mpz_t(), r_f.get_mpz_t(), tmp.get_mpz_t(), m_input[j].get_den().get_mpz_t());
+		if (r_f*2 > m_input[j].get_den()) { //ceil is closer
+			num_f += 1;
+		}
+		m_num[j] = num_f;
+		if (m_sign[j]) {
+			m_num[j] *= -1;
 		}
 	}
 }
