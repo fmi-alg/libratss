@@ -108,6 +108,7 @@ set(LIB_SOURCES_CPP
 	src/GeoCoord.cpp
 	src/SphericalCoord.cpp
 	src/SimApxBruteForce.cpp
+	src/debug.cpp
 	src/util/BasicCmdLineOptions.cpp
 	src/util/InputOutputPoints.cpp
 	src/util/InputOutput.cpp
@@ -136,6 +137,7 @@ if (CORE_TWO_FOUND)
 		src/core2/Conversion.cpp
 	)
 endif()
+
 add_library(${PROJECT_NAME} STATIC
 	${LIB_SOURCES_CPP}
 )
