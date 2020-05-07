@@ -29,6 +29,7 @@ public:
 public:
 	void setEps(mpq_class eps);
 	void setSignificands(int v);
+	void setN(mpz_class v);
 public:
 	void run(SnapType st);
 public:
@@ -57,10 +58,10 @@ private:
 	mpz_class B; //either product or the common denominator for the input if available
 	mpz_class NB;
 	
-	mpz_class best_eta;
+	mpz_class best_eta{1};
 	mpz_class best_common_denom;
 	
-	mpz_class current_eta;
+	mpz_class current_eta{1};
 	mpz_class current_common_denom;
 };
 	
@@ -122,6 +123,11 @@ void CLS_TMPL_NAME::setSignificands(int significands) {
 }
 
 CLS_TMPL_DECL
+void CLS_TMPL_NAME::setN(mpz_class v) {
+	N = v;
+}
+
+CLS_TMPL_DECL
 void CLS_TMPL_NAME::initB() {
 	//init B, first check if all denominators of the input are equal
 	auto it(begin);
@@ -133,7 +139,7 @@ void CLS_TMPL_NAME::initB() {
 			break;
 		}
 	}
-	if (!input_has_common_denom) {
+	if (true || !input_has_common_denom) {
 		B = 1;
 		for(it = begin; it != end; ++it) {
 			B *= it->get_den();
@@ -246,6 +252,12 @@ void CLS_TMPL_NAME::run(SnapType st) {
 		
 		assert((ST_FPLLL & st)|| apxEps() <= target_eps);
 	}
+	else if (st & (ST_FPLLL_FIXED_N)) {
+		if (N < 2) {
+			throw std::runtime_error("libratss::SimaApxLLL::run: N was not set");
+		}
+		run_single();
+	}
 	else {
 		N = 2;
 		
@@ -310,7 +322,15 @@ void CLS_TMPL_NAME::set_numerators() {
 CLS_TMPL_DECL
 mpz_class CLS_TMPL_NAME::run_single() {
 	
+	mpz_class maxQ = N * sqrt(mpz_class(1) << dim);
+	
+	#ifdef LIBRATSS_DEBUG_VERBOSE
+		std::cerr << "Q_max=" << maxQ << std::endl;
+	#endif
 
+	best_common_denom = maxQ;
+	best_eta = maxQ;
+	
 	#ifdef LIBRATSS_DEBUG_VERBOSE
 		std::cerr << "N=" << N << std::endl;
 	#endif
@@ -321,7 +341,7 @@ mpz_class CLS_TMPL_NAME::run_single() {
 		std::cerr << "NB=" << NB << std::endl;
 	#endif
 	
-	for(int j(0), s(dim+::mpz_sizeinbase(NB.get_mpz_t(), 2)); j < s; ++j) {
+	for(int j(1), s(dim+::mpz_sizeinbase(NB.get_mpz_t(), 2)); j < s; ++j) {
 		#ifdef LIBRATSS_DEBUG_VERBOSE
 			std::cerr << "Checking matrix for j=" << j << std::endl;
 		#endif
@@ -330,7 +350,7 @@ mpz_class CLS_TMPL_NAME::run_single() {
 			w = 1;
 		}
 		else {
-			w = mpz_class(2) << j;
+			w = mpz_class(1) << j;
 		}
 		
 		Matrix mtx(dim+1, dim+1);
@@ -341,8 +361,8 @@ mpz_class CLS_TMPL_NAME::run_single() {
 		{
 			auto it(begin);
 			for(int i(0); i < dim; ++i, ++it) {
-				mpq_class x = NB * (*it);
-				::mpz_set(mtx(0, i+1).get_data(), x.get_num_mpz_t());
+				mpz_class x(NB * (*it));
+				::mpz_set(mtx(0, i+1).get_data(), x.get_mpz_t());
 				::mpz_set(mtx(i+1, i+1).get_data(), NB.get_mpz_t());
 			}
 		}
@@ -359,12 +379,16 @@ mpz_class CLS_TMPL_NAME::run_single() {
 			std::cerr << mtx << std::endl;
 		#endif
 		current_common_denom = abs( mpz_class( mtx(0, 0).get_data() ) );
-		current_eta = abs( mpz_class(mtx(0, 1).get_data()) );
-		for(int i(1); i < dim; ++i) {
-			mpz_class xi( abs(mpz_class(mtx(0, i+1).get_data()) ) );
-			if (xi > current_eta) {
-				current_eta = xi;
+		bool newEtaCandidate = false;
+		if (current_common_denom <= maxQ) {
+			current_eta = abs( mpz_class(mtx(0, 1).get_data()) );
+			for(int i(1); i < dim; ++i) {
+				mpz_class xi( abs(mpz_class(mtx(0, i+1).get_data()) ) );
+				if (xi > current_eta) {
+					current_eta = xi;
+				}
 			}
+			newEtaCandidate = true;
 		}
 		#ifdef LIBRATSS_DEBUG_VERBOSE
 			std::cerr << "Current eta: " << current_eta << std::endl;
@@ -373,7 +397,7 @@ mpz_class CLS_TMPL_NAME::run_single() {
 			std::cerr << "Best common denom: " << best_common_denom << std::endl;
 			std::cerr << std::endl;
 		#endif
-		if (j == 0 || current_eta < best_eta || (current_eta == best_eta && current_common_denom < best_common_denom)) {
+		if (newEtaCandidate && (current_eta < best_eta || (current_eta == best_eta && current_common_denom < best_common_denom))) {
 			best_eta = std::move(current_eta);
 			best_common_denom = std::move(current_common_denom);
 		}
