@@ -19,10 +19,16 @@ class SimApxLLL final {
 public:
 	using input_iterator = T_MPQ_CLASS_CONVERTIBLE_ITERATOR;
 	using result_iterator = std::vector<mpz_class>::iterator;
+	
+	static constexpr int default_number_of_significands = 53;
 public:
+	SimApxLLL(input_iterator begin, input_iterator end);
 	SimApxLLL(input_iterator begin, input_iterator end, int significands);
 	SimApxLLL(input_iterator begin, input_iterator end, mpq_class eps);
 	~SimApxLLL();
+public:
+	void setEps(mpq_class eps);
+	void setSignificands(int v);
 public:
 	void run(SnapType st);
 public:
@@ -63,7 +69,11 @@ private:
 //Definitions
 namespace LIB_RATSS_NAMESPACE {
 	
-
+CLS_TMPL_DECL
+CLS_TMPL_NAME::SimApxLLL(input_iterator begin, input_iterator end) : 
+SimApxLLL(begin, end, default_number_of_significands)
+{}
+	
 CLS_TMPL_DECL
 CLS_TMPL_NAME::SimApxLLL(input_iterator begin, input_iterator end, int significands) : 
 SimApxLLL(begin, end, mpq_class(mpz_class(1), mpz_class(1) << significands))
@@ -74,7 +84,7 @@ CLS_TMPL_NAME::SimApxLLL(input_iterator begin, input_iterator end, mpq_class eps
 begin(begin),
 end(end),
 target_eps(eps)
-{
+{	
 	using std::distance;
 	dim = distance(begin, end);
 	
@@ -92,10 +102,6 @@ target_eps(eps)
 		}
 		std::cerr << std::endl;
 	#endif
-		
-	#ifdef LIBRATSS_DEBUG_VERBOSE
-		std::cerr << "Input eps: " << eps << std::endl;
-	#endif
 }
 
 CLS_TMPL_DECL
@@ -103,6 +109,16 @@ CLS_TMPL_NAME::~SimApxLLL() {
 #ifdef LIBRATSS_DEBUG_VERBOSE
 	std::cerr << "ratss::SimaApxLLL: Finished all calculations" << std::endl;
 #endif
+}
+
+CLS_TMPL_DECL
+void CLS_TMPL_NAME::setEps(mpq_class eps) {
+	target_eps = eps;
+}
+
+CLS_TMPL_DECL
+void CLS_TMPL_NAME::setSignificands(int significands) {
+	setEps(mpq_class(mpz_class(1), mpz_class(1) << significands));
 }
 
 CLS_TMPL_DECL
