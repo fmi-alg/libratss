@@ -107,7 +107,7 @@ int main(int argc, char ** argv) {
 			}
 		}
 		else {
-			cfg.N = mpz_class(2) << cfg.significands;
+			cfg.N = mpz_class(1) << cfg.significands;
 			if (cfg.verbose) {
 				io.info() << "Setting N to 2^significands=" << cfg.N << std::endl;
 			}
