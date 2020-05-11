@@ -86,6 +86,7 @@ int main(int argc, char ** argv) {
 	ProjectSN proj;
 	ratss::BitCount bc;
 	DenomStats dstats;
+	MinMaxMeanStats<double> apxstats;
 
 	int ret = cfg.parse(argc, argv); 
 	
@@ -160,8 +161,8 @@ int main(int argc, char ** argv) {
 				oit->canonicalize();
 			}
 			if (cfg.stats && (cfg.snapType & ST_FPLLL_FIXED_N)) {
+				auto mn = ip.c.maxNorm(ip.coords.begin(), ip.coords.end(),op.coords.begin());
 				mpq_class maxQ = cfg.N * sqrt(mpz_class(1) << ip.coords.size());
-				auto mn = ip.c.maxNorm(ip.coords.begin(), ip.coords.end(), op.coords.begin());
 				if (mn <= 1/maxQ) {
 					++dstats.errorBetterThanFx;
 				}
@@ -213,6 +214,8 @@ int main(int argc, char ** argv) {
 
 		if (cfg.stats) {
 			bc.update(op.coords.begin(), op.coords.end());
+			auto mn = ip.c.maxNorm(ip.coords.begin(), ip.coords.end(), op.coords.begin());
+			apxstats.update(mn.get_d());
 		}
 		if (cfg.check && !(cfg.snapType & ST_FPLLL_MASK)) {
 			auto mn = proj.calc().maxNorm(ip.coords.begin(), ip.coords.end(), op.coords.begin());
@@ -246,6 +249,9 @@ int main(int argc, char ** argv) {
 	
 	if (cfg.stats) {
 		io.info() << bc << std::endl;
+		io.info() << "Apxstats:" << std::endl;
+		apxstats.print(io.info(), "\t");
+		io.info() << std::endl;
 		io.info() << dstats << std::endl;
 	}
 	
