@@ -193,7 +193,7 @@ int main(int argc, char ** argv) {
 			}
 		}
 		else if (cfg.snapType & ST_BRUTE_FORCE) {
-			SimApxBruteForce<mpz_class, 0> sapx(ip.coords.begin(), ip.coords.end());
+			SimApxBruteForce<mpq_class, 0> sapx(ip.coords.begin(), ip.coords.end());
 			if (cfg.N > 0) {
 				sapx.run(cfg.N.get_ui());
 			}
