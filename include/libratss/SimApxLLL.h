@@ -242,24 +242,56 @@ void CLS_TMPL_NAME::run(SnapType st) {
 		std::cerr << "B=" << B << std::endl;
 	#endif
 		
-	if (st & (ST_FPLLL|ST_FPLLL_SCALED)) {
-		if (st & ST_FPLLL) {
-			N = (target_eps.get_den() / target_eps.get_num()) + int( target_eps.get_den() % target_eps.get_num() != 0 );
-		}
-		else {
-			initN(target_eps);
-		}
-		run_single();
-		
-		assert((ST_FPLLL & st)|| apxEps() <= target_eps);
-	}
-	else if (st & (ST_FPLLL_FIXED_N)) {
+	if (st & ST_FPLLL_FIXED_N) {
 		if (N < 2) {
 			throw std::runtime_error("libratss::SimaApxLLL::run: N was not set");
 		}
 		run_single();
 	}
-	else {
+	else if (st & ST_GUARANTEE_SIZE) {
+		mpz_class maxDen = mpz_class(1/target_eps);
+		N = 2;
+		mpz_class lower = 2; //lower is ok
+		mpz_class upper; //upper overshoots
+		//find first N that does (not) overshoot
+		while (true) {
+			run_single();
+			if (denominator() <= maxDen) {
+				lower = N;
+			}
+			else {
+				upper = N;
+				break;
+			}
+			N *= 2;
+		}
+		//now find the largest N that produces a denominator <= maxDen
+		mpz_class size = upper-lower;
+		while(size > 1) {
+			N = lower+size/2;
+			run_single();
+			if (denominator() < maxDen) { //still good
+				lower = N;
+				size -= size/2;
+			}
+			else { //bad
+				size = size/2;
+			}
+			#ifdef LIBRATSS_DEBUG_VERBOSE
+			{
+				std::cerr << "lower:size: " << lower << ":" << size << std::endl;
+			}
+			#endif
+		}
+		//lower points to the largest den <= maxDen, N may point to the first N that produces a larger den
+		if (lower != N) {
+			N = lower;
+			run_single();
+		}
+		assert(denominator() <= maxDen);
+		assert(apxEps() <= target_eps);
+	}
+	else if (st & ST_GUARANTEE_DISTANCE) {
 		N = 2;
 		
 		#ifdef LIBRATSS_DEBUG_VERBOSE
@@ -282,12 +314,40 @@ void CLS_TMPL_NAME::run(SnapType st) {
 			iterations += 1;
 			#endif
 		}
-		#ifdef LIBRATSS_DEBUG_VERBOSE
-			std::cerr << "Number of greedy iterations: " << iterations << std::endl;
-			std::cerr << "Final N: " << N << std::endl;
-		#endif
+		
+		mpz_class size = N/2;
+		mpz_class lower = size;
+		
+		while(size > 1) {
+			N = lower+size/2;
+			run_single();
+			if (apxEps() <= target_eps) { //still good
+				size = size/2;
+			}
+			else { //bad
+				lower = N;
+				size -= size/2;
+			}
+			#ifdef LIBRATSS_DEBUG_VERBOSE
+			{
+				auto dist = apxEps();
+				std::cerr << "Current distance=" << dist << "~" << dist.get_d() << std::endl;
+				std::cerr << "lower:size: " << lower << ":" << size << std::endl;
+				iterations += 1;
+			}
+			#endif
+		}
+		//lower always points to the largest N that violates the target eps
+		//N either points to lower or to the smallest N that obeys the target eps
+		if (lower == N) {
+			N = lower+1;
+			run_single();
+		}
 		
 		assert(apxEps() <= target_eps);
+	}
+	else {
+		throw std::runtime_error("ratss::SimApxLLL: invalid snapType: " + std::to_string(st));
 	}
 }
 

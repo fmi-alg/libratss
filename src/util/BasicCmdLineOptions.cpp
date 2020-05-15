@@ -57,14 +57,8 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				else if ( stStr == "lll") {
 					snapType |= ST_FPLLL;
 				}
-				else if ( stStr == "llls") {
-					snapType |= ST_FPLLL_SCALED;
-				}
 				else if ( stStr == "llln") {
 					snapType |= ST_FPLLL_FIXED_N;
-				}
-				else if ( stStr == "lllg") {
-					snapType |= ST_FPLLL_GREEDY;
 				}
 				else if ( stStr == "bf") {
 					snapType |= ST_BRUTE_FORCE;
@@ -86,6 +80,25 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				}
 				else {
 					std::cerr << "Unrecognized snap method: " << stStr << std::endl;
+					return -1;
+				}
+				++i;
+			}
+			else {
+				return -1;
+			}
+		}
+		else if (token == "-g") {
+			if (i+1 < argc) {
+				std::string stStr(argv[i+1]);
+				if (stStr == "d" || stStr == "distance") {
+					snapType |= ST_GUARANTEE_DISTANCE;
+				}
+				else if (stStr == "s" || stStr == "size") {
+					snapType |= ST_GUARANTEE_SIZE;
+				}
+				else {
+					std::cerr << "Unrecognized guarantee selection: " << stStr << std::endl;
 					return -1;
 				}
 				++i;
@@ -265,8 +278,9 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-v\tverbose\n"
 		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
 		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (cf|fl|fx|jp|lll|lllg|bf)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, lll=LLL, lllg=LLL-greedy, bf=bruteforce, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
-		"\t-s (s=sphere|p=plane|paper)\tset where the float->rational conversion should take place.\n"
+		"\t-r (cf|fl|fx|jp|lll||llln|bf)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, lll=LLL, llln=LLL fixed N, bf=bruteforce, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
+		"\t-g (s|size|d|distance)\tguarantee of snap type\n"
+		"\t-s (s=sphere|p=plane|paper|paper2)\tset where the float->rational conversion should take place.\n"
 		"\t-n\tnormalize input to length 1\n"
 		"\t--progress\tprogress indicators\n"
 		"\t--rational-pass-through\t don't snap rational input coordinates\n"
@@ -297,14 +311,8 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	else if (snapType & ratss::ST_FPLLL) {
 		out << "LLL";
 	}
-	else if (snapType & ratss::ST_FPLLL_SCALED) {
-		out << "LLL Scaled";
-	}
 	else if (snapType & ratss::ST_FPLLL_FIXED_N) {
 		out << "LLL Fixed N";
-	}
-	else if (snapType & ratss::ST_FPLLL_GREEDY) {
-		out << "LLL Greedy";
 	}
 	else if (snapType & ratss::ST_BRUTE_FORCE) {
 		out << "Brute force";
@@ -328,6 +336,7 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 		out << "invalid";
 	}
 	out << '\n';
+	out << "Guarantee: " << (snapType & ST_GUARANTEE_DISTANCE ? "distance" : "size") << '\n';
 	out << "Float conversion location: " << (snapType & ratss::ST_SPHERE ? "sphere" : "plane") << '\n';
 	out << "Normalize: " << (normalize ? "yes" : "no") << '\n';
 	out << "Input format: ";

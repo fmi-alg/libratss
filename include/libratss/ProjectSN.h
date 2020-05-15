@@ -226,7 +226,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		
 		auto pos = this->sphere2Plane(ptc.begin(), ptc.end(), ptc.begin());
 		
-		if (snapType & (ST_JP | ST_FPLLL | ST_FPLLL_GREEDY | ST_CF)) {
+		if (snapType & (ST_JP | ST_FPLLL_MASK | ST_CF)) {
 			std::vector<mpq_class> apx_plane;
 			apx_plane.reserve(dims);
 			for(auto const & x : ptc) {
@@ -283,7 +283,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		
 		auto pos = this->sphere2Plane(ptc.begin(), ptc.end(), ptc.begin());
 		
-		if (snapType & (ST_JP | ST_FPLLL | ST_FPLLL_GREEDY | ST_CF)) {
+		if (snapType & (ST_JP | ST_FPLLL_MASK | ST_CF)) {
 			std::vector<mpq_class> apx_plane;
 			apx_plane.reserve(dims);
 			for(auto & x : ptc) {

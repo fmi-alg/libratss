@@ -214,7 +214,7 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		*out = output2;
 		++out;
 	}
-	else if (snapType & (ST_FPLLL | ST_FPLLL_GREEDY)) {
+	else if (snapType & (ST_FPLLL_MASK)) {
 		#if defined(LIB_RATSS_WITH_FPLLL)
 			using std::distance;
 			std::vector<mpq_class> tmp;
