@@ -140,7 +140,7 @@ void CLS_TMPL_NAME::initB() {
 			break;
 		}
 	}
-	if (true || !input_has_common_denom) {
+	if (!input_has_common_denom) {
 		B = 1;
 		for(it = begin; it != end; ++it) {
 			B *= it->get_den();
