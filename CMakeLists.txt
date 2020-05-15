@@ -141,7 +141,7 @@ endif()
 add_library(${PROJECT_NAME} STATIC
 	${LIB_SOURCES_CPP}
 )
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_include_directories(${PROJECT_NAME} PUBLIC ${LIBRATSS_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC ${LIBRATSS_LINK_LIBRARIES})
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${LIBRATSS_COMPILE_DEFINITIONS})

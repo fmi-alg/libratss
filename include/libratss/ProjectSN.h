@@ -418,7 +418,12 @@ template<typename GRADE_TYPE, int POLICY>
 template<typename T_ITERATOR>
 int
 ProjectSN::StOptimizer<GRADE_TYPE, POLICY>::best(const T_ITERATOR & begin, const T_ITERATOR & end) const {
-	constexpr std::array<int, ST__INTERNAL_NUMBER_OF_SNAPPING_TYPES> snappingType = {{ST_FL, ST_FX, ST_CF, ST_JP, ST_FPLLL, ST_FPLLL_GREEDY}};
+	std::array snappingType{
+		ST_FL, ST_FX,
+		ST_CF_GUARANTEE_DISTANCE, ST_CF_GUARANTEE_SIZE,
+		ST_JP_GUARANTEE_DISTANCE, ST_JP_GUARANTEE_SIZE,
+		ST_FPLLL_GUARANTEE_DISTANCE, ST_FPLLL_GUARANTEE_SIZE
+	};
 	std::vector<mpq_class> tmp(dims);
 	GRADE_TYPE bestGrade = GRADE_TYPE(std::numeric_limits<std::size_t>::max());
 	int bestType = ST_FX;
