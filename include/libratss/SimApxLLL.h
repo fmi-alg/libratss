@@ -36,6 +36,9 @@ public:
 	inline mpz_class const & denominator() const { return best_common_denom; }
 	inline result_iterator numerators_begin() { return numerators.begin(); }
 	inline result_iterator numerators_end() { return numerators.end(); }
+public:
+	//max distance between input and result
+	mpq_class apxEps();
 private:
 	using Matrix = fplll::ZZ_mat<mpz_t>;
 private:
@@ -44,8 +47,6 @@ private:
 	mpz_class run_single();
 private:
 	mpq_class pow(mpq_class const & x, unsigned long int n);
-	//max distance between input and result
-	mpq_class apxEps();
 	void set_numerators();
 private:
 	input_iterator begin;
