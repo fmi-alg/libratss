@@ -296,13 +296,13 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 	return result;
 }
 
-mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
+mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) const {
 	
 	if (value < 0) {
-		return -contFrac(-value, significands);
+		return -contFrac(-value, significands, mode);
 	}
 	if (value == 0) {
-		return value;
+		return mpq_class(0);
 	}
 	mpz_class epsDenom(1);
 	epsDenom <<= significands;
@@ -311,10 +311,10 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	if (value >= 1) {
 		mpz_class intPart = value.get_num() / value.get_den();
 		mpq_class remainder = value - intPart;
-		if (remainder < eps) {
+		if ((mode & ST_GUARANTEE_DISTANCE) && remainder < eps) {
 			return mpq_class(intPart);
 		}
-		return intPart + contFrac(remainder, significands);
+		return intPart + contFrac(remainder, significands, mode);
 	}
 	//we now know that 0 < value < 1
 	
@@ -331,13 +331,24 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 	intPart = tmp.get_num() / tmp.get_den();
 	tmp -= intPart;
 	
-	if (tmp < eps) { //distance to real value is smaller than eps
-		if (intPart == 0) {
-			return mpq_class(0);
+	if (mode & ST_GUARANTEE_DISTANCE) {
+		if (tmp < eps) { //distance to real value is smaller than eps
+			if (intPart == 0) {
+				return mpq_class(0);
+			}
+			else {
+				return mpq_class(mpz_class(1), mpz_class(intPart));
+			}
 		}
-		else {
-			return mpq_class(mpz_class(1), mpz_class(intPart));
+	}
+	else if (mode & ST_GUARANTEE_SIZE) {
+		 //den of first iterator is larger than allowed value
+		if (mpz_sizeinbase(tmp.get_den().get_mpz_t(), 2) > size_t(significands)) {
+			return 0;
 		}
+	}
+	else {
+		throw std::runtime_error("ratss::Calc::contFrac: unsupported mode:" + std::to_string(mode & ST_GUARANTEE_MASK));
 	}
 	
 #ifndef NDEBUG
@@ -369,8 +380,10 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 		#endif
 		distUpperBoundDenom = (intPart) * qsq;
 		
-		if (distUpperBoundDenom > epsDenom) {
-			break;
+		if (mode & ST_GUARANTEE_DISTANCE) { 
+			if (distUpperBoundDenom > epsDenom) {
+				break;
+			}
 		}
 		
 		tmp -= intPart;
@@ -388,17 +401,22 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands) const {
 		qn = a_i * qn1 + qn2;
 		qn2 = qn1;
 		qn1 = qn;
-		result = mpq_class(qn, pn);
-		result.canonicalize();
-		assert(fromRegContFrac(cf) == result);
-		if (abs(result - value) < eps) {
-			break;
+		mpq_class nextResult(qn, pn);
+		nextResult.canonicalize();
+		assert(fromRegContFrac(cf) == nextResult);
+		if (mode & ST_GUARANTEE_DISTANCE) {
+			if (abs(nextResult - value) < eps) {
+				result = nextResult;
+				break;
+			}
 		}
+		else if (mode & ST_GUARANTEE_SIZE) {
+			if (mpz_sizeinbase(nextResult.get_den().get_mpz_t(), 2) > size_t(significands)) {
+				break;
+			}
+		}
+		result = nextResult;
 	}
-	assert(fromRegContFrac(cf) == result);
-	
-	using std::abs;
-	assert( abs(result-value) <= eps);
 	return result;
 }
 
@@ -542,7 +560,7 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 			);
 		}
 		else {
-			return contFrac(snap(v, ST_FX, significands+2), significands+1);
+			return contFrac(snap(v, ST_FX, significands+2), significands+1, st & ST_GUARANTEE_MASK);
 		}
 	}
 	else if (st & ST_FX) {

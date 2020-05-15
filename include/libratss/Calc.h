@@ -85,7 +85,7 @@ public:
 	/// r is a fraction with the smallest denominator such that lower <= r <= upper
 	mpq_class within(const mpq_class& lower, const mpq_class& upper) const;
 	
-	mpq_class contFrac(const mpq_class& value, int significands) const;
+	mpq_class contFrac(const mpq_class& value, int significands, int mode) const;
 	
 	void jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class& output2, int significands) const;
 	
