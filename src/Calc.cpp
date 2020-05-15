@@ -420,7 +420,7 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 	return result;
 }
 
-void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class & output2, int significands) const {
+void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class & output2, int significands, int mode) const {
 	using Matrix = internal::Matrix<mpz_class>;
 	using std::abs;
 	
@@ -429,12 +429,12 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	}
 	
 	if (input1 < 0) {
-		jacobiPerron2D(-input1, input2, output1, output2, significands);
+		jacobiPerron2D(-input1, input2, output1, output2, significands, mode);
 		output1 *= -1;
 		return;
 	}
 	if (input2 < 0) {
-		jacobiPerron2D(input1, -input2, output1, output2, significands);
+		jacobiPerron2D(input1, -input2, output1, output2, significands, mode);
 		output2 *= -1;
 		return;
 	}
@@ -443,13 +443,13 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	
 	if (input1 > 1) {
 		mpz_class tmp1 = input1.get_num() / input1.get_den();
-		jacobiPerron2D(input1-tmp1, input2, output1, output2, significands);
+		jacobiPerron2D(input1-tmp1, input2, output1, output2, significands, mode);
 		output1 += tmp1;
 		return;
 	}
 	if (input2 > 1) {
 		mpz_class tmp2 = input2.get_num() / input2.get_den();
-		jacobiPerron2D(input1, input2-tmp2, output1, output2, significands);
+		jacobiPerron2D(input1, input2-tmp2, output1, output2, significands, mode);
 		output2 += tmp2;
 		return;
 	}
@@ -459,35 +459,35 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	
 	mpq_class eps = mpq_class(mpz_class(1), mpz_class(1) << significands);
 	
-	if (abs(input1) < eps && abs(input2) < eps) {
-		output1 = 0;
-		output2 = 0;
-		return;
-	}
-	else if (abs(input1) < eps) {
-		output1 = 0;
-		output2 =  within(input2 - eps, input2 + eps); //TODO:use contFrac here
-		return;
-	}
-	else if (abs(input2) < eps) {
-		output2 = 0;
-		output1 = within(input1 - eps, input1 + eps); //TODO:use contFrac here
-		return;
+	if (mode & ST_GUARANTEE_DISTANCE) {
+		if (abs(input1) < eps && abs(input2) < eps) {
+			output1 = 0;
+			output2 = 0;
+			return;
+		}
+		else if (abs(input1) < eps) {
+			output1 = 0;
+			output2 =  within(input2 - eps, input2 + eps); //TODO:use contFrac here
+			return;
+		}
+		else if (abs(input2) < eps) {
+			output2 = 0;
+			output1 = within(input1 - eps, input1 + eps); //TODO:use contFrac here
+			return;
+		}
 	}
 	
 	Matrix result( Matrix::identity(3) );
 	Matrix mtxStep(3);
+	mtxStep(0, 2) = 1;
 	mtxStep(1, 0) = 1;
 	mtxStep(2, 1) = 1;
-	mtxStep(0, 2) = 1;
 	
 	mpz_class an, bn;
 	
 	mpq_class alpha(input1), beta(input2);
 	
 	mpq_class tmp1, tmp2;
-	
-	std::size_t counter = 0;
 	
 	while(alpha != 0) {
 		tmp1 = 1 / alpha;
@@ -506,38 +506,64 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		
 		result = result * mtxStep;
 		
-		output1 = mpq_class( result(1, 0), result(0, 0) );
-		output2 = mpq_class( result(2, 0), result(0, 0) );
-		
-		output1.canonicalize();
-		output2.canonicalize();
-		
-		const mpq_class diff1 = abs(output1-input1);
-		const mpq_class diff2 = abs(output2-input2);
-		
-		if ( diff1 <= eps && diff2 <= eps) {
-			break;
+		if (mode & ST_GUARANTEE_DISTANCE) {
+			output1 = mpq_class( result(1, 0), result(0, 0) );
+			output2 = mpq_class( result(2, 0), result(0, 0) );
+			
+			output1.canonicalize();
+			output2.canonicalize();
+			
+			const mpq_class diff1 = abs(output1-input1);
+			const mpq_class diff2 = abs(output2-input2);
+			
+			if ( diff1 <= eps && diff2 <= eps) {
+				break;
+			}
 		}
-		
-		++counter;
+		else if (mode & ST_GUARANTEE_SIZE) {
+			if (result(0,0) <= eps.get_den()) {
+				output1 = mpq_class( result(1, 0), result(0, 0) );
+				output2 = mpq_class( result(2, 0), result(0, 0) );
+				
+				output1.canonicalize();
+				output2.canonicalize();
+			}
+			else {
+				break;
+			}
+		}
 	}
 	//TODO: if alpha = 0, but beta not good enough?
 	
 	if (alpha == 0) {
 		#ifdef LIBRATSS_DEBUG_VERBOSE
-		std::cerr << "ratss::Calc::jacobiPerron2D: simultanous approximation failed. Using continued fractions." << std::endl;
+		std::cerr << "ratss::Calc::jacobiPerron2D: simultaneous approximation failed. Using continued fractions." << std::endl;
 		#endif
-		if (abs(output1-input1) > eps) {
-			output1 = within(input1-eps, input1+eps);
+		if (mode & ST_GUARANTEE_DISTANCE) {
+			if (abs(output1-input1) > eps) {
+				output1 = within(input1-eps, input1+eps);
+			}
+			if (abs(output2-input2) > eps) {
+				output2 = within(input2-eps, input2+eps);
+			}
 		}
-		if (abs(output2-input2) > eps) {
-			output2 = within(input2-eps, input2+eps);
+		else if (mode & ST_GUARANTEE_SIZE) {
+			if (output1.get_den() > eps.get_den()) {
+				output1 = contFrac(input1, significands, mode);
+			}
+			if (output2.get_den() > eps.get_den()) {
+				output2 = contFrac(input2, significands, mode);
+			}
 		}
 	}
 	
-	{
+	if (mode & ST_GUARANTEE_DISTANCE) {
 		assert(abs(output1-input1) <= eps);
 		assert(abs(output2-input2) <= eps);
+	}
+	else if (mode & ST_GUARANTEE_SIZE) {
+		assert(output1.get_den() <= eps.get_den());
+		assert(output2.get_den() <= eps.get_den());
 	}
 }
 

@@ -87,7 +87,7 @@ public:
 	
 	mpq_class contFrac(const mpq_class& value, int significands, int mode) const;
 	
-	void jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class& output2, int significands) const;
+	void jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_class& output1, mpq_class& output2, int significands, int snapTypeGuarantee) const;
 	
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void apply_common_denominator(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, const mpz_class & common_denom) const;
@@ -208,7 +208,7 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		++begin;
 		mpq_class input2( snap(*begin, ST_FX, significands+2) );
 		mpq_class output1, output2;
-		jacobiPerron2D(input1, input2, output1, output2, significands+1);
+		jacobiPerron2D(input1, input2, output1, output2, significands+1, snapType & ST_GUARANTEE_MASK);
 		*out = output1;
 		++out;
 		*out = output2;

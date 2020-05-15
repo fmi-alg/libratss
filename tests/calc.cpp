@@ -9,8 +9,8 @@ namespace tests {
 
 class CalcTest: public TestBase {
 CPPUNIT_TEST_SUITE( CalcTest );
-// CPPUNIT_TEST( withinSpecial );
-// CPPUNIT_TEST( contFracRandom );
+CPPUNIT_TEST( withinSpecial );
+CPPUNIT_TEST( contFracRandom );
 CPPUNIT_TEST( jacobiPerron2D );
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -50,7 +50,12 @@ void CalcTest::jacobiPerron2D() {
 	
 	mpq_class output1, output2;
 	
-	calc.jacobiPerron2D(input1, input2, output1, output2, 16);
+	calc.jacobiPerron2D(input1, input2, output1, output2, 16, ST_JP_GUARANTEE_DISTANCE);
+	
+	CPPUNIT_ASSERT_EQUAL(input1, output1);
+	CPPUNIT_ASSERT_EQUAL(input2, output2);
+	
+	calc.jacobiPerron2D(input1, input2, output1, output2, 16, ST_JP_GUARANTEE_SIZE);
 	
 	CPPUNIT_ASSERT_EQUAL(input1, output1);
 	CPPUNIT_ASSERT_EQUAL(input2, output2);
