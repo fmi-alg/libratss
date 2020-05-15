@@ -122,6 +122,10 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 					snapType |= ST_PAPER;
 					snapType &= ~ST_PAPER;
 				}
+				else if (stStr == "paper2") {
+					snapType |= ST_PAPER2;
+					snapType &= ~ST_PAPER2;
+				}
 				else {
 					std::cerr << "Unrecognized snap location: " << stStr << std::endl;
 					return -1;
