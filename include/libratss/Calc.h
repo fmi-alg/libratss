@@ -220,7 +220,7 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 			std::vector<mpq_class> tmp;
 			
 			for(auto it(begin); it != end; ++it) {
-				tmp.emplace_back( snap(*it, ST_FX, significands+2) );
+				tmp.emplace_back( convert<mpq_class>(*it) );
 			}
 			
 			SimApxLLL<std::vector<mpq_class>::const_iterator> sapx(tmp.cbegin(), tmp.cend(), significands+1);
