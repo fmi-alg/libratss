@@ -107,6 +107,9 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				return -1;
 			}
 		}
+		else if (token == "--input-is-exact") {
+			snapType |= ST_INPUT_IS_EXACT;
+		}
 		else if (token == "-s") {
 			if (i+1 < argc) {
 				std::string stStr(argv[i+1]);
@@ -288,6 +291,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t-n\tnormalize input to length 1\n"
 		"\t--progress\tprogress indicators\n"
 		"\t--rational-pass-through\t don't snap rational input coordinates\n"
+		"\t--input-is-exact\tInput is exact. This is only useful for cartesian input formats\n"
 		"\t-if format\tset input format: [spherical, geo, cartesian=[rational, split, float, float128]]\n"
 		"\t-of format\tset output format: [spherical, geo, rational, split, float, float128]\n"
 		"\t-i\tpath to input\n"

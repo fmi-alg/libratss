@@ -210,7 +210,12 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		mpq_class output1, output2;
 		if (snapType & ST_GUARANTEE_DISTANCE) {
 			//we have to user one bit more since the input point may not be the exact point that we want to approximate
-			jacobiPerron2D(input1, input2, output1, output2, significands+1, ST_GUARANTEE_DISTANCE);
+			if (snapType & ST_INPUT_IS_EXACT) {
+				jacobiPerron2D(input1, input2, output1, output2, significands, ST_GUARANTEE_DISTANCE);
+			}
+			else {
+				jacobiPerron2D(input1, input2, output1, output2, significands+1, ST_GUARANTEE_DISTANCE);
+			}
 		}
 		else {
 			jacobiPerron2D(input1, input2, output1, output2, significands, ST_GUARANTEE_SIZE);
@@ -231,7 +236,12 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 			
 			SimApxLLL<std::vector<mpq_class>::const_iterator> sapx(tmp.cbegin(), tmp.cend());
 			if (snapType & ST_GUARANTEE_DISTANCE) {
-				sapx.setSignificands(significands+1);
+				if (snapType & ST_INPUT_IS_EXACT) {
+					sapx.setSignificands(significands+1);
+				}
+				else {
+					sapx.setSignificands(significands);
+				}
 			}
 			else {
 				sapx.setSignificands(significands);

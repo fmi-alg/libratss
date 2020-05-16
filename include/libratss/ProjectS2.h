@@ -117,6 +117,8 @@ void ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT& xs, T_F
 	if (precision < 0) {
 		precision = std::max<int>(lat.getPrecision(), lon.getPrecision());
 	}
+	
+	snapType &= ~ST_INPUT_IS_EXACT;
 
 	mpfr::mpreal flxs, flys, flzs;
 	mpq_class xpq, ypq, zpq;
@@ -215,6 +217,8 @@ void ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT&
 	if (precision < 0) {
 		precision = std::max<int>(theta.getPrecision(), phi.getPrecision());
 	}
+	
+	snapType &= ~ST_INPUT_IS_EXACT;
 
 	mpq_class xpq, ypq, zpq;
 	mpfr::mpreal flxs, flys, flzs;
@@ -297,6 +301,7 @@ void ProjectS2::projectFromGeo(CORE_TWO::Expr const & lat, CORE_TWO::Expr const 
 	}
 	snapType &= ~ST_SNAP_POSITION_MASK;
 	snapType |= ST_PAPER2;
+	snapType &= ~ST_INPUT_IS_EXACT;
 
 	std::array<CORE_TWO::Expr, 3> cartesian;
 	std::array<mpq_class, 3> snapped;
@@ -319,6 +324,7 @@ void ProjectS2::projectFromSpherical(CORE_TWO::Expr const & theta, CORE_TWO::Exp
 	}
 	snapType &= ~ST_SNAP_POSITION_MASK;
 	snapType |= ST_PAPER2;
+	snapType &= ~ST_INPUT_IS_EXACT;
 
 	std::array<CORE_TWO::Expr, 3> cartesian;
 	std::array<mpq_class, 3> snapped;

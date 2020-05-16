@@ -37,7 +37,9 @@ typedef enum : int {
 	
 	ST_GUARANTEE_MASK=ST_GUARANTEE_DISTANCE|ST_GUARANTEE_SIZE,
 	
-	ST_CF=ST_GUARANTEE_SIZE*2,  //snap by continous fraction, compatible with values defined in Calc
+	ST_INPUT_IS_EXACT=ST_GUARANTEE_SIZE*2, //input points are exact
+	
+	ST_CF=ST_INPUT_IS_EXACT*2,  //snap by continous fraction, compatible with values defined in Calc
 	ST_FX=ST_CF*2, //snap by fix point
 	ST_FL=ST_FX*2, //snap by floating point
 	ST_JP=ST_FL*2,
