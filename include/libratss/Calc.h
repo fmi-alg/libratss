@@ -204,9 +204,9 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 		if (distance(begin, end) != 2) {
 			throw std::domain_error("ratss::Calc::toRational: Snapping with jacobiPerron only supports dimension 2");
 		}
-		mpq_class input1( snap(*begin, ST_FX, significands+2) );
+		mpq_class input1( convert<mpq_class>(*begin) );
 		++begin;
-		mpq_class input2( snap(*begin, ST_FX, significands+2) );
+		mpq_class input2( convert<mpq_class>(*begin) );
 		mpq_class output1, output2;
 		jacobiPerron2D(input1, input2, output1, output2, significands+1, snapType & ST_GUARANTEE_MASK);
 		*out = output1;
