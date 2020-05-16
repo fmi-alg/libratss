@@ -18,8 +18,8 @@ namespace {
 CLS_TMPL_DECL
 class ProjectionTest: public TestBase {
 CPPUNIT_TEST_SUITE( ProjectionTest );
-CPPUNIT_TEST( fixPointRandom );
-CPPUNIT_TEST( bijectionSpecial );
+// CPPUNIT_TEST( fixPointRandom );
+// CPPUNIT_TEST( bijectionSpecial );
 CPPUNIT_TEST( quadrantTest );
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -147,8 +147,16 @@ void CLS_TMPL_NAME::quadrantTest() {
 		//y_i = x_i/(1-x_d) = (p_i/2^n)/(1-p_d/2^n) = (p_i/2^n)* 2^n/(2^n-p_d) = p_i/(2^n-p_d)
 		//Thus an lcm of (2^n-p_d)=Q thus Q<=2^(n+1) since p_d may be negative but abs(p_d) <= 2^n
 		switch (snapType) {
-		case ST_CF:
-		case ST_FPLLL:
+		case ST_CF_GUARANTEE_SIZE:
+			maxQ = bits;
+			break;
+		case ST_CF_GUARANTEE_DISTANCE:
+			maxQ = bits+2;
+			break;
+		case ST_FPLLL_GUARANTEE_SIZE:
+			maxQ = bits;
+			break;
+		case ST_FPLLL_GUARANTEE_DISTANCE:
 			maxQ = bits*point.size();
 			break;
 		case ST_FX:
@@ -157,9 +165,10 @@ void CLS_TMPL_NAME::quadrantTest() {
 				maxQ += 1;
 			}
 			break;
-		case ST_FPLLL_GREEDY:
-			maxQ = bits+2;
-		case ST_JP:
+		case ST_JP_GUARANTEE_SIZE:
+			maxQ = bits;
+			break;
+		case ST_JP_GUARANTEE_DISTANCE:
 			maxQ = bits+2;
 			break;
 		}
@@ -184,8 +193,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 				using std::abs;
 				std::stringstream ss;
 				//ST_FL may result in bit sizes larger than the requested number of bits due to the exponent
-				//ST_FPLLL_GREEDY may exceed the bitsize as well but does not for this test
-				if (snapType & (ST_CF | ST_FX | ST_FPLLL | ST_FPLLL_GREEDY | ST_JP)) {
+				if (snapType & (ST_FX | ST_GUARANTEE_SIZE)) {
 					ss << errmsg << "; p[" << j << "]=" << point[j] << " : ";
 					ss << "bits(p[" << j << "])=" << numBits(point[j].get_num()) << "/" << numBits(point[j].get_den());
 					ss <<  " > " << std::size_t(2*bits+1) << "/" << std::size_t(2*bits+2);
@@ -203,8 +211,7 @@ void CLS_TMPL_NAME::quadrantTest() {
 					//algo guarantees den <= 2*Q^2 with Q=2^bits -> num <= 2*2^(2*bits) -> we need 2*bits+2 bits to encode the number 2^(2*bits+1)
 					CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_den()) <= std::size_t(2*maxQ+2));
 				}
-				///ST_FPLLL does not guarantee the distance
-				if (snapType & (ST_FL | ST_CF | ST_FX | ST_JP | ST_FPLLL_SCALED |  ST_FPLLL_GREEDY)) {
+				if (snapType & (ST_FL | ST_FX | ST_GUARANTEE_DISTANCE)) {
 					ss = std::stringstream();
 					mpq_class dist = abs(cartesians[i][j]-point[j]);
 					mpq_class distInEps = dist/eps;
@@ -251,42 +258,49 @@ int main(int argc, char ** argv) {
 		runners.back()->addTest(  ProjectionTest<__SNAP_POSITION, __SNAP_TYPE>::suite() ); \
 	} while (0);
 	
-	TEST_INSTANCE(ST_PLANE, ST_CF);
+	TEST_INSTANCE(ST_PLANE, ST_CF_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PLANE, ST_CF_GUARANTEE_SIZE);
 	TEST_INSTANCE(ST_PLANE, ST_FX);
 	TEST_INSTANCE(ST_PLANE, ST_FL);
-	TEST_INSTANCE(ST_PLANE, ST_JP);
+	TEST_INSTANCE(ST_PLANE, ST_JP_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PLANE, ST_JP_GUARANTEE_SIZE);
 	
-	TEST_INSTANCE(ST_SPHERE, ST_CF);
+	TEST_INSTANCE(ST_SPHERE, ST_CF_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_SPHERE, ST_CF_GUARANTEE_SIZE);
 	TEST_INSTANCE(ST_SPHERE, ST_FL);
 	TEST_INSTANCE(ST_SPHERE, ST_FX);
 	
 #if defined(LIB_RATSS_WITH_CGAL)
-	TEST_INSTANCE(ST_PAPER, ST_CF);
+	TEST_INSTANCE(ST_PAPER, ST_CF_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PAPER, ST_CF_GUARANTEE_SIZE);
 	TEST_INSTANCE(ST_PAPER, ST_FX);
-	TEST_INSTANCE(ST_PAPER, ST_JP);
+	TEST_INSTANCE(ST_PAPER, ST_JP_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PAPER, ST_JP_GUARANTEE_SIZE);
 #endif
 	
 #if defined(LIB_RATSS_WITH_CORE_TWO)
-	TEST_INSTANCE(ST_PAPER2, ST_CF);
+	TEST_INSTANCE(ST_PAPER2, ST_CF_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PAPER2, ST_CF_GUARANTEE_SIZE);
 	TEST_INSTANCE(ST_PAPER2, ST_FX);
-	TEST_INSTANCE(ST_PAPER2, ST_JP);
+	TEST_INSTANCE(ST_PAPER2, ST_JP_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PAPER2, ST_JP_GUARANTEE_SIZE);
 #endif
 
 #if defined(LIB_RATSS_WITH_FPLLL)
-	TEST_INSTANCE(ST_PLANE, ST_FPLLL);
-	TEST_INSTANCE(ST_SPHERE, ST_FPLLL);
-	TEST_INSTANCE(ST_PLANE, ST_FPLLL_GREEDY);
-	TEST_INSTANCE(ST_SPHERE, ST_FPLLL_GREEDY);
+	TEST_INSTANCE(ST_PLANE, ST_FPLLL_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_SPHERE, ST_FPLLL_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PLANE, ST_FPLLL_GUARANTEE_SIZE);
+	TEST_INSTANCE(ST_SPHERE, ST_FPLLL_GUARANTEE_SIZE);
 #endif
 	
 #if defined(LIB_RATSS_WITH_CGAL) and defined(LIB_RATSS_WITH_FPLLL)
-	TEST_INSTANCE(ST_PAPER, ST_FPLLL);
-	TEST_INSTANCE(ST_PAPER, ST_FPLLL_GREEDY);
+	TEST_INSTANCE(ST_PAPER, ST_FPLLL_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PAPER, ST_FPLLL_GUARANTEE_SIZE);
 #endif
 	
 #if defined(LIB_RATSS_WITH_CORE_TWO) and defined(LIB_RATSS_WITH_FPLLL)
-	TEST_INSTANCE(ST_PAPER2, ST_FPLLL);
-	TEST_INSTANCE(ST_PAPER2, ST_FPLLL_GREEDY);
+	TEST_INSTANCE(ST_PAPER2, ST_FPLLL_GUARANTEE_DISTANCE);
+	TEST_INSTANCE(ST_PAPER2, ST_FPLLL_GUARANTEE_SIZE);
 #endif
 	
 #undef TEST_INSTANCE
