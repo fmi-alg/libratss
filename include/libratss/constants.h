@@ -6,7 +6,9 @@
 
 #ifdef __GNUC__
 	#define DEPRECATED __attribute__((deprecated))
-	#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+	#ifndef WARN_UNUSED_RESULT
+		#define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+	#endif
 #elif defined(_MSC_VER)
 	#define DEPRECATED __declspec(deprecated)
 #else
