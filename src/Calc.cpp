@@ -505,8 +505,11 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	mpq_class alpha(input1), beta(input2);
 	
 	mpq_class tmp1, tmp2;
+
+	mpq_class best_diff = 1;
 	
 	while(alpha != 0) {
+
 		tmp1 = 1 / alpha;
 		an = tmp1.get_num()/tmp1.get_den();
 		
@@ -538,12 +541,30 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 			}
 		}
 		else if (mode & ST_GUARANTEE_SIZE) {
-			if (result(0,0) <= eps.get_den()) {
-				output1 = mpq_class( result(1, 0), result(0, 0) );
-				output2 = mpq_class( result(2, 0), result(0, 0) );
-				
-				output1.canonicalize();
-				output2.canonicalize();
+
+			mpq_class o1( result(1, 0), result(0, 0) );
+			mpq_class o2( result(2, 0), result(0, 0) );
+			
+			o1.canonicalize();
+			o2.canonicalize();
+
+			if (abs(max(o1.get_den(), o2.get_den())) <= eps.get_den()) {
+			// if (abs(result(0,0) <= eps.get_den())) {
+
+				const mpq_class diff1 = abs(o1-input1);
+				const mpq_class diff2 = abs(o2-input2);
+
+				if (max(diff1, diff2) < best_diff) {
+					best_diff = max(diff1, diff2);
+					output1 = mpq_class( result(1, 0), result(0, 0) );
+					output2 = mpq_class( result(2, 0), result(0, 0) );
+					
+					output1.canonicalize();
+					output2.canonicalize();
+
+					assert(output1.get_den() <= eps.get_den());
+					assert(output2.get_den() <= eps.get_den());
+				}
 			}
 			else {
 				break;
