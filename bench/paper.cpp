@@ -39,16 +39,22 @@ std::string ec2Str(const EntryConfig & ec) {
 	else if (ec.first & ST_FX) {
 		ret = "fx";
 	}
-	else if (ec.first & ST_CF) {
-		ret = "cf";
+	else if ((ec.first & ST_CF_GUARANTEE_SIZE) == ST_CF_GUARANTEE_SIZE) {
+		ret = "cfs";
 	}
-	else if (ec.first & ST_JP) {
-		ret = "jp";
+	else if ((ec.first & ST_CF_GUARANTEE_DISTANCE) == ST_CF_GUARANTEE_DISTANCE) {
+		ret = "cfd";
 	}
-	else if (ec.first & ST_FPLLL_GUARANTEE_SIZE) {
+	else if ((ec.first & ST_JP_GUARANTEE_SIZE) == ST_JP_GUARANTEE_SIZE) {
+		ret = "jps";
+	}
+	else if ((ec.first & ST_JP_GUARANTEE_DISTANCE) == ST_JP_GUARANTEE_DISTANCE) {
+		ret = "jpd";
+	}
+	else if ((ec.first & ST_FPLLL_GUARANTEE_SIZE) == ST_FPLLL_GUARANTEE_SIZE) {
 		ret = "llls";
 	}
-	else if (ec.first & ST_FPLLL_GUARANTEE_DISTANCE) {
+	else if ((ec.first & ST_FPLLL_GUARANTEE_DISTANCE) == ST_FPLLL_GUARANTEE_DISTANCE) {
 		ret = "llld";
 	}
 	else if (ec.first & ST_FPLLL_FIXED_N) {
@@ -60,7 +66,7 @@ std::string ec2Str(const EntryConfig & ec) {
 	return ret + ":" + std::to_string(ec.second);
 }
 
-constexpr std::size_t num_entries = 24;
+constexpr std::size_t num_entries = 32;
 
 std::array<EntryConfig, num_entries> entryConfigs{{
 // 	EntryConfig(ST_FX | ST_PLANE, 4),
@@ -83,15 +89,25 @@ std::array<EntryConfig, num_entries> entryConfigs{{
 	EntryConfig(ST_FX | ST_PLANE, 20),
 	EntryConfig(ST_FX | ST_PLANE, 30),
 	
-	EntryConfig(ST_CF | ST_PLANE, 4),
-	EntryConfig(ST_CF | ST_PLANE, 12),
-	EntryConfig(ST_CF | ST_PLANE, 20),
-	EntryConfig(ST_CF | ST_PLANE, 30),
+	EntryConfig(ST_CF_GUARANTEE_DISTANCE | ST_PLANE, 4),
+	EntryConfig(ST_CF_GUARANTEE_DISTANCE | ST_PLANE, 12),
+	EntryConfig(ST_CF_GUARANTEE_DISTANCE | ST_PLANE, 20),
+	EntryConfig(ST_CF_GUARANTEE_DISTANCE | ST_PLANE, 30),
+
+	EntryConfig(ST_CF_GUARANTEE_SIZE | ST_PLANE, 4),
+	EntryConfig(ST_CF_GUARANTEE_SIZE | ST_PLANE, 12),
+	EntryConfig(ST_CF_GUARANTEE_SIZE | ST_PLANE, 20),
+	EntryConfig(ST_CF_GUARANTEE_SIZE | ST_PLANE, 30),
 // 	
-	EntryConfig(ST_JP | ST_PLANE, 4),
-	EntryConfig(ST_JP | ST_PLANE, 12),
-	EntryConfig(ST_JP | ST_PLANE, 20),
-	EntryConfig(ST_JP | ST_PLANE, 30),
+	EntryConfig(ST_JP_GUARANTEE_DISTANCE | ST_PLANE, 4),
+	EntryConfig(ST_JP_GUARANTEE_DISTANCE | ST_PLANE, 12),
+	EntryConfig(ST_JP_GUARANTEE_DISTANCE | ST_PLANE, 20),
+	EntryConfig(ST_JP_GUARANTEE_DISTANCE | ST_PLANE, 30),
+
+	EntryConfig(ST_JP_GUARANTEE_SIZE | ST_PLANE, 4),
+	EntryConfig(ST_JP_GUARANTEE_SIZE | ST_PLANE, 12),
+	EntryConfig(ST_JP_GUARANTEE_SIZE | ST_PLANE, 20),
+	EntryConfig(ST_JP_GUARANTEE_SIZE | ST_PLANE, 30),
 	
 	EntryConfig(ST_FPLLL_GUARANTEE_DISTANCE | ST_PLANE, 4),
 	EntryConfig(ST_FPLLL_GUARANTEE_DISTANCE | ST_PLANE, 12),
