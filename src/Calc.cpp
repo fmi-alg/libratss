@@ -598,7 +598,7 @@ mpq_class Calc::snap(const mpfr::mpreal& v, int st, int significands) const {
 			throw std::domain_error(
 				"Calc::makeFixpoint: Number of signifcands is " +
 				std::to_string(significands) +
-				" which is smaller than input precision which is " +
+				"+2 which is smaller than input precision which is " +
 				std::to_string(v.getPrecision())
 			);
 		}
