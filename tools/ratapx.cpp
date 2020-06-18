@@ -153,7 +153,7 @@ int main(int argc, char ** argv) {
 				sapx.run(ST_FPLLL_FIXED_N);
 			}
 			else {
-				sapx.run(SnapType(cfg.snapType & ST_SNAP_TYPES_MASK));
+				sapx.run(SnapType(cfg.snapType));
 			}
 			auto oit = op.coords.begin();
 			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it, ++oit) {
@@ -209,7 +209,7 @@ int main(int argc, char ** argv) {
 		else {
 			FloatPoint fip;
 			fip.assign(ip.coords.begin(), ip.coords.end(), cfg.precision);
-			proj.calc().toRational(fip.coords.begin(), fip.coords.end(), op.coords.begin(), cfg.snapType & ST_SNAP_TYPES_MASK, cfg.significands);
+			proj.calc().toRational(fip.coords.begin(), fip.coords.end(), op.coords.begin(), cfg.snapType, cfg.significands);
 		}
 
 		if (cfg.stats) {
