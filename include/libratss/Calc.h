@@ -248,7 +248,7 @@ Calc::toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR
 			else {
 				sapx.setSignificands(significands);
 			}
-			sapx.run(SnapType(snapType & ST_SNAP_TYPES_MASK));
+			sapx.run(SnapType(snapType));
 			
 			for(auto it(sapx.numerators_begin()); it != sapx.numerators_end(); ++it) {
 				mpq_class pq(*it, sapx.denominator());
