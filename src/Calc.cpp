@@ -508,10 +508,10 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 	
 	while(alpha != 0) {
 		tmp1 = 1 / alpha;
-		an = closestInteger(tmp1);
+		an = tmp1.get_num()/tmp1.get_den();
 		
 		tmp2 = beta / alpha;
-		bn = closestInteger(tmp2);
+		bn = tmp2.get_num()/tmp2.get_den();
 		
 		alpha = tmp2 - bn;
 		beta = tmp1 - an;
