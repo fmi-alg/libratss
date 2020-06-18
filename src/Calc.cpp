@@ -420,9 +420,9 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 		nextResult.canonicalize();
 		assert(fromRegContFrac(cf) == nextResult);
 		if (mode & ST_GUARANTEE_DISTANCE) {
-			if (abs(nextResult - value) < eps) {
+			if (abs(nextResult - value) <= eps) {
 				result = nextResult;
-				break;
+				break;	
 			}
 		}
 		else if (mode & ST_GUARANTEE_SIZE) {
@@ -430,7 +430,6 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 				break;
 			}
 		}
-		result = nextResult;
 	}
 	return result;
 }
