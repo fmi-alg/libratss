@@ -66,6 +66,21 @@ mpfr::mpreal Calc::sqrt(const mpfr::mpreal& v) const {
 	return mpfr::sqrt(v);
 }
 
+mpq_class Calc::closestInteger(mpq_class v) const {
+	if (v < 0) {
+		return  - closestInteger(-v);
+	}
+	else {
+		mpz_class q, r;
+		::mpz_fdiv_qr(q.get_mpz_t(), r.get_mpz_t(), v.get_num_mpz_t(), v.get_den_mpz_t());
+		if (r*2 > v.get_den()) { //ceil is closer
+			q += 1;
+			assert(abs(q-v) < abs((q-1)-v));
+		}
+		return q;
+	}
+}
+
 mpfr::mpreal Calc::add(const mpfr::mpreal & a, const mpfr::mpreal & b) const {
 	//double precision to remove rounding
 // 	int prec = std::max<int>(a.getPrecision(), b.getPrecision()) + 1;

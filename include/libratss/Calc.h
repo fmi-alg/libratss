@@ -29,6 +29,8 @@ public:
 	template<typename T_FT>
 	inline T_FT div(const T_FT & a, const T_FT & b) const { return a/b; }
 public:
+	mpq_class closestInteger(mpq_class v) const;
+public:
 	mpfr::mpreal add(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
 	mpfr::mpreal sub(const mpfr::mpreal & a, const mpfr::mpreal & b)  const;
 	mpfr::mpreal mult(const mpfr::mpreal & a, const mpfr::mpreal & b) const;
