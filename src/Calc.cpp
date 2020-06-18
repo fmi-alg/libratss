@@ -579,18 +579,26 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		#endif
 		if (mode & ST_GUARANTEE_DISTANCE) {
 			if (abs(output1-input1) > eps) {
-				output1 = within(input1-eps, input1+eps);
+				output1 = contFrac(input1, significands, mode);
+				output2 = closestInteger(input2*output1.get_den())/output1.get_den();
 			}
 			if (abs(output2-input2) > eps) {
-				output2 = within(input2-eps, input2+eps);
+				output2 = contFrac(input2, significands, mode);
+				output1 = closestInteger(input1*output2.get_den())/output2.get_den();
+			}
+			if (abs(output1-input1) > eps) { //contFrac of above is not good enough, fall back to fixpoint
+				output1 = snap(input1, ST_FX, significands);
+				output2 = snap(input2, ST_FX, significands);
 			}
 		}
 		else if (mode & ST_GUARANTEE_SIZE) {
-			if (output1.get_den() > eps.get_den()) {
+			if (output1.get_den() < eps.get_den()) {
 				output1 = contFrac(input1, significands, mode);
+				output2 = closestInteger(input2*output1.get_den())/output1.get_den();
 			}
-			if (output2.get_den() > eps.get_den()) {
+			if (output2.get_den() < eps.get_den()) {
 				output2 = contFrac(input2, significands, mode);
+				output1 = closestInteger(input1*output2.get_den())/output2.get_den();
 			}
 		}
 	}
