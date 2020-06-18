@@ -151,7 +151,6 @@ int main(int argc, char ** argv) {
 					}
 				}
 			}
-			return -1;
 		}
 		op.print(io.output(), cfg.outFormat);
 		if (io.input().peek() != '\n') {
