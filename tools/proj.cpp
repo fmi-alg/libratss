@@ -132,8 +132,25 @@ int main(int argc, char ** argv) {
 		if (cfg.stats) {
 			bc.update(op.coords.begin(), op.coords.end());
 		}
-		if (cfg.check && !op.valid()) {
-			io.info() << "Invalid projection for point " << ip << std::endl;
+		if (cfg.check) {
+			if (!op.valid()) {
+				io.info() << "Invalid projection for point " << ip << std::endl;
+			}
+			for(std::size_t i(0), s(op.coords.size()); i < s; ++i) {
+				auto const & opc = op.coords[i];
+				auto const & ipc = ip.coords[i];
+				if (cfg.snapType & (ST_GUARANTEE_SIZE|ST_FX)) {
+					auto numBits = ::mpz_sizeinbase(opc.get_den_mpz_t(), 2);
+					if (numBits > 2*cfg.significands+1) {
+						io.info() << "Point " << counter << " exceeds requested denominator size" << std::endl;
+					} 
+				}
+				if (cfg.snapType & (ST_GUARANTEE_DISTANCE|ST_FX|ST_FL)) {
+					if (abs(opc - convert<mpq_class>(ipc)) > mpq_class(mpz_class(1), mpz_class(1) << cfg.significands)) {
+						io.info() << "Point " << counter << " exceeds requested distance" << std::endl;
+					}
+				}
+			}
 			return -1;
 		}
 		op.print(io.output(), cfg.outFormat);
