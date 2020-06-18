@@ -426,7 +426,10 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 			}
 		}
 		else if (mode & ST_GUARANTEE_SIZE) {
-			if (mpz_sizeinbase(nextResult.get_den().get_mpz_t(), 2) > size_t(significands)) {
+			if (nextResult.get_den() <= eps.get_den()) {
+				result = nextResult;
+			}
+			else {
 				break;
 			}
 		}
