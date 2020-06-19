@@ -3,50 +3,49 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
-
 BasicCmdLineOptions::SnapTypeHelper::SnapTypeHelper() {
 
-#define ENTRY(__NAME, __DESC) \
+#define ENTRY(__NAME, __SHORT, __DESC) \
 	m_st.push_back(ST_ ## __NAME); \
 	m_st2str[ST_ ## __NAME] = #__NAME; \
 	m_str2st[#__NAME] = ST_ ## __NAME; \
 	m_str2st["ST_" #__NAME] = ST_ ## __NAME; \
 	m_desc[ST_ ## __NAME] = __DESC;
 
-	ENTRY(AUTO_ALL, "Try all snapping types")
-	ENTRY(AUTO, "Enable auto selection of snap type")
-	ENTRY(AUTO_CF, "Add cf to auto selection")
-	ENTRY(AUTO_FX, "Add fx to auto selection")
-	ENTRY(AUTO_FL, "Add fl to auto selection")
-	ENTRY(AUTO_JP, "Add jp to auto selection")
-	ENTRY(AUTO_FPLLL_FIXED_N, "Add fplll with fixed N to auto selection")
-	ENTRY(AUTO_FPLLL, "Add fplll to auto selection")
-	ENTRY(AUTO_BRUTE_FORCE, "Add brute-force to auto selection")
-	ENTRY(AUTO_POLICY_MIN_SUM_DENOM, "Set auto snap policy")
-	ENTRY(AUTO_POLICY_MIN_MAX_DENOM, "Set auto snap policy")
-	ENTRY(AUTO_POLICY_MIN_TOTAL_LIMBS, "Set auto snap policy")
-	ENTRY(AUTO_POLICY_MIN_SQUARED_DISTANCE, "Set auto snap policy")
-	ENTRY(AUTO_POLICY_MIN_MAX_NORM, "Set auto snap policy")
-	ENTRY(CF, "Use continous fraction for snapping")
-	ENTRY(FX, "Use fix-point for snapping")
-	ENTRY(FL, "Use floating point for snapping")
-	ENTRY(JP, "Use jacobi perron for snapping")
-	ENTRY(FPLLL_FIXED_N, "Use fplll with fixed N for snapping")
-	ENTRY(FPLLL, "Use fplll for snapping")
-	ENTRY(BRUTE_FORCE, "Use brute-force for snapping")
-	ENTRY(INPUT_IS_EXACT, "Input is exact and does not have an error")
-	ENTRY(GUARANTEE_DISTANCE, "Guarantee distance, try to minimize size of the denominator")
-	ENTRY(GUARANTEE_SIZE, "Guarantee maximum size of denominator, try to minimize distance to input")
-	ENTRY(SPHERE, "Snap on sphere")
-	ENTRY(PLANE, "Snap in the plane")
-	ENTRY(PAPER, "Use Core::Expr to correctly scale down points to the plane.")
-	ENTRY(PAPER2, "Use Core2::Expr to correctly scale down point to the plane. Also support geo points as input.")
-	ENTRY(NORMALIZE, "Normalize input to 1 before snapping.")
+	ENTRY(AUTO_ALL, "AUTO-ALL", "Try all snapping types")
+	ENTRY(AUTO, "AUTO-ALL", "Enable auto selection of snap type")
+	ENTRY(AUTO_CF, "ACF", "Add cf to auto selection")
+	ENTRY(AUTO_FX, "AFX", "Add fx to auto selection")
+	ENTRY(AUTO_FL, "AFL", "Add fl to auto selection")
+	ENTRY(AUTO_JP, "AJP", "Add jp to auto selection")
+	ENTRY(AUTO_FPLLL_FIXED_N, "ALLL-FN", "Add fplll with fixed N to auto selection")
+	ENTRY(AUTO_FPLLL,, "ALLL" "Add fplll to auto selection")
+	ENTRY(AUTO_BRUTE_FORCE, "ABF", "Add brute-force to auto selection")
+	ENTRY(AUTO_POLICY_MIN_SUM_DENOM, "MSD", "Set auto snap policy")
+	ENTRY(AUTO_POLICY_MIN_MAX_DENOM, "MMD", "Set auto snap policy")
+	ENTRY(AUTO_POLICY_MIN_TOTAL_LIMBS, "MTL", "Set auto snap policy")
+	ENTRY(AUTO_POLICY_MIN_SQUARED_DISTANCE, "MD2", "Set auto snap policy")
+	ENTRY(AUTO_POLICY_MIN_MAX_NORM, "MN", "Set auto snap policy")
+	ENTRY(CF, "CF", "Use continous fraction for snapping")
+	ENTRY(FX, "FX", "Use fix-point for snapping")
+	ENTRY(FL, "FL", "Use floating point for snapping")
+	ENTRY(JP, "JP", "Use jacobi perron for snapping")
+	ENTRY(FPLLL_FIXED_N, "LLL-FN", "Use fplll with fixed N for snapping")
+	ENTRY(FPLLL, "LLL", "Use fplll for snapping")
+	ENTRY(BRUTE_FORCE, "BF", "Use brute-force for snapping")
+	ENTRY(INPUT_IS_EXACT, "E", "Input is exact and does not have an error")
+	ENTRY(GUARANTEE_DISTANCE, "GD", "Guarantee distance, try to minimize size of the denominator")
+	ENTRY(GUARANTEE_SIZE, "GS", "Guarantee maximum size of denominator, try to minimize distance to input")
+	ENTRY(SPHERE, "S", "Snap on sphere")
+	ENTRY(PLANE, "P", "Snap in the plane")
+	ENTRY(PAPER, "PAPER", "Use Core::Expr to correctly scale down points to the plane.")
+	ENTRY(PAPER2, "PAPER", "Use Core2::Expr to correctly scale down point to the plane. Also support geo points as input.")
+	ENTRY(NORMALIZE, "N", "Normalize input to 1 before snapping.")
 #undef ENTRY
 }
 
 std::string
-BasicCmdLineOptions::SnapTypeHelper::description(SnapType st) {
+BasicCmdLineOptions::SnapTypeHelper::description(SnapType st) const {
 	if (m_desc.count(st)) {
 		return m_desc.at(st);
 	}
@@ -56,7 +55,7 @@ BasicCmdLineOptions::SnapTypeHelper::description(SnapType st) {
 }
 
 std::string
-BasicCmdLineOptions::SnapTypeHelper::toString(int st) {
+BasicCmdLineOptions::SnapTypeHelper::toString(int st) const {
 	if (st == ST_NONE) {
 		return "ST_NONE";
 	}
@@ -75,7 +74,7 @@ BasicCmdLineOptions::SnapTypeHelper::toString(int st) {
 }
 
 int
-BasicCmdLineOptions::SnapTypeHelper::fromString(std::string const & str) {
+BasicCmdLineOptions::SnapTypeHelper::fromString(std::string const & str) const {
 	int result = 0;
 	std::string token;
 	for(char c : str) {
@@ -103,17 +102,7 @@ BasicCmdLineOptions::SnapTypeHelper::fromString(std::string const & str) {
 	return result;
 }
 
-BasicCmdLineOptions::BasicCmdLineOptions() :
-precision(-1),
-significands(-1),
-snapType(ST_NONE),
-normalize(false),
-verbose(false),
-progress(false),
-rationalPassThrough(false),
-inFormat(FloatPoint::FM_CARTESIAN_FLOAT),
-outFormat(RationalPoint::FM_RATIONAL)
-{}
+BasicCmdLineOptions::BasicCmdLineOptions() {}
 
 BasicCmdLineOptions::~BasicCmdLineOptions() {}
 
@@ -121,7 +110,7 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 	int numParsedOpts = 0;
 	for(int i(1); i < argc; ++i) {
 		std::string token(argv[i]);
-		if (token == "-p") {
+		if (token == "-c") {
 			if (i+1 < argc) {
 				precision = ::atoi(argv[i+1]);
 				++i;
@@ -130,109 +119,39 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				return -1;
 			}
 		}
-		else if (token == "-e") {
+		else if (token == "-p") {
 			if (i+1 < argc) {
 				significands = ::atoi(argv[i+1]);
+				boundMode = BM_SIGNIFICANDS;
 				++i;
 			}
 			else {
 				return -1;
 			}
 		}
-		else if (token == "-r") {
-			if (i+1 < argc) {
-				std::string stStr(argv[i+1]);
-				if (stStr == "cf") {
-					snapType |= ST_CF;
-				}
-				else if (stStr == "fx") {
-					snapType |= ST_FX;
-				}
-				else if (stStr == "fl") {
-					snapType |= ST_FL;
-				}
-				else if ( stStr == "jp") {
-					snapType |= ST_JP;
-				}
-				else if ( stStr == "lll") {
-					snapType |= ST_FPLLL;
-				}
-				else if ( stStr == "llln") {
-					snapType |= ST_FPLLL_FIXED_N;
-				}
-				else if ( stStr == "bf") {
-					snapType |= ST_BRUTE_FORCE;
-				}
-				else if (stStr == "ml" || stStr == "minlimb") {
-					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_TOTAL_LIMBS;
-				}
-				else if (stStr == "md" || stStr == "mindenom") {
-					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_MAX_DENOM;
-				}
-				else if (stStr == "msd" || stStr == "minsumdenom") {
-					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_SUM_DENOM;
-				}
-				else if (stStr == "md2" || stStr == "minsqdist") {
-					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_SQUARED_DISTANCE;
-				}
-				else if (stStr == "mmn" || stStr == "minmaxnorm") {
-					snapType |= ST_AUTO_ALL | ST_AUTO_POLICY_MIN_MAX_NORM;
-				}
-				else {
-					std::cerr << "Unrecognized snap method: " << stStr << std::endl;
-					return -1;
-				}
+		else if (token == "-Q") {
+			if  (i+1 < argc) {
+				maxDen = mpz_class(std::string(argv[i+1]));
+				boundMode = BM_MAX_DEN;
 				++i;
 			}
 			else {
 				return -1;
 			}
 		}
-		else if (token == "-g") {
-			if (i+1 < argc) {
-				std::string stStr(argv[i+1]);
-				if (stStr == "d" || stStr == "distance") {
-					snapType |= ST_GUARANTEE_DISTANCE;
-				}
-				else if (stStr == "s" || stStr == "size") {
-					snapType |= ST_GUARANTEE_SIZE;
-				}
-				else {
-					std::cerr << "Unrecognized guarantee selection: " << stStr << std::endl;
-					return -1;
-				}
+		else if (token == "-e") {
+			if  (i+1 < argc) {
+				epsilon = abs(mpq_class(argv[i+1]));
+				boundMode = BM_EPSILON;
 				++i;
 			}
 			else {
 				return -1;
 			}
-		}
-		else if (token == "--input-is-exact") {
-			snapType |= ST_INPUT_IS_EXACT;
 		}
 		else if (token == "-s") {
 			if (i+1 < argc) {
-				std::string stStr(argv[i+1]);
-				if (stStr == "p" || stStr == "plane") {
-					snapType &= ~ST_SPHERE;
-					snapType |= ST_PLANE;
-				}
-				else if (stStr == "s" || stStr == "sphere") {
-					snapType |= ST_SPHERE;
-					snapType &= ~ST_PLANE;
-				}
-				else if (stStr == "paper") {
-					snapType |= ST_PAPER;
-					snapType &= ~ST_PAPER;
-				}
-				else if (stStr == "paper2") {
-					snapType |= ST_PAPER2;
-					snapType &= ~ST_PAPER2;
-				}
-				else {
-					std::cerr << "Unrecognized snap location: " << stStr << std::endl;
-					return -1;
-				}
+				snapType = m_sth.fromString(argv[i+1]);
 				++i;
 			}
 			else {
@@ -315,9 +234,6 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 				return -1;
 			}
 		}
-		else if (token == "-n") {
-			normalize = true;
-		}
 		else if (token == "-v" || token == "--verbose") {
 			verbose = true;
 		}
@@ -346,11 +262,6 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 			}
 		}
 		++numParsedOpts;
-	}
-	
-	if (snapType & (ST_PAPER|ST_PAPER2) && normalize) {
-		std::cerr << "Requesting normaliziation of input with paper snapping is of no use." << std::endl;
-		return -1;
 	}
 	
 	if (precision < 0) {
@@ -382,20 +293,26 @@ void BasicCmdLineOptions::parse_completed() {}
 
 void BasicCmdLineOptions::options_help(std::ostream& out) const {
 	out <<
-		"\t-v\tverbose\n"
-		"\t-e k\tset significands to k which translates to an epsilon of 2^-k\n"
-		"\t-p num\tset the precision of the input in bits\n"
-		"\t-r (cf|fl|fx|jp|lll||llln|bf)\tset the type of float->rational conversion. fx=fixpoint, cf=continous fraction, fl=floating point, jp=jacobi-perron, lll=LLL, llln=LLL fixed N, bf=bruteforce, ml=minlimb, md=mindenom, msd=minsumdenom, md2=minsqdist, mmn=minmaxnorm\n"
-		"\t-g (s|size|d|distance)\tguarantee of snap type\n"
-		"\t-s (s=sphere|p=plane|paper|paper2)\tset where the float->rational conversion should take place.\n"
-		"\t-n\tnormalize input to length 1\n"
+		"General options:\n"
+		"\t--verbose\tverbose\n"
 		"\t--progress\tprogress indicators\n"
+
+		"\nComputation options\n"
+		"\t-c num\tset the precision of the input and the precision of subsequent computations in bits.\n"
+		"\t-p k\tset significands to k which translates to an epsilon of 2^-k\n"
+		"\t-Q num\tset the largest possible denominator. Only useful for brute force and lll modes.\n"
+		"\t-e rational\tset a specific epsilon given as a rational.\n"
+		"\nInput options:\n"
 		"\t--rational-pass-through\t don't snap rational input coordinates\n"
-		"\t--input-is-exact\tInput is exact. This is only useful for cartesian input formats\n"
 		"\t-if format\tset input format: [spherical, geo, cartesian=[rational, split, float, float128]]\n"
-		"\t-of format\tset output format: [spherical, geo, rational, split, float, float128]\n"
 		"\t-i\tpath to input\n"
-		"\t-o\tpath to output";
+		"\t--stats (sum|each|bits|distance)\tCompute statistics for all points (sum) or each point.\n"
+		"\t-of format\tset output format: [spherical, geo, rational, split, float, float128]\n"
+		"\t-o\tpath to output\n"
+		"-s snap type flags: \n";
+	for(auto st : m_sth.types()) {
+		out << m_sth.toString(st) << ": " << m_sth.description(SnapType(st)) << '\n';
+	}
 }
 
 void BasicCmdLineOptions::options_selection(std::ostream& out) const {
@@ -403,50 +320,7 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	if (significands > 0) {
 		out << "Significands: " << significands << '\n';
 	}
-	out << "Float conversion method: ";
-	if (snapType & ratss::ST_CF) {
-		out << "continous fraction";
-	}
-	else if (snapType & ratss::ST_FX) {
-		out << "fix point";
-	}
-	else if (snapType & ratss::ST_FL) {
-		out << "floating point";
-	}
-	else if (snapType & ratss::ST_JP) {
-		out << "jacobi-perron";
-	}
-	else if (snapType & ratss::ST_FPLLL) {
-		out << "LLL";
-	}
-	else if (snapType & ratss::ST_FPLLL_FIXED_N) {
-		out << "LLL Fixed N";
-	}
-	else if (snapType & ratss::ST_BRUTE_FORCE) {
-		out << "Brute force";
-	}
-	else if (snapType & ratss::ST_AUTO_POLICY_MIN_MAX_DENOM) {
-		out << "minimize maximum denominator";
-	}
-	else if (snapType & ratss::ST_AUTO_POLICY_MIN_SUM_DENOM) {
-		out << "minimize summed denominators";
-	}
-	else if (snapType & ratss::ST_AUTO_POLICY_MIN_TOTAL_LIMBS) {
-		out << "minimize total number of limbs";
-	}
-	else if (snapType & ratss::ST_AUTO_POLICY_MIN_SQUARED_DISTANCE) {
-		out << "minimize squared distance to input point";
-	}
-	else if (snapType & ratss::ST_AUTO_POLICY_MIN_MAX_NORM) {
-		out << "minimize maximum norm";
-	}
-	else {
-		out << "invalid";
-	}
-	out << '\n';
-	out << "Guarantee: " << (snapType & ST_GUARANTEE_DISTANCE ? "distance" : "size") << '\n';
-	out << "Float conversion location: " << (snapType & ratss::ST_SPHERE ? "sphere" : "plane") << '\n';
-	out << "Normalize: " << (normalize ? "yes" : "no") << '\n';
+	out << "Snap type: " << m_sth.toString(snapType);
 	out << "Input format: ";
 	if (inFormat == FloatPoint::FM_GEO) {
 		out << "geo";

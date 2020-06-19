@@ -81,7 +81,7 @@ int main(int argc, char ** argv) {
 		ss << line;
 		ip.assign(ss, cfg.inFormat, cfg.precision);
 		ss.clear();
-		if (cfg.normalize) {
+		if (cfg.snapType & ST_NORMALIZE) {
 			ip.normalize();
 		}
 		

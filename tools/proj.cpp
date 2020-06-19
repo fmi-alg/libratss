@@ -94,7 +94,7 @@ int main(int argc, char ** argv) {
 		if (cfg.rationalPassThrough) {
 			op.assign(io.input(), cfg.inFormat, cfg.precision);
 			if (!op.valid()) {
-				if (!cfg.normalize) {
+				if (!(cfg.snapType & ST_NORMALIZE)) {
 					std::cerr << "Input point read that is not on sphere but no normalization was requested" << std::endl;
 				}
 				else {
@@ -108,7 +108,7 @@ int main(int argc, char ** argv) {
 		}
 		
 		if (opFromIp) {
-			if (cfg.normalize) {
+			if (cfg.snapType & ST_NORMALIZE) {
 				if (cfg.verbose) {
 					io.info() << "Normalizing (" << ip << ") to ";
 				}

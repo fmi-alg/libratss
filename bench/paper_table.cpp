@@ -205,7 +205,7 @@ int main(int argc, char ** argv) {
 		}
 		ip.assign(io.input(), cfg.inFormat, cfg.precision);
 		ip.setPrecision(cfg.precision);
-		if (cfg.normalize) {
+		if (cfg.snapType & ST_NORMALIZE) {
 			ip.normalize();
 		}
 		points.emplace_back( std::move(ip.coords) );

@@ -57,7 +57,7 @@ void FileReader::visit(T_VISITOR visitor) {
 		if (cfg.rationalPassThrough) {
 			op.assign(io.input(), cfg.inFormat, cfg.precision);
 			if (!op.valid()) {
-				if (!cfg.normalize) {
+				if (!(cfg.snapType & ST_NORMALIZE)) {
 					std::cerr << "Input point read that is not on sphere but no normalization was requested" << std::endl;
 				}
 				else {
@@ -71,7 +71,7 @@ void FileReader::visit(T_VISITOR visitor) {
 		}
 		
 		if (opFromIp) {
-			if (cfg.normalize) {
+			if (cfg.snapType & ST_NORMALIZE) {
 				if (cfg.verbose) {
 					io.info() << "Normalizing (" << ip << ") to ";
 				}

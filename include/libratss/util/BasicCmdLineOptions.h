@@ -32,9 +32,11 @@ public:
 		SnapTypeHelper();
 		~SnapTypeHelper() {}
 	public:
-		std::string description(SnapType st);
-		std::string toString(int st);
-		int fromString(std::string const & str);
+		inline std::vector<int> const & types() const { return m_st; }
+	public:
+		std::string description(SnapType st) const;
+		std::string toString(int st) const;
+		int fromString(std::string const & str) const;
 	private:
 		std::vector<int> m_st;
 		std::map<int, std::string> m_st2str;
@@ -42,18 +44,23 @@ public:
 		std::map<int, std::string> m_desc;
 	};
 
+	typedef enum { BM_SIGNIFICANDS, BM_EPSILON, BM_MAX_DEN} BoundMode;
+	typedef enum { SM_NONE=0x0, SM_SUM=0x1, SM_EACH=0x2, SM_SIZE_IN_BITS=0x4, SM_DISTANCE_RATIONAL=0x8, SM_DISTANCE_DOUBLE=0x10} StatsMode;
 public:
 	std::string inFileName;
 	std::string outFileName;
-	int precision;
-	int significands;
-	int snapType;
-	bool normalize;
-	bool verbose;
-	bool progress;
-	bool rationalPassThrough;
-	FloatPoint::Format inFormat;
-	RationalPoint::Format outFormat;
+	int precision{-1};
+	int significands{-1};
+	mpq_class epsilon;
+	mpz_class maxDen;
+	BoundMode boundMode{BM_SIGNIFICANDS};
+	int snapType{ST_NONE};
+	bool verbose{false};
+	bool progress{false};
+	bool rationalPassThrough{false};
+	FloatPoint::Format inFormat{FloatPoint::FM_CARTESIAN_FLOAT};
+	RationalPoint::Format outFormat{RationalPoint::FM_RATIONAL};
+	int statsMode{SM_NONE};
 public:
 	BasicCmdLineOptions();
 	virtual ~BasicCmdLineOptions();
@@ -69,6 +76,8 @@ public:
 	void options_help(std::ostream & out) const;
 public:
 	void options_selection(std::ostream & out) const;
+protected:
+	SnapTypeHelper m_sth;
 };
 
 }//end namespace LIB_RATSS_NAMESPACE
