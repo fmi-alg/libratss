@@ -5,6 +5,7 @@
 #include <libratss/constants.h>
 #include <libratss/util/InputOutputPoints.h>
 #include <exception>
+#include <map>
 
 namespace LIB_RATSS_NAMESPACE {
 
@@ -14,7 +15,6 @@ namespace LIB_RATSS_NAMESPACE {
   *
   *
   */
-
 
 class BasicCmdLineOptions {
 public:
@@ -26,6 +26,22 @@ public:
 		virtual ~ParseError() throw() {}
 		virtual const char* what() const throw() override { return m_msg.c_str(); }
 	};
+
+	class SnapTypeHelper final {
+	public:
+		SnapTypeHelper();
+		~SnapTypeHelper() {}
+	public:
+		std::string description(SnapType st);
+		std::string toString(int st);
+		int fromString(std::string const & str);
+	private:
+		std::vector<int> m_st;
+		std::map<int, std::string> m_st2str;
+		std::map<std::string, int> m_str2st;
+		std::map<int, std::string> m_desc;
+	};
+
 public:
 	std::string inFileName;
 	std::string outFileName;

@@ -3,6 +3,106 @@
 
 namespace LIB_RATSS_NAMESPACE {
 
+
+BasicCmdLineOptions::SnapTypeHelper::SnapTypeHelper() {
+
+#define ENTRY(__NAME, __DESC) \
+	m_st.push_back(ST_ ## __NAME); \
+	m_st2str[ST_ ## __NAME] = #__NAME; \
+	m_str2st[#__NAME] = ST_ ## __NAME; \
+	m_str2st["ST_" #__NAME] = ST_ ## __NAME; \
+	m_desc[ST_ ## __NAME] = __DESC;
+
+	ENTRY(AUTO_ALL, "Try all snapping types")
+	ENTRY(AUTO, "Enable auto selection of snap type")
+	ENTRY(AUTO_CF, "Add cf to auto selection")
+	ENTRY(AUTO_FX, "Add fx to auto selection")
+	ENTRY(AUTO_FL, "Add fl to auto selection")
+	ENTRY(AUTO_JP, "Add jp to auto selection")
+	ENTRY(AUTO_FPLLL_FIXED_N, "Add fplll with fixed N to auto selection")
+	ENTRY(AUTO_FPLLL, "Add fplll to auto selection")
+	ENTRY(AUTO_BRUTE_FORCE, "Add brute-force to auto selection")
+	ENTRY(AUTO_POLICY_MIN_SUM_DENOM, "Set auto snap policy")
+	ENTRY(AUTO_POLICY_MIN_MAX_DENOM, "Set auto snap policy")
+	ENTRY(AUTO_POLICY_MIN_TOTAL_LIMBS, "Set auto snap policy")
+	ENTRY(AUTO_POLICY_MIN_SQUARED_DISTANCE, "Set auto snap policy")
+	ENTRY(AUTO_POLICY_MIN_MAX_NORM, "Set auto snap policy")
+	ENTRY(CF, "Use continous fraction for snapping")
+	ENTRY(FX, "Use fix-point for snapping")
+	ENTRY(FL, "Use floating point for snapping")
+	ENTRY(JP, "Use jacobi perron for snapping")
+	ENTRY(FPLLL_FIXED_N, "Use fplll with fixed N for snapping")
+	ENTRY(FPLLL, "Use fplll for snapping")
+	ENTRY(BRUTE_FORCE, "Use brute-force for snapping")
+	ENTRY(INPUT_IS_EXACT, "Input is exact and does not have an error")
+	ENTRY(GUARANTEE_DISTANCE, "Guarantee distance, try to minimize size of the denominator")
+	ENTRY(GUARANTEE_SIZE, "Guarantee maximum size of denominator, try to minimize distance to input")
+	ENTRY(SPHERE, "Snap on sphere")
+	ENTRY(PLANE, "Snap in the plane")
+	ENTRY(PAPER, "Use Core::Expr to correctly scale down points to the plane.")
+	ENTRY(PAPER2, "Use Core2::Expr to correctly scale down point to the plane. Also support geo points as input.")
+	ENTRY(NORMALIZE, "Normalize input to 1 before snapping.")
+#undef ENTRY
+}
+
+std::string
+BasicCmdLineOptions::SnapTypeHelper::description(SnapType st) {
+	if (m_desc.count(st)) {
+		return m_desc.at(st);
+	}
+	else {
+		return "No description available";
+	}
+}
+
+std::string
+BasicCmdLineOptions::SnapTypeHelper::toString(int st) {
+	if (st == ST_NONE) {
+		return "ST_NONE";
+	}
+	//first take care of compound flags
+	std::string result;
+	for(int x : m_st) {
+		if ((st & x) == x) {
+			result += "|" + m_st2str.at(x);
+			st &= ~x;
+		}
+	}
+	if (!result.size()) {
+		return "INVALID";
+	}
+	return std::string(result.begin()+1, result.end());
+}
+
+int
+BasicCmdLineOptions::SnapTypeHelper::fromString(std::string const & str) {
+	int result = 0;
+	std::string token;
+	for(char c : str) {
+		if (c == ' ') {
+			continue;
+		}
+		else  if (c == '|' || c == ',') {
+			if (m_str2st.count(token)) {
+				result |= m_str2st.at(token);
+			}
+			else {
+				throw std::runtime_error("Invalid token: " + token);
+			}
+		}
+		else if (c == '_') {
+			token += c;
+		}
+		else if ('A' <= c && c <= 'Z') {
+			token += c;
+		}
+		else if ('a' <= c && c <= 'z') {
+			token += c-32;
+		}
+	}
+	return result;
+}
+
 BasicCmdLineOptions::BasicCmdLineOptions() :
 precision(-1),
 significands(-1),
