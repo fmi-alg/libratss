@@ -60,7 +60,7 @@ public:
 	bool rationalPassThrough{false};
 	FloatPoint::Format inFormat{FloatPoint::FM_CARTESIAN_FLOAT};
 	RationalPoint::Format outFormat{RationalPoint::FM_RATIONAL};
-	int statsMode{SM_NONE};
+	int stats{SM_NONE};
 public:
 	BasicCmdLineOptions();
 	virtual ~BasicCmdLineOptions();

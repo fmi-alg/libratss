@@ -10,6 +10,7 @@ BasicCmdLineOptions::SnapTypeHelper::SnapTypeHelper() {
 	m_st2str[ST_ ## __NAME] = #__NAME; \
 	m_str2st[#__NAME] = ST_ ## __NAME; \
 	m_str2st["ST_" #__NAME] = ST_ ## __NAME; \
+	m_str2st[__SHORT] = ST_ ## __NAME; \
 	m_desc[ST_ ## __NAME] = __DESC;
 
 	ENTRY(AUTO_ALL, "AUTO-ALL", "Try all snapping types")
@@ -19,7 +20,7 @@ BasicCmdLineOptions::SnapTypeHelper::SnapTypeHelper() {
 	ENTRY(AUTO_FL, "AFL", "Add fl to auto selection")
 	ENTRY(AUTO_JP, "AJP", "Add jp to auto selection")
 	ENTRY(AUTO_FPLLL_FIXED_N, "ALLL-FN", "Add fplll with fixed N to auto selection")
-	ENTRY(AUTO_FPLLL,, "ALLL" "Add fplll to auto selection")
+	ENTRY(AUTO_FPLLL, "ALLL", "Add fplll to auto selection")
 	ENTRY(AUTO_BRUTE_FORCE, "ABF", "Add brute-force to auto selection")
 	ENTRY(AUTO_POLICY_MIN_SUM_DENOM, "MSD", "Set auto snap policy")
 	ENTRY(AUTO_POLICY_MIN_MAX_DENOM, "MMD", "Set auto snap policy")
@@ -81,13 +82,14 @@ BasicCmdLineOptions::SnapTypeHelper::fromString(std::string const & str) const {
 		if (c == ' ') {
 			continue;
 		}
-		else  if (c == '|' || c == ',') {
+		else  if (c == '|' || c == ',' || c == ':') {
 			if (m_str2st.count(token)) {
 				result |= m_str2st.at(token);
 			}
 			else {
 				throw std::runtime_error("Invalid token: " + token);
 			}
+			token.clear();
 		}
 		else if (c == '_') {
 			token += c;
@@ -175,6 +177,42 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 			}
 			else {
 				return -1;
+			}
+		}
+		else if (token == "--stats") {
+			if (i+1 < argc) {
+				token.assign(argv[i+1]);
+				if (token == "sum") {
+					stats |= SM_SUM;
+				}
+				else if (token == "each") {
+					stats |= SM_EACH;
+				}
+				else if (token == "bits") {
+					stats |= SM_SIZE_IN_BITS;
+				}
+				else if (token == "distr") {
+					stats |= SM_DISTANCE_RATIONAL;
+				}
+				else if (token == "distd" || token == "dist" || token == "distance") {
+					stats |= SM_DISTANCE_DOUBLE;
+				}
+				else {
+					bool parseOk = false;
+					try {
+						parseOk = this->parse(token, i, argc, argv);
+					}
+					catch (const ParseError & e) {
+						std::cerr << e.what() << std::endl;
+						return -1;
+					}
+					if (!parseOk) {
+						std::cerr << "Unrecognized stats option: " << token << std::endl;
+						return -1;
+					}
+					--i; //account for increment of i below
+				}
+				++i;
 			}
 		}
 		else if (token == "-if") {
@@ -282,6 +320,10 @@ int BasicCmdLineOptions::parse(int argc, char ** argv) {
 	
 	parse_completed();
 	
+	if (stats && !(stats & (SM_EACH|SM_SUM))) {
+		stats |= SM_SUM;
+	}
+	
 	return numParsedOpts;
 }
 
@@ -296,7 +338,7 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"General options:\n"
 		"\t--verbose\tverbose\n"
 		"\t--progress\tprogress indicators\n"
-
+		"\t--stats <which>\tStatistics sum|each+bits|distr|dist\n"
 		"\nComputation options\n"
 		"\t-c num\tset the precision of the input and the precision of subsequent computations in bits.\n"
 		"\t-p k\tset significands to k which translates to an epsilon of 2^-k\n"
@@ -309,9 +351,9 @@ void BasicCmdLineOptions::options_help(std::ostream& out) const {
 		"\t--stats (sum|each|bits|distance)\tCompute statistics for all points (sum) or each point.\n"
 		"\t-of format\tset output format: [spherical, geo, rational, split, float, float128]\n"
 		"\t-o\tpath to output\n"
-		"-s snap type flags: \n";
+		"\n-s snap type flags: \n";
 	for(auto st : m_sth.types()) {
-		out << m_sth.toString(st) << ": " << m_sth.description(SnapType(st)) << '\n';
+		out << '\t' << m_sth.toString(st) << ": " << m_sth.description(SnapType(st)) << '\n';
 	}
 }
 
@@ -320,7 +362,7 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	if (significands > 0) {
 		out << "Significands: " << significands << '\n';
 	}
-	out << "Snap type: " << m_sth.toString(snapType);
+	out << "Snap type: " << m_sth.toString(snapType) << '\n';
 	out << "Input format: ";
 	if (inFormat == FloatPoint::FM_GEO) {
 		out << "geo";
