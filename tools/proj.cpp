@@ -12,22 +12,14 @@ using namespace LIB_RATSS_NAMESPACE::tools;
 
 class Config: public BasicCmdLineOptions {
 public:
-	bool stats;
-	bool check;
-	bool planeCoords;
+	bool check{false};
+	bool planeCoords{false};
 public:
-	Config() :
-	stats(false),
-	check(false),
-	planeCoords(false)
-	{}
+	Config() {}
 	using BasicCmdLineOptions::parse;
 	bool parse(const std::string & token, int &, int , char **) override {
-		if (token == "-c") {
+		if (token == "--check") {
 			check = true;
-		}
-		else if (token == "-b") {
-			stats = true;
 		}
 		else if (token == "--print-plane-coords")  {
 			planeCoords = true;
@@ -39,12 +31,11 @@ public:
 	}
 	
 	void help(std::ostream & out) const {
+		BasicCmdLineOptions::options_help(out);
 		out << "prg OPTIONS\n"
 			"Options:\n"
-			"\t-b\talso print bitsize statistics\n"
 			"\t--print-plane-coords\tprint coordinates in the plane\n"
-			"\t-c\tcheck projected points\n";
-		BasicCmdLineOptions::options_help(out);
+			"\t--check\tcheck projected points\n";
 		out << std::endl;
 	}
 	void print(std::ostream & out) const {
@@ -57,6 +48,7 @@ int main(int argc, char ** argv) {
 	Config cfg;
 	ProjectSN proj;
 	ratss::BitCount bc;
+	MinMaxMeanStats<double> apxds;
 
 	int ret = cfg.parse(argc, argv); 
 	
@@ -72,6 +64,29 @@ int main(int argc, char ** argv) {
 	if (cfg.verbose) {
 		cfg.print(io.info());
 		io.info() << std::endl;
+	}
+
+	if (cfg.stats & cfg.SM_EACH) {
+		bool hasPrev = false;
+		if (cfg.stats & cfg.SM_SIZE_IN_BITS) {
+			io.output() << "bit size";
+			hasPrev = true;
+		}
+		if (cfg.stats & cfg.SM_DISTANCE_DOUBLE) {
+			if (hasPrev) {
+				io.output() << ";";
+			}
+			io.output() << "distance to input";
+			hasPrev=true;
+		}
+		if (cfg.stats & cfg.SM_DISTANCE_RATIONAL) {
+			if (hasPrev) {
+				io.output() << ";";
+			}
+			io.output() << "distance to input";
+			hasPrev=true;
+		}
+		io.output() << std::setprecision(std::numeric_limits<double>::digits10+1);
 	}
 	
 	FloatPoint ip;
@@ -129,9 +144,6 @@ int main(int argc, char ** argv) {
 				swap(opp.coords, op.coords);
 			}
 		}
-		if (cfg.stats) {
-			bc.update(op.coords.begin(), op.coords.end());
-		}
 		if (cfg.check) {
 			if (!op.valid()) {
 				io.info() << "Invalid projection for point " << ip << std::endl;
@@ -152,7 +164,53 @@ int main(int argc, char ** argv) {
 				}
 			}
 		}
-		op.print(io.output(), cfg.outFormat);
+		if (!(cfg.stats & cfg.SM_EACH)) {
+			op.print(io.output(), cfg.outFormat);
+		}
+		if (cfg.stats) {
+			bool hasPrev = false;
+			if (cfg.stats & cfg.SM_SIZE_IN_BITS) {
+				if (cfg.stats & cfg.SM_SUM) {
+					bc.update(op.coords.begin(), op.coords.end());
+				}
+				if (cfg.stats & cfg.SM_EACH) {
+					size_t v = 0;
+					for(auto const & x : op.coords) {
+						v = std::max({v, mpz_sizeinbase(x.get_den_mpz_t(), 2), mpz_sizeinbase(x.get_num_mpz_t(), 2)});
+					}
+					io.output() << v;
+					hasPrev = true;
+				}
+			}
+			if (cfg.stats & (cfg.SM_DISTANCE_DOUBLE | cfg.SM_DISTANCE_RATIONAL)) {
+				auto mn = ip.c.maxNorm(ip.coords.begin(), ip.coords.end(), op.coords.begin());
+				if (cfg.stats & cfg.SM_DISTANCE_DOUBLE) {
+					if (cfg.stats & cfg.SM_SUM) {
+						apxds.update(mn.get_d());
+					}
+					if (cfg.stats & cfg.SM_EACH) {
+						if (hasPrev) {
+							io.output() << ';';
+						}
+						io.output() << mpfr::mpreal(mn.get_d());
+						hasPrev = true;
+					}
+				}
+				if (cfg.stats & cfg.SM_DISTANCE_RATIONAL) {
+					if (cfg.stats & cfg.SM_SUM) {
+						apxds.update(mn.get_d());
+					}
+					if (cfg.stats & cfg.SM_EACH) {
+						if (hasPrev) {
+							io.output() << ';';
+						}
+						io.output() << mn;
+						hasPrev = true;
+					}
+				}
+			}
+		}
+
 		if (io.input().peek() != '\n') {
 			io.output().put(' ');
 		}
@@ -163,8 +221,11 @@ int main(int argc, char ** argv) {
 		}
 	}
 	
-	if (cfg.stats) {
+	if (cfg.stats & cfg.SM_SUM) {
 		io.info() << bc << std::endl;
+		io.info() << "Distance to input:" << std::endl;
+		apxds.print(io.info(), "\t");
+		io.info() << std::endl;
 	}
 	
 	return 0;
