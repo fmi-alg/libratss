@@ -458,12 +458,12 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		}
 		else if (abs(input1) < eps) {
 			output1 = 0;
-			output2 =  within(input2 - eps, input2 + eps); //TODO:use contFrac here
+			output2 =  contFrac(input2, significands, mode);
 			return;
 		}
 		else if (abs(input2) < eps) {
+			output1 = contFrac(input1, significands, mode);
 			output2 = 0;
-			output1 = within(input1 - eps, input1 + eps); //TODO:use contFrac here
 			return;
 		}
 	}
