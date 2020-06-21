@@ -408,6 +408,8 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 			}
 		}
 	}
+	assert((mode & ST_GUARANTEE_SIZE) == 0 ||result.get_den() <= eps.get_den());
+	assert((mode & ST_GUARANTEE_DISTANCE) == 0 || abs(value-result) <= eps);
 	return result;
 }
 
@@ -499,6 +501,8 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 		mtxStep(2,0) = bn;
 		
 		result = result * mtxStep;
+
+		assert(result(0,0) > 0);
 		
 		if (mode & ST_GUARANTEE_DISTANCE) {
 			output1 = mpq_class( result(1, 0), result(0, 0) );
