@@ -346,26 +346,6 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 	intPart = tmp.get_num() / tmp.get_den();
 	tmp -= intPart;
 	
-	if (mode & ST_GUARANTEE_DISTANCE) {
-		if (tmp < eps) { //distance to real value is smaller than eps
-			if (intPart == 0) {
-				return mpq_class(0);
-			}
-			else {
-				return mpq_class(mpz_class(1), mpz_class(intPart));
-			}
-		}
-	}
-	else if (mode & ST_GUARANTEE_SIZE) {
-		 //den of first iterator is larger than allowed value
-		if (mpz_sizeinbase(tmp.get_den().get_mpz_t(), 2) > size_t(significands)) {
-			return 0;
-		}
-	}
-	else {
-		throw std::runtime_error("ratss::Calc::contFrac: unsupported mode:" + std::to_string(mode & ST_GUARANTEE_MASK));
-	}
-	
 #ifndef NDEBUG
 	cf.emplace_back( std::move(intPart) );
 #else
@@ -386,6 +366,7 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 	
 	mpq_class result;
 	while(tmp > 0) {
+		assert(tmp <= 1);
 		tmp = 1 / tmp;
 		intPart = tmp.get_num() / tmp.get_den();
 		#ifndef NDEBUG
@@ -393,13 +374,6 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 		#else
 		mpz_class qsq = cfBack*cfBack;
 		#endif
-		distUpperBoundDenom = (intPart) * qsq;
-		
-		if (mode & ST_GUARANTEE_DISTANCE) { 
-			if (distUpperBoundDenom > epsDenom) {
-				break;
-			}
-		}
 		
 		tmp -= intPart;
 		#ifndef NDEBUG
