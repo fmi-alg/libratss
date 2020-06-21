@@ -52,9 +52,9 @@ void ratss_debug_print_CORE_TWO_Expr(CORE_TWO::Expr const & v) {
 
 namespace LIB_RATSS_NAMESPACE {
 	
-#define PRINT_FN_ADDR(__F) std::cout << #__F ":" << std::size_t(&__F) << std::endl;
+#define PRINT_FN_ADDR(__F) std::cout << std::size_t(&__F);
 void init_interactive_debuging() {
-	std::cout << "Initializing interactive debugging functionality" << std::endl;
+	std::cout << "Initializing interactive debugging functionality ";
 	PRINT_FN_ADDR(ratss_debug_print_mpreal)
 	PRINT_FN_ADDR(ratss_debug_print_mpq_class)
 	PRINT_FN_ADDR(ratss_debug_print_mpz_class)
@@ -67,6 +67,7 @@ void init_interactive_debuging() {
 	PRINT_FN_ADDR(ratss_debug_print_CORE_TWO_BigFloat)
 	PRINT_FN_ADDR(ratss_debug_print_CORE_TWO_Expr)
 #endif
+	std::cout << std::endl;
 }
 #undef PRINT_FN_ADDR
 
