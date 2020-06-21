@@ -523,19 +523,15 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 			o2.canonicalize();
 
 			if (abs(max(o1.get_den(), o2.get_den())) <= eps.get_den()) {
-			// if (abs(result(0,0) <= eps.get_den())) {
 
 				const mpq_class diff1 = abs(o1-input1);
 				const mpq_class diff2 = abs(o2-input2);
 
 				if (max(diff1, diff2) < best_diff) {
 					best_diff = max(diff1, diff2);
-					output1 = mpq_class( result(1, 0), result(0, 0) );
-					output2 = mpq_class( result(2, 0), result(0, 0) );
+					output1 = std::move(o1);
+					output2 = std::move(o2);
 					
-					output1.canonicalize();
-					output2.canonicalize();
-
 					assert(output1.get_den() <= eps.get_den());
 					assert(output2.get_den() <= eps.get_den());
 				}
