@@ -387,15 +387,18 @@ void BasicCmdLineOptions::options_selection(std::ostream& out) const {
 	}
 	out << '\n';
 	out << "Output format: ";
-	if (outFormat == RationalPoint::FM_FLOAT) {
-		out << "float";
-	}
-	else if (outFormat == RationalPoint::FM_RATIONAL) {
-		out << "rational";
-	}
-	else if (outFormat == RationalPoint::FM_SPLIT_RATIONAL) {
-		out << "rational split by space";
-	}
+#define FORMAT_CASE(__ENUM, __STR) case RationalPoint::__ENUM: out << __STR; break;
+	switch(outFormat) {
+		FORMAT_CASE(FM_GEO, "geo")
+		FORMAT_CASE(FM_SPHERICAL, "spherical")
+		FORMAT_CASE(FM_RATIONAL, "rational")
+		FORMAT_CASE(FM_FLOAT, "float")
+		FORMAT_CASE(FM_SPLIT_RATIONAL, "split rational")
+		FORMAT_CASE(FM_FLOAT128, "float128")
+		FORMAT_CASE(FM_INVALID, "invalid")
+	};
+#undef FORMAT_CASE
+	
 	out << '\n';
 	out << "Input file: " << (inFileName.size() ? inFileName : "stdin") << '\n';
 	out << "Output file: " << (outFileName.size() ? outFileName : "stdout");
