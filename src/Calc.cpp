@@ -418,6 +418,7 @@ mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) con
 	}
 	assert((mode & ST_GUARANTEE_SIZE) == 0 ||result.get_den() <= eps.get_den());
 	assert((mode & ST_GUARANTEE_DISTANCE) == 0 || abs(value-result) <= eps);
+	assert(result <= 1);
 	return result;
 }
 
