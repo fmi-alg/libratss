@@ -71,13 +71,21 @@ mpq_class Calc::closestInteger(mpq_class v) const {
 		return  - closestInteger(-v);
 	}
 	else {
-		mpz_class q, r;
-		::mpz_fdiv_qr(q.get_mpz_t(), r.get_mpz_t(), v.get_num_mpz_t(), v.get_den_mpz_t());
-		if (r*2 > v.get_den()) { //ceil is closer
-			q += 1;
-			assert(abs(q-v) < abs((q-1)-v));
+		mpz_class ceiled = v.get_num()/v.get_den();
+		mpz_class floored = ceiled+1;
+		if (abs(v-ceiled) <= abs(v-floored)) {
+			return ceiled;
 		}
-		return q;
+		else {
+			return floored;
+		}
+		// mpz_class q, r;
+		// ::mpz_fdiv_qr(q.get_mpz_t(), r.get_mpz_t(), v.get_num_mpz_t(), v.get_den_mpz_t());
+		// if (r*2 > v.get_den()) { //ceil is closer
+		// 	q += 1;
+		// 	assert(abs(q-v) < abs((q-1)-v));
+		// }
+		// return q;
 	}
 }
 
