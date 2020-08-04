@@ -31,7 +31,6 @@ mpfr::mpreal Calc::atan(const mpfr::mpreal & v) const {
 	return mpfr::atan(v);
 }
 
-
 mpfr::mpreal Calc::squaredDistance(const mpfr::mpreal& a, const mpfr::mpreal& b) const {
 	return add(sq(a), sq(b));
 }
@@ -537,7 +536,7 @@ void Calc::jacobiPerron2D(const mpq_class& input1, const mpq_class& input2, mpq_
 			
 			o1.canonicalize();
 			o2.canonicalize();
-
+			using std::max;
 			if (abs(max(o1.get_den(), o2.get_den())) <= eps.get_den()) {
 
 				const mpq_class diff1 = abs(o1-input1);
