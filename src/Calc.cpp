@@ -319,6 +319,9 @@ mpq_class Calc::within(const mpq_class & lower, const mpq_class & upper) const {
 	return result;
 }
 
+/// p/q = 1/(a_i + r_i) = 1/(floor(q/p) + remainder(q/p))
+/// with the a_i beeing the representation of p/q
+/// Stopping after some i with r_i != 0 gives us and approximation of 
 mpq_class Calc::contFrac(const mpq_class& value, int significands, int mode) const {
 	
 	if (value < 0) {
