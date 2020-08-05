@@ -22,6 +22,42 @@ Conversion<double>::toMpreal(const type & v, int /*precision*/) {
 }
 
 //END double specializations
+//BEGIN uint32_t specializations
+
+Conversion<uint32_t>::type
+Conversion<uint32_t>::moveFrom(const mpq_class & v) {
+	return ((mpz_class)v).get_ui();
+}
+
+mpq_class
+Conversion<uint32_t>::toMpq(const type & v) {
+	return mpq_class(gmp_uint64_t(v));
+}
+
+mpfr::mpreal
+Conversion<uint32_t>::toMpreal(const type & v, int /*precision*/) {
+	return mpfr::mpreal(v);
+}
+
+//END uint32_t specializations
+//BEGIN int32_t specializations
+
+Conversion<int32_t>::type
+Conversion<int32_t>::moveFrom(const mpq_class & v) {
+	return ((mpz_class)v).get_ui();
+}
+
+mpq_class
+Conversion<int32_t>::toMpq(const type & v) {
+	return mpq_class(gmp_int64_t(v));
+}
+
+mpfr::mpreal
+Conversion<int32_t>::toMpreal(const type & v, int /*precision*/) {
+	return mpfr::mpreal(v);
+}
+
+//END uint32_t specializations
 //BEGIN uint64_t specializations
 
 Conversion<uint64_t>::type
@@ -40,6 +76,24 @@ Conversion<uint64_t>::toMpreal(const type & v, int /*precision*/) {
 }
 
 //END uint64_t specializations
+//BEGIN int64_t specializations
+
+Conversion<int64_t>::type
+Conversion<int64_t>::moveFrom(const mpq_class & v) {
+	return ((mpz_class)v).get_si();
+}
+
+mpq_class
+Conversion<int64_t>::toMpq(const type & v) {
+	return mpq_class(gmp_int64_t(v));
+}
+
+mpfr::mpreal
+Conversion<int64_t>::toMpreal(const type & v, int /*precision*/) {
+	return mpfr::mpreal(v);
+}
+
+//END int64_t specializations
 //BEGIN mpreal specializations
 
 Conversion<mpfr::mpreal>::type
