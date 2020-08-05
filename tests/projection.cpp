@@ -201,8 +201,8 @@ void CLS_TMPL_NAME::quadrantTest() {
 					//num <= Q^2 for j = posOnSphere(...)
 					//num <= 2*Q^2 for j != posOnSphere(...)
 					//with Q=2^bits -> num <= 2^(2*bits) -> we need 2*bits+1 bits to encode the number 2^(2*bits)
-					auto pos = p.positionOnSphere(point.begin(), point.end()); //position on sphere is shifted by 1
-					if (abs(pos)-1 == j) {
+					int pos = p.positionOnSphere(point.begin(), point.end()); //position on sphere is shifted by 1
+					if (abs(pos)-1 == int(j)) {
 						CPPUNIT_ASSERT_MESSAGE(ss.str(), numBits(point[j].get_num()) <= std::size_t(2*maxQ+1));
 					}
 					else {
