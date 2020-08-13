@@ -116,6 +116,7 @@ struct Conversion<CORE::Real> {
 template<>
 struct Conversion< CGAL::Lazy_exact_nt<mpq_class> > {
 	using type = CGAL::Lazy_exact_nt<mpq_class>;
+	static type moveFrom(mpq_class const & v);
 	static type moveFrom(mpq_class & v);
 	static type moveFrom(mpq_class && v);
 	static mpq_class toMpq(const type & v);

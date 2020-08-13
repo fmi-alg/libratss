@@ -226,6 +226,11 @@ Conversion<CORE::Real>::toMpreal(const type & v, int precision) {
 #if CGAL_VERSION_NR >= 1041101000 && defined(CGAL_USE_GMPXX)
 
 Conversion< CGAL::Lazy_exact_nt<mpq_class> >::type
+Conversion< CGAL::Lazy_exact_nt<mpq_class> >::moveFrom(mpq_class const & v) {
+	return type( v );
+}
+
+Conversion< CGAL::Lazy_exact_nt<mpq_class> >::type
 Conversion< CGAL::Lazy_exact_nt<mpq_class> >::moveFrom(mpq_class & v) {
 	return type( std::move(v) );
 }
