@@ -40,9 +40,17 @@ BasicCmdLineOptions::SnapTypeHelper::SnapTypeHelper() {
 	ENTRY(SPHERE, "S", "Snap on sphere")
 	ENTRY(PLANE, "P", "Snap in the plane")
 	ENTRY(PAPER, "PAPER", "Use Core::Expr to correctly scale down points to the plane.")
-	ENTRY(PAPER2, "PAPER", "Use Core2::Expr to correctly scale down point to the plane. Also support geo points as input.")
 	ENTRY(NORMALIZE, "N", "Normalize input to 1 before snapping.")
 #undef ENTRY
+	
+// 	ENTRY(PAPER2, "PAPER2", "Use Core2::Expr to correctly scale down point to the plane. Also support geo points as input.")
+	
+	m_st.push_back(ST_PAPER2);
+	m_st2str[ST_PAPER2] = "PAPER2";
+	m_str2st["PAPER2"] = ST_PAPER2;
+	m_str2st["ST_PAPER2"] = ST_PAPER2;
+	m_str2st["PAPER2"] = ST_PAPER2;
+	m_desc[ST_PAPER2] = "Use Core2::Expr to correctly scale down point to the plane. Also supports geo points as input.";
 }
 
 std::string
