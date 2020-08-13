@@ -671,6 +671,28 @@ Calc::snap(const mpq_class & v, int st, const mpq_class & eps) const {
 	assert(abs(result - v) <= eps);
 	return result;
 }
+#if defined(LIB_RATSS_WITH_CGAL)
+mpq_class
+Calc::snap(CORE::BigFloat const & v, int st, int significands) const {
+	return snap(convert<mpq_class>(v), st, significands);
+}
+#endif
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+
+mpq_class
+Calc::snap(CORE_TWO::Expr v, int st, int significands) const {
+	if (significands <= 2) {
+		throw std::runtime_error("Calc::snap: Number of requested significands has to greater than 2");
+	}
+	return snap(v.approx(significands+2, significands+2), st, significands);
+}
+
+mpq_class
+Calc::snap(CORE_TWO::BigFloat const & v, int st, int significands) const {
+	return snap(convert<mpq_class>(v), st, significands);
+}
+#endif
+
 
 std::size_t Calc::maxBitCount(const mpq_class &v) const {
 	return std::max<std::size_t>(numBits(v.get_num()), numBits(v.get_den()));

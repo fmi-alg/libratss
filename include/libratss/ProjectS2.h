@@ -118,6 +118,15 @@ void ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT& xs, T_F
 		precision = std::max<int>(lat.getPrecision(), lon.getPrecision());
 	}
 	
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+	if (snapType & ST_PAPER2) {
+		CORE_TWO::Expr lat_e( CORE_TWO::BigFloat(lat.mpfr_srcptr()) );
+		CORE_TWO::Expr lon_e( CORE_TWO::BigFloat(lon.mpfr_srcptr()) );
+		projectFromGeo(lat_e, lon_e, xs, ys, zs, precision, snapType);
+		return;
+	}
+#endif
+	
 	snapType &= ~ST_INPUT_IS_EXACT;
 
 	mpfr::mpreal flxs, flys, flzs;
@@ -217,6 +226,14 @@ void ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT&
 	if (precision < 0) {
 		precision = std::max<int>(theta.getPrecision(), phi.getPrecision());
 	}
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+	if (snapType & ST_PAPER2) {
+		CORE_TWO::Expr theta_e( CORE_TWO::BigFloat(theta.mpfr_srcptr()) );
+		CORE_TWO::Expr phi_e( CORE_TWO::BigFloat(phi.mpfr_srcptr()) );
+		projectFromSpherical(theta_e, phi_e, xs, ys, zs, precision, snapType);
+		return;
+	}
+#endif
 	
 	snapType &= ~ST_INPUT_IS_EXACT;
 

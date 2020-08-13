@@ -28,6 +28,16 @@ public:
 	
 	template<typename T_FT>
 	inline T_FT div(const T_FT & a, const T_FT & b) const { return a/b; }
+	
+	template<typename T_FT>
+	inline T_FT sqrt(const T_FT & a) const {
+		using std::sqrt;
+		return sqrt(a);
+	}
+	
+	template<typename T_FT>
+	inline T_FT sq(const T_FT & a) const { return mult(a, a); }
+	
 public:
 	mpq_class closestInteger(mpq_class v) const;
 public:
@@ -67,7 +77,7 @@ public:
 #endif
 public:
 	template<typename T_INPUT_ITERATOR>
-	mpfr::mpreal squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const;
+	auto squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const;
 	///input and output may point to the same storage
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const;
@@ -106,6 +116,14 @@ public:
 	mpq_class snap(const mpfr::mpreal & v, int st, int significands = -1) const;
 	mpq_class snap(const mpq_class & v, int st, int significands = -1) const;
 	mpq_class snap(const mpq_class & v, int st, const mpq_class & eps) const;
+	//
+#if defined(LIB_RATSS_WITH_CGAL)
+	mpq_class snap(CORE::BigFloat const & v, int st, int significands = -1) const;
+#endif
+#if defined(LIB_RATSS_WITH_CORE_TWO)
+	mpq_class snap(CORE_TWO::Expr v, int st, int significands = -1) const;
+	mpq_class snap(CORE_TWO::BigFloat const & v, int st, int significands = -1) const;
+#endif
 public:
 	template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 	void toRational(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out, int snapType, int eps = -1) const;
@@ -181,9 +199,9 @@ void Calc::lll(T_INPUT_ITERATOR, T_INPUT_ITERATOR, T_OUTPUT_ITERATOR, mpz_class 
 
 
 template<typename T_INPUT_ITERATOR>
-mpfr::mpreal Calc::squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const {
-	mpfr::mpreal tmp(0);
-	for(; begin != end; ++begin) {
+auto Calc::squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) const {
+	auto tmp = sq(*begin);
+	for(++begin; begin != end; ++begin) {
 		tmp = add(sq(*begin), tmp);
 	}
 	return tmp;
@@ -191,7 +209,7 @@ mpfr::mpreal Calc::squaredLength(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end) c
 
 template<typename T_INPUT_ITERATOR, typename T_OUTPUT_ITERATOR>
 void Calc::normalize(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITERATOR out) const {
-	mpfr::mpreal tmp = sqrt( squaredLength(begin, end) );
+	auto tmp = sqrt( squaredLength(begin, end) );
 	for(; begin != end; ++begin, ++out) {
 		*out = div(*begin, tmp);
 	}
