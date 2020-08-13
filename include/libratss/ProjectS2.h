@@ -300,6 +300,7 @@ void ProjectS2::projectFromGeo(CORE_TWO::Expr const & lat, CORE_TWO::Expr const 
 		throw std::runtime_error("ProjectS2::projectFromGeo: precision has to be larger than 1");
 	}
 	snapType &= ~ST_SNAP_POSITION_MASK;
+	snapType &= ~ST_NORMALIZE;
 	snapType |= ST_PAPER2;
 	snapType &= ~ST_INPUT_IS_EXACT;
 
@@ -323,6 +324,7 @@ void ProjectS2::projectFromSpherical(CORE_TWO::Expr const & theta, CORE_TWO::Exp
 		throw std::runtime_error("ProjectS2::projectFromSpherical: precision has to be larger than 1");
 	}
 	snapType &= ~ST_SNAP_POSITION_MASK;
+	snapType &= ~ST_NORMALIZE;
 	snapType |= ST_PAPER2;
 	snapType &= ~ST_INPUT_IS_EXACT;
 
