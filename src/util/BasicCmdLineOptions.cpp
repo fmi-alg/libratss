@@ -86,18 +86,17 @@ int
 BasicCmdLineOptions::SnapTypeHelper::fromString(std::string const & str) const {
 	int result = 0;
 	std::string token;
+	auto token2st = [this](std::string const & token) -> int {
+		if (m_str2st.count(token)) {
+			return m_str2st.at(token);
+		}
+		else {
+			throw std::runtime_error("Invalid token: " + token);
+		}
+	};
 	for(char c : str) {
 		if (c == ' ') {
 			continue;
-		}
-		else  if (c == '|' || c == ',' || c == ':') {
-			if (m_str2st.count(token)) {
-				result |= m_str2st.at(token);
-			}
-			else {
-				throw std::runtime_error("Invalid token: " + token);
-			}
-			token.clear();
 		}
 		else if (c == '_') {
 			token += c;
@@ -108,6 +107,16 @@ BasicCmdLineOptions::SnapTypeHelper::fromString(std::string const & str) const {
 		else if ('a' <= c && c <= 'z') {
 			token += c-32;
 		}
+		else if ('0' <= c && c <= '9') {
+			token += c;
+		}
+		else if (c == '|' || c == ',' || c == ':') {
+			result |= token2st(token);
+			token.clear();
+		}
+	}
+	if (token.size()) {
+		result |= token2st(token);
 	}
 	return result;
 }
