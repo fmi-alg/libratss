@@ -270,7 +270,7 @@ void ProjectSN::snap(T_INPUT_ITERATOR begin, T_INPUT_ITERATOR end, T_OUTPUT_ITER
 		std::transform(begin, end, ptc.begin(), [](auto x) -> CORE_TWO::Expr { return convert<CORE_TWO::Expr>(x); });
 		
 		//normalize input
-		{
+		if (snapType & ST_NORMALIZE) {
 			CORE_TWO::Expr len{0};
 			for(auto & x : ptc) {
 				len += x*x;
