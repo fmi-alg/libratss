@@ -326,7 +326,7 @@ void ProjectS2::projectFromGeo(CORE_TWO::Expr const & lat, CORE_TWO::Expr const 
 
 	//clip to 3D and snap to sphere
 	m_calc.cartesian(lat, lon, cartesian[0], cartesian[1], cartesian[2]);
-	ProjectSN::snap(cartesian.begin(), cartesian.end(), snapped.begin(), precision, snapType);
+	ProjectSN::snap(cartesian.begin(), cartesian.end(), snapped.begin(), snapType, precision);
 	
 	x = Conversion<T_FT>::moveFrom( std::move(snapped[0]) );
 	y = Conversion<T_FT>::moveFrom( std::move(snapped[1]) );
@@ -350,7 +350,7 @@ void ProjectS2::projectFromSpherical(CORE_TWO::Expr const & theta, CORE_TWO::Exp
 	
 	//clip to 3D and snap to sphere
 	m_calc.cartesianFromSpherical(theta, phi, cartesian[0], cartesian[1], cartesian[2]);
-	ProjectSN::snap(cartesian.begin(), cartesian.end(), snapped.begin(), precision, snapType);
+	ProjectSN::snap(cartesian.begin(), cartesian.end(), snapped.begin(), snapType, precision);
 	
 	x = Conversion<T_FT>::moveFrom( std::move(snapped[0]) );
 	y = Conversion<T_FT>::moveFrom( std::move(snapped[1]) );
