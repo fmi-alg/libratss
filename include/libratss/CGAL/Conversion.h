@@ -10,6 +10,7 @@
 #include <CGAL/CORE/Expr.h>
 #include <CGAL/Gmpq.h>
 #include <CGAL/Lazy_exact_nt.h>
+#include <CGAL/Exact_spherical_kernel_3.h>
 #include <libratss/CGAL/ExtendedInt64q.h>
 #include <gmpxx.h>
 #include <boost/multiprecision/gmp.hpp>
@@ -106,6 +107,14 @@ struct Conversion<CORE::Expr> {
 template<>
 struct Conversion<CORE::Real> {
 	using type = CORE::Real;
+	static type moveFrom(const mpq_class & v);
+	static mpq_class toMpq(const type & v, int precision = -1);
+	static mpfr::mpreal toMpreal(const type & v, int precision);
+};
+
+template<>
+struct Conversion<CGAL::Exact_spherical_kernel_3::Root_of_2> {
+	using type = CGAL::Exact_spherical_kernel_3::Root_of_2;
 	static type moveFrom(const mpq_class & v);
 	static mpq_class toMpq(const type & v, int precision = -1);
 	static mpfr::mpreal toMpreal(const type & v, int precision);

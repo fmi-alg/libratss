@@ -167,6 +167,35 @@ Conversion<CORE::BigRat>::toMpreal(const type & v, int precision) {
 }
 //END CORE::BigRat specilizations
 
+//BEGIN Exact_spherical_kernel_3::Root_of_2 specilizations
+Conversion<CGAL::Exact_spherical_kernel_3::Root_of_2>::type
+Conversion<CGAL::Exact_spherical_kernel_3::Root_of_2>::moveFrom(const mpq_class & v) {
+	return CGAL::Exact_spherical_kernel_3::Root_of_2( Conversion<CGAL::Exact_spherical_kernel_3::FT>::moveFrom(v) );
+}
+
+mpq_class
+Conversion<CGAL::Exact_spherical_kernel_3::Root_of_2>::toMpq(const type & v, int precision) {
+	if (precision < 53) {
+		return mpq_class( CGAL::to_double(v) );
+	}
+	else {
+		throw std::runtime_error("Conversion<CGAL::Exact_spherical_kernel_3::Root_of_2>::toMpq: precision is too high: " + std::to_string(precision) + "!< 53");
+		return mpq_class();
+	}
+}
+
+mpfr::mpreal
+Conversion<CGAL::Exact_spherical_kernel_3::Root_of_2>::toMpreal(const type & v, int precision) {
+	if (precision < 53) {
+		return mpfr::mpreal( CGAL::to_double(v) );
+	}
+	else {
+		throw std::runtime_error("CGAL::Conversion<Exact_spherical_kernel_3::Root_of_2>::toMpreal: precision is too high " + std::to_string(precision) + "!< 53");
+		return mpfr::mpreal();
+	}
+}
+//END Exact_spherical_kernel_3::Root_of_2 specilizations
+
 //BEGIN CORE::Expr specilizations
 Conversion<CORE::Expr>::type
 Conversion<CORE::Expr>::moveFrom(const mpq_class & v) {
