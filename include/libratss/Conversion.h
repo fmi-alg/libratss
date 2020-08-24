@@ -106,6 +106,8 @@ struct Conversion<mpq_class> {
 template<>
 struct Conversion<mpz_class> {
 	using type = mpz_class;
+	static type moveFrom(mpq_class && v);
+	static type moveFrom(mpq_class const & v);
 	static mpq_class toMpq(const type & v);
 	static mpfr::mpreal toMpreal(const type & v, int precision);
 };

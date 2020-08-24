@@ -206,6 +206,16 @@ mpfr::mpreal Conversion<mpq_class>::toMpreal(const type & v, int precision) {
 //END mpq_class specializations
 //BEGIN mpz_class specializations
 
+Conversion<mpz_class>::type
+Conversion<mpz_class>::moveFrom(mpq_class && v) {
+	return mpz_class(std::move(v));
+}
+
+Conversion<mpz_class>::type
+Conversion<mpz_class>::moveFrom(mpq_class const & v) {
+	return mpz_class(v);
+}
+
 mpq_class
 Conversion<mpz_class>::toMpq(const type & v) {
 	return mpq_class(v, mpz_class(1));
