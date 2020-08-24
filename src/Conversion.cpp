@@ -94,6 +94,69 @@ Conversion<int64_t>::toMpreal(const type & v, int precision) {
 }
 
 //END int64_t specializations
+//BEGIN uint128_t specializations
+
+Conversion<__uint128_t>::type
+Conversion<__uint128_t>::moveFrom(const mpq_class & v) {
+	mpz_class vz(v);
+	uint64_t lower = vz.get_ui();
+	vz >>= 64;
+	uint64_t upper = vz.get_ui();
+	type result = upper;
+	result <<= 64;
+	result |= lower;
+	return result;
+}
+
+mpq_class
+Conversion<__uint128_t>::toMpq(const type & v) {
+	uint64_t lower = v;
+	uint64_t upper = v >> 64;
+	mpz_class result(upper);
+	result <<= 64;
+	result |= lower;
+	return result;
+}
+
+mpfr::mpreal
+Conversion<__uint128_t>::toMpreal(const type & v, int precision) {
+	return Conversion<mpq_class>::toMpreal(toMpq(v), precision);
+}
+
+//END uint128_t specializations
+//BEGIN __int128_t specializations
+
+Conversion<__int128_t>::type
+Conversion<__int128_t>::moveFrom(const mpq_class & v) {
+	if (v < 0) {
+		return - type(Conversion<__uint128_t>::moveFrom(-v));
+	}
+	else {
+		return type(Conversion<__uint128_t>::moveFrom(v));
+	}
+}
+
+mpq_class
+Conversion<__int128_t>::toMpq(const type & v) {
+	if (v < 0) {
+		return - Conversion<__uint128_t>::toMpq(-v);
+	}
+	else {
+		return Conversion<__uint128_t>::toMpq(v);
+	}
+}
+
+mpfr::mpreal
+Conversion<__int128_t>::toMpreal(const type & v, int precision) {
+	if (v < 0) {
+		return - Conversion<__uint128_t>::toMpreal(-v, precision);
+	}
+	else {
+		return Conversion<__uint128_t>::toMpreal(v, precision);
+	}
+}
+
+//END __int128_t specializations
 //BEGIN mpreal specializations
 
 Conversion<mpfr::mpreal>::type
