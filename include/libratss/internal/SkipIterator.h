@@ -52,7 +52,7 @@ public:
 	using pointer = typename MyBaseClass::pointer;
 public:
 	///@param dimSkip starts from 1, set to 0 for past the end iterator
-	SkipIteratorBase(const base_iterator_type & iter, int skipDim) : m_it(iter) {
+	explicit SkipIteratorBase(const base_iterator_type & iter, int skipDim) : m_it(iter) {
 		assert(skipDim >= 0);
 		if (skipDim == 1) {
 			++m_it;
