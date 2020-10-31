@@ -101,8 +101,8 @@ public:
 		//both are before the skip
 		return distance(other.m_it, m_it);
 	}
-	bool operator==(const SkipIteratorBase & other) { return m_it == other.m_it; }
-	bool operator!=(const SkipIteratorBase & other) { return m_it != other.m_it; }
+	bool operator==(const SkipIteratorBase & other) const { return m_it == other.m_it; }
+	bool operator!=(const SkipIteratorBase & other) const { return m_it != other.m_it; }
 public:
 	const base_iterator_type & it() const { return m_it; }
 	base_iterator_type & it() { return m_it; }
