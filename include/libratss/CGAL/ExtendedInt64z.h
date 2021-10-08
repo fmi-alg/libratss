@@ -111,6 +111,7 @@ public:
 	ExtendedInt64z(uint64_t l);
 	ExtendedInt64z(double d);
 	ExtendedInt64z(const std::string& str, int base = 10);
+	~ExtendedInt64z();
 	ExtendedInt64z& operator=(const ExtendedInt64z & other);
 	ExtendedInt64z& operator=(ExtendedInt64z && other);
 public:

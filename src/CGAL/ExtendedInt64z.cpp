@@ -77,6 +77,9 @@ m_isExtended(false)
 	set( extension_type(str, base) );
 }
 
+ExtendedInt64z::~ExtendedInt64z() {
+	set(base_type(0));
+}
 
 ExtendedInt64z& ExtendedInt64z::operator=(const ExtendedInt64z & other) {
 	if (other.isExtended()) {
