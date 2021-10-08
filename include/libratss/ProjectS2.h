@@ -120,8 +120,8 @@ void ProjectS2::projectFromGeo(mpfr::mpreal lat, mpfr::mpreal lon, T_FT& xs, T_F
 	
 #if defined(LIB_RATSS_WITH_CORE_TWO)
 	if (snapType & ST_PAPER2) {
-		CORE_TWO::Expr lat_e( CORE_TWO::BigFloat(lat.mpfr_srcptr()) );
-		CORE_TWO::Expr lon_e( CORE_TWO::BigFloat(lon.mpfr_srcptr()) );
+		CORE_TWO::Expr lat_e( CORE_TWO::BigFloat(lat.mpfr_xsrcptr()) );
+		CORE_TWO::Expr lon_e( CORE_TWO::BigFloat(lon.mpfr_xsrcptr()) );
 		projectFromGeo(lat_e, lon_e, xs, ys, zs, precision, snapType);
 		return;
 	}
@@ -228,8 +228,8 @@ void ProjectS2::projectFromSpherical(mpfr::mpreal theta, mpfr::mpreal phi, T_FT&
 	}
 #if defined(LIB_RATSS_WITH_CORE_TWO)
 	if (snapType & ST_PAPER2) {
-		CORE_TWO::Expr theta_e( CORE_TWO::BigFloat(theta.mpfr_srcptr()) );
-		CORE_TWO::Expr phi_e( CORE_TWO::BigFloat(phi.mpfr_srcptr()) );
+		CORE_TWO::Expr theta_e( CORE_TWO::BigFloat(theta.mpfr_xsrcptr()) );
+		CORE_TWO::Expr phi_e( CORE_TWO::BigFloat(phi.mpfr_xsrcptr()) );
 		projectFromSpherical(theta_e, phi_e, xs, ys, zs, precision, snapType);
 		return;
 	}
