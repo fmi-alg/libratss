@@ -210,7 +210,7 @@ CORE::BigFloat Calc::toFixpoint(CORE::BigFloat const & v, int significands) cons
 
 #if defined(LIB_RATSS_WITH_CORE_TWO)
 CORE_TWO::BigFloat Calc::toFixpoint(CORE_TWO::BigFloat const & v, int significands) const {
-	return CORE_TWO::BigFloat(toFixpoint(mpfr::mpreal(v.mp()), significands).mpfr_srcptr());
+	return CORE_TWO::BigFloat(toFixpoint(mpfr::mpreal(v.mp()), significands).mpfr_xsrcptr());
 }
 #endif
 

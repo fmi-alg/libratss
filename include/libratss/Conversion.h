@@ -6,7 +6,7 @@
 #include <libratss/Precision.h>
 
 #include <gmpxx.h>
-#include <libratss/mpreal.h>
+#include <mpreal/mpreal.h>
 #include <limits>
 
 namespace LIB_RATSS_NAMESPACE {

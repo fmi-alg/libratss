@@ -1,3 +1,6 @@
 [submodule "vendor/core2"]
 	path = vendor/core2
 	url = https://github.com/fmi-alg/core2.git
+[submodule "vendor/mpreal"]
+	path = vendor/mpreal/mpreal
+	url = https://github.com/fmi-alg/mpreal.git

@@ -1,5 +1,5 @@
 #include <libratss/Conversion.h>
-#include <libratss/mpreal.h>
+#include <mpreal/mpreal.h>
 #include <libratss/types.h>
 
 namespace LIB_RATSS_NAMESPACE {
@@ -170,7 +170,7 @@ Conversion<mpfr::mpreal>::toMpq(const type & v) {
 		throw std::overflow_error("Conversion<mpfr::mpreal>: Cannot convert infinite value to rational");
 	}
 	mpf_class tmpf;
-	::mpfr_get_f(tmpf.get_mpf_t(), v.mpfr_srcptr(), MPFR_RNDZ);
+	::mpfr_get_f(tmpf.get_mpf_t(), v.mpfr_xsrcptr(), MPFR_RNDZ);
 	
 	mpq_class result(tmpf);
 	return result;

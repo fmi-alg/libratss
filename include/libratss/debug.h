@@ -1,7 +1,7 @@
 #ifndef LIB_RATSS_DEBUG_H
 #define LIB_RATSS_DEBUG_H
 #include <libratss/constants.h>
-#include <libratss/mpreal.h>
+#include <mpreal/mpreal.h>
 #include <gmpxx.h>
 
 #if defined(LIB_RATSS_WITH_CGAL)
