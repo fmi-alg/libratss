@@ -42,7 +42,12 @@ else()
 endif()
 
 if (PKGCONFIG_FOUND AND NOT LIBRATSS_DISABLE_FPLLL_SUPPORT)
-	pkg_search_module(FPLLL fplll)
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	# Versions below 5.4.1 do not compile due to a bug https://github.com/fplll/fplll/issues/474
+		pkg_search_module(FPLLL fplll>5.4.1)
+	else()
+		pkg_search_module(FPLLL fplll)
+	endif()
 endif()
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/vendor/core2/CMakeLists.txt" AND NOT LIBRATSS_DISABLE_CORE_TWO_SUPPORT)
@@ -78,9 +83,9 @@ if (FPLLL_FOUND)
 		${FPLLL_CFLAGS_OTHER}
 	)
 	message(STATUS "Enabling support for fplll")
-else(FPLLL_FOUND)
+else()
 	message(STATUS "Disabling support for fplll")
-endif(FPLLL_FOUND)
+endif()
 
 set(LIBRATSS_INCLUDE_DIR
 	"${CMAKE_CURRENT_SOURCE_DIR}/include"
