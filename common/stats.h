@@ -6,6 +6,7 @@
 #include <limits>
 #include <ostream>
 #include <gmpxx.h>
+#include <mpreal/mpreal.h>
 
 namespace LIB_RATSS_NAMESPACE {
 
@@ -59,6 +60,9 @@ struct BitCount {
 };
 
 std::ostream & operator<<(std::ostream& out, const BitCount & bc);
+
+template<>
+void MinMaxMeanStats<mpfr::mpreal>::update(const mpfr::mpreal & ft);
 
 }//end namespace LIB_RATSS_NAMESPACE
 

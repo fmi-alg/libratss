@@ -38,4 +38,15 @@ std::ostream & operator<<(std::ostream& out, const BitCount & bc) {
 	return out;
 }
 
+template<>
+void
+MinMaxMeanStats<mpfr::mpreal>::update(const mpfr::mpreal & ft) {
+	using std::min;
+	using std::max;
+	++m_count;
+	m_min = std::min(m_min, ft, false);
+	m_max = std::max(m_max, ft, false);
+	m_sum += ft;
+}
+
 }//end namespace LIB_RATSS_NAMESPACE
