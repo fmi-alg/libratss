@@ -163,4 +163,45 @@ convert(const T_SOURCE & v) {
 
 }//end namespace LIB_RATSS_NAMESPACE
 
+#if defined(LIB_RATSS_WITH_CGAL)
+#include <CGAL/NT_converter.h>
+
+namespace CGAL {
+
+template <typename T_EXTENSION_TYPE, class NT2 >
+struct NT_converter<ExtendedInt64q<T_EXTENSION_TYPE>, NT2>
+  : public CGAL::cpp98::unary_function< ExtendedInt64q<T_EXTENSION_TYPE>, NT2 >
+{
+    NT2
+    operator()(const ExtendedInt64q<T_EXTENSION_TYPE> &a) const
+    {
+        return ratss::convert<NT2>(a);
+    }
+};
+
+template <typename T_EXTENSION_TYPE, bool b >
+struct NT_converter<ExtendedInt64q<T_EXTENSION_TYPE>, Interval_nt<b> >
+  : public CGAL::cpp98::unary_function< ExtendedInt64q<T_EXTENSION_TYPE>, Interval_nt<b> >
+{
+    Interval_nt<b>
+    operator()(const ExtendedInt64q<T_EXTENSION_TYPE> &a) const
+    {
+        return CGAL_NTS to_interval(a);
+    }
+};
+
+template <class NT1, typename T_EXTENSION_TYPE>
+struct NT_converter<NT1, ExtendedInt64q<T_EXTENSION_TYPE>>
+  : public CGAL::cpp98::unary_function< NT1, ExtendedInt64q<T_EXTENSION_TYPE> >
+{
+    ExtendedInt64q<T_EXTENSION_TYPE>
+    operator()(const NT1 &a) const
+    {
+        return ratss::convert< ExtendedInt64q<T_EXTENSION_TYPE> >(a);
+    }
+};
+
+}
+#endif
+
 #endif
