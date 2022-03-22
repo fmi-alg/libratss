@@ -174,6 +174,8 @@ std::ostream & operator<<(std::ostream & out, const Stats & s) {
 }
 
 int main(int argc, char ** argv) {
+	std::vector<int> significands = {{23, 31, 53, 113}};
+	std::size_t precision = 128;
 	Config cfg;
 
 	bool ret = cfg.parse(argc, argv);
@@ -203,8 +205,8 @@ int main(int argc, char ** argv) {
 		if (!io.input().good()) {
 			break;
 		}
-		ip.assign(io.input(), cfg.inFormat, cfg.precision);
-		ip.setPrecision(cfg.precision);
+		ip.assign(io.input(), cfg.inFormat, precision);
+		ip.setPrecision(precision);
 		if (cfg.snapType & ST_NORMALIZE) {
 			ip.normalize();
 		}
@@ -227,7 +229,6 @@ int main(int argc, char ** argv) {
 	Stats stats;
 
 	//now do the calculations
-	std::vector<int> significands = {{23, 31, 53, 113}};
 	std::vector<int> snappingTypes;
 	
 	if (maxDimension == 3) {
