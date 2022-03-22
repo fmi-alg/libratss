@@ -6,7 +6,7 @@
 # add_subdirectory(<path to ratss>)
 # target_link_libraries(<target> ratss)
 
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.19)
 project(ratss)
 enable_testing()
 
@@ -24,7 +24,7 @@ find_package(LIBMPFR REQUIRED)
 find_package(PkgConfig)
 
 if (NOT LIBRATSS_DISABLE_CGAL_SUPPORT)
-	find_package(CGAL COMPONENTS Core)
+	find_package(CGAL 5.3...5.4 COMPONENTS Core)
 endif(NOT LIBRATSS_DISABLE_CGAL_SUPPORT)
 
 if (CGAL_FOUND AND CGAL_Core_FOUND)
