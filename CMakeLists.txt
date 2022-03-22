@@ -43,7 +43,7 @@ endif()
 
 if (PKGCONFIG_FOUND AND NOT LIBRATSS_DISABLE_FPLLL_SUPPORT)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	# Versions below 5.4.1 do not compile due to a bug https://github.com/fplll/fplll/issues/474
+		# Versions below 5.4.1 do not compile due to a bug https://github.com/fplll/fplll/issues/474
 		pkg_search_module(FPLLL fplll>5.4.1)
 	else()
 		pkg_search_module(FPLLL fplll)
