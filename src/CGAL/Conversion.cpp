@@ -118,6 +118,25 @@ Conversion<CGAL::Gmpq>::toMpreal(const type & v, int precision) {
 }
 
 //END CGAL::Gmpq specilizations
+//BEGIN CGAL::Gmpz specilizations
+
+Conversion<CGAL::Gmpz>::type
+Conversion<CGAL::Gmpz>::moveFrom(const mpq_class & v) {
+	mpz_class tmp = v.get_num()/v.get_den();
+	return CGAL::Gmpz(tmp.get_mpz_t());
+}
+
+mpq_class
+Conversion<CGAL::Gmpz>::toMpq(const type & v) {
+	return mpq_class(mpz_class(v.mpz()));
+}
+
+mpfr::mpreal
+Conversion<CGAL::Gmpz>::toMpreal(const type & v, int precision) {
+	return mpfr::mpreal(v.mpz(), precision);
+}
+
+//END CGAL::Gmpz specilizations
 
 //BEGIN CORE::BigInt specilizations
 mpq_class

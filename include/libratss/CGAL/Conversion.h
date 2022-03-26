@@ -11,6 +11,7 @@
 #include <CGAL/Gmpq.h>
 #include <CGAL/Lazy_exact_nt.h>
 #include <CGAL/Exact_spherical_kernel_3.h>
+#include <CGAL/Quotient.h>
 #include <libratss/CGAL/ExtendedInt64q.h>
 #include <gmpxx.h>
 #include <boost/multiprecision/gmp.hpp>
@@ -31,6 +32,27 @@ struct Conversion<
 	}
 	static mpfr::mpreal toMpreal(const type & v, int precision) {
 		return Conversion<EFT>::toMpreal(v.exact(), precision);
+	}
+};
+
+template<typename RT>
+struct Conversion<
+	CGAL::Quotient<RT>
+>
+{
+	using type = CGAL::Quotient<RT>;
+	static type moveFrom(const mpq_class & v) {
+		auto num = Conversion<RT>::moveFrom(v.get_num());
+		auto den = Conversion<RT>::moveFrom(v.get_den());
+		return type(std::move(num), std::move(den));
+	}
+	static mpq_class toMpq(const type & v) {
+		auto num = Conversion<RT>::toMpq(v.numerator());
+		auto den = Conversion<RT>::toMpq(v.denominator());
+		return num/den;
+	}
+	static mpfr::mpreal toMpreal(const type & v, int precision) {
+		return Conversion<mpq_class>::toMpreal(toMpq(v), precision);
 	}
 };
 
@@ -61,6 +83,14 @@ struct Conversion< CGAL::ExtendedInt64q<CGAL::Gmpq> > {
 template<>
 struct Conversion<CGAL::Gmpq> {
 	using type = CGAL::Gmpq;
+	static type moveFrom(const mpq_class & v);
+	static mpq_class toMpq(const type & v);
+	static mpfr::mpreal toMpreal(const type & v, int precision);
+};
+
+template<>
+struct Conversion<CGAL::Gmpz> {
+	using type = CGAL::Gmpz;
 	static type moveFrom(const mpq_class & v);
 	static mpq_class toMpq(const type & v);
 	static mpfr::mpreal toMpreal(const type & v, int precision);
