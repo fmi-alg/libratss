@@ -38,6 +38,7 @@
 #include <libratss/CGAL/ExtendedInt64z.h>
 
 #include <CGAL/Gmpq.h>
+#include <CGAL/Number_types/internal/Exact_type_selector.h>
 
 namespace CGAL {
 
@@ -68,6 +69,12 @@ namespace internal {
 		static uint32_t num_bits(const numerator_type &);
 		static type make(CGAL::ExtendedInt64z::base_type numerator, CGAL::ExtendedInt64z::base_type denominator);
 	};
+	
+	template<typename T_EXTENSION_TYPE>
+	struct Exact_field_selector< ExtendedInt64q<T_EXTENSION_TYPE> > {
+		typedef ExtendedInt64q<T_EXTENSION_TYPE> Type;
+	};
+	
 }
 
 template<typename T_EXTENSION_TYPE>
