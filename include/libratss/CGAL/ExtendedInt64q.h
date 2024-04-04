@@ -38,7 +38,7 @@
 #include <libratss/CGAL/ExtendedInt64z.h>
 
 #include <CGAL/Gmpq.h>
-#include <CGAL/internal/Exact_type_selector.h>
+#include <CGAL/Number_types/internal/Exact_type_selector.h>
 
 namespace CGAL {
 
@@ -74,6 +74,11 @@ namespace internal {
 	struct Exact_field_selector< ExtendedInt64q<T_EXTENSION_TYPE> > {
 		typedef ExtendedInt64q<T_EXTENSION_TYPE> Type;
 	};
+
+        template <typename T_EXTENSION_TYPE>
+        struct Exact_ring_selector< ExtendedInt64q<T_EXTENSION_TYPE>>  {
+          	typedef ExtendedInt64q<T_EXTENSION_TYPE> Type;
+        };
 	
 }
 

@@ -179,6 +179,17 @@ struct NT_converter<ExtendedInt64q<T_EXTENSION_TYPE>, NT2>
     }
 };
 
+template <typename T_EXTENSION_TYPE>
+struct NT_converter<ExtendedInt64q<T_EXTENSION_TYPE>, ExtendedInt64q<T_EXTENSION_TYPE>>
+    : public CGAL::cpp98::unary_function< ExtendedInt64q<T_EXTENSION_TYPE>, ExtendedInt64q<T_EXTENSION_TYPE> >
+{
+  ExtendedInt64q<T_EXTENSION_TYPE>
+  operator()(const ExtendedInt64q<T_EXTENSION_TYPE> &a) const
+  {
+    return a;
+  }
+};
+
 template <typename T_EXTENSION_TYPE, bool b >
 struct NT_converter<ExtendedInt64q<T_EXTENSION_TYPE>, Interval_nt<b> >
   : public CGAL::cpp98::unary_function< ExtendedInt64q<T_EXTENSION_TYPE>, Interval_nt<b> >
